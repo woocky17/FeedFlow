@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { AddSourceUseCase } from "@/application/source";
-import { PrismaSourceRepository } from "@/infrastructure/db/prisma/source.repository.impl";
+import { PrismaSourceRepository } from "@/infrastructure/db/prisma/source-repository-impl";
 import { randomUUID } from "crypto";
 
 const sourceRepository = new PrismaSourceRepository();

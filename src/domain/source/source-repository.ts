@@ -1,4 +1,4 @@
-import { Source } from "./source.entity";
+import { Source } from "./source-entity";
 
 export interface SourceRepository {
   save(source: Source): Promise<void>;

@@ -19,7 +19,9 @@
       "Bash(npx next:*)",
       "Bash(npx prisma:*)",
       "Bash(docker compose:*)",
-      "Bash(npm uninstall:*)"
+      "Bash(npm uninstall:*)",
+      "Bash(BASE=\"/c/Users/dortet/OneDrive - Contecnow, S.L/Escritorio/Personal/FeedFlow/src\")",
+      "Bash(mv \"$BASE/application/source/add-source.use-case.ts\" \"$BASE/application/source/add-source-use-case.ts\")"
     ]
   }
 }
