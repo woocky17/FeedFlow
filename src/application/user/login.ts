@@ -8,25 +8,25 @@ export interface TokenGenerator {
   generate(userId: string): string;
 }
 
-interface IniciarSesionInput {
+interface LoginInput {
   email: string;
   password: string;
 }
 
-interface IniciarSesionOutput {
+interface LoginOutput {
   token: string;
   userId: string;
 }
 
-export class IniciarSesion {
+export class Login {
   constructor(
-    private readonly usuarioRepository: UsuarioRepository,
+    private readonly userRepository: UsuarioRepository,
     private readonly passwordVerifier: PasswordVerifier,
     private readonly tokenGenerator: TokenGenerator,
   ) {}
 
-  async execute(input: IniciarSesionInput): Promise<IniciarSesionOutput> {
-    const user = await this.usuarioRepository.obtenerPorEmail(input.email);
+  async execute(input: LoginInput): Promise<LoginOutput> {
+    const user = await this.userRepository.obtenerPorEmail(input.email);
     if (!user) {
       throw new Error("Invalid email or password");
     }

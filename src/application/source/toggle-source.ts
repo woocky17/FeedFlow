@@ -1,14 +1,14 @@
 import { Source, SourceRepository } from "@/domain/source";
 
-interface ActivarDesactivarFuenteInput {
+interface ToggleSourceInput {
   sourceId: string;
   active: boolean;
 }
 
-export class ActivarDesactivarFuente {
+export class ToggleSource {
   constructor(private readonly sourceRepository: SourceRepository) {}
 
-  async execute(input: ActivarDesactivarFuenteInput): Promise<Source> {
+  async execute(input: ToggleSourceInput): Promise<Source> {
     const source = await this.sourceRepository.findById(input.sourceId);
     if (!source) {
       throw new Error("Source not found");

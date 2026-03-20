@@ -6,7 +6,7 @@ interface AddSourceInput {
   baseUrl: string;
 }
 
-export class AddSourceUseCase {
+export class AddSource {
   constructor(private readonly sourceRepository: SourceRepository) {}
 
   async execute(input: AddSourceInput): Promise<Source> {

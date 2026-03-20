@@ -5,21 +5,21 @@ export interface PasswordHasher {
   hash(password: string): Promise<string>;
 }
 
-interface RegistrarUsuarioInput {
+interface RegisterUserInput {
   id: string;
   email: string;
   password: string;
 }
 
-export class RegistrarUsuario {
+export class RegisterUser {
   constructor(
-    private readonly usuarioRepository: UsuarioRepository,
+    private readonly userRepository: UsuarioRepository,
     private readonly passwordHasher: PasswordHasher,
   ) {}
 
-  async execute(input: RegistrarUsuarioInput): Promise<User> {
-    const existente = await this.usuarioRepository.obtenerPorEmail(input.email);
-    if (existente) {
+  async execute(input: RegisterUserInput): Promise<User> {
+    const existing = await this.userRepository.obtenerPorEmail(input.email);
+    if (existing) {
       throw new Error("Email is already registered");
     }
 
@@ -33,7 +33,7 @@ export class RegistrarUsuario {
       createdAt: new Date(),
     });
 
-    await this.usuarioRepository.guardar(user);
+    await this.userRepository.guardar(user);
 
     return user;
   }

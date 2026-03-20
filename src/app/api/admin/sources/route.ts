@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
-import { AddSourceUseCase } from "@/application/source";
+import { AddSource } from "@/application/source";
 import { PrismaSourceRepository } from "@/infrastructure/db/prisma/source-repository-impl";
 import { randomUUID } from "crypto";
 
 const sourceRepository = new PrismaSourceRepository();
-const addSource = new AddSourceUseCase(sourceRepository);
+const addSource = new AddSource(sourceRepository);
 
 export async function POST(request: NextRequest) {
   try {

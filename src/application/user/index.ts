@@ -1,4 +1,4 @@
-export { RegistrarUsuario } from "./registrar-usuario";
-export { IniciarSesion } from "./iniciar-sesion";
-export { RecuperarPassword } from "./recuperar-password";
-export { EliminarCuenta } from "./eliminar-cuenta";
+export { RegisterUser } from "./register-user";
+export { Login } from "./login";
+export { RecoverPassword } from "./recover-password";
+export { DeleteAccount } from "./delete-account";
