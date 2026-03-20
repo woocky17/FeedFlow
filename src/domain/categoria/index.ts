@@ -5,3 +5,5 @@ export type {
   AsignacionCategoriaProps,
   AssignmentOrigin,
 } from "./asignacion-categoria-entity";
+export type { CategoriaRepository } from "./categoria-repository";
+export type { AsignacionCategoriaRepository } from "./asignacion-categoria-repository";
