@@ -5,7 +5,6 @@
       "Bash(command -v gh)",
       "Bash(echo \"PATH=$PATH\")",
       "Bash(where.exe gh:*)",
-      "Bash(curl:*)",
       "Bash(python3 create_issues.py)",
       "Bash(python3 create_issues_remaining.py)",
       "Bash(python3 update_issues.py)",
@@ -21,7 +20,14 @@
       "Bash(docker compose:*)",
       "Bash(npm uninstall:*)",
       "Bash(BASE=\"/c/Users/dortet/OneDrive - Contecnow, S.L/Escritorio/Personal/FeedFlow/src\")",
-      "Bash(mv \"$BASE/application/source/add-source.use-case.ts\" \"$BASE/application/source/add-source-use-case.ts\")"
+      "Bash(mv \"$BASE/application/source/add-source.use-case.ts\" \"$BASE/application/source/add-source-use-case.ts\")",
+      "Bash(npm:*)",
+      "Bash(sqlite3:*)",
+      "mcp__playwright__browser_snapshot",
+      "mcp__playwright__browser_click",
+      "Bash(gh issue:*)",
+      "WebFetch(domain:github.com)",
+      "Bash(where gh:*)"
     ]
   }
 }
