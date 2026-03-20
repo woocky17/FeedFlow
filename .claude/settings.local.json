@@ -1,0 +1,22 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(gh label:*)",
+      "Bash(command -v gh)",
+      "Bash(echo \"PATH=$PATH\")",
+      "Bash(where.exe gh:*)",
+      "Bash(curl:*)",
+      "Bash(python3 create_issues.py)",
+      "Bash(python3 create_issues_remaining.py)",
+      "Bash(python3 update_issues.py)",
+      "Bash(python3 fix_fields.py)",
+      "Bash(npm -v)",
+      "Bash(npx create-next-app@latest . --typescript --tailwind --eslint --app --src-dir --import-alias \"@/*\" --use-npm --no-turbopack)",
+      "Bash(npx create-next-app@latest temp-next --typescript --tailwind --eslint --app --src-dir --import-alias \"@/*\" --use-npm --no-turbopack)",
+      "Bash(npm init:*)",
+      "Bash(sed -i 's/\"\"name\"\": \"\"FeedFlow\"\"/\"\"name\"\": \"\"feedflow\"\"/' package.json)",
+      "Bash(npm install:*)",
+      "Bash(npx next:*)"
+    ]
+  }
+}
