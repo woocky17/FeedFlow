@@ -1,0 +1,25 @@
+import { Source, SourceRepository } from "@/domain/source";
+
+interface AddSourceInput {
+  id: string;
+  name: string;
+  baseUrl: string;
+}
+
+export class AddSourceUseCase {
+  constructor(private readonly sourceRepository: SourceRepository) {}
+
+  async execute(input: AddSourceInput): Promise<Source> {
+    const source = Source.create({
+      id: input.id,
+      name: input.name,
+      baseUrl: input.baseUrl,
+      active: true,
+      createdAt: new Date(),
+    });
+
+    await this.sourceRepository.save(source);
+
+    return source;
+  }
+}

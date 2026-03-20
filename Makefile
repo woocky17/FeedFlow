@@ -17,6 +17,23 @@ lint:
 format:
 	npm run format
 
+# --- Database ---
+
+db-generate:
+	npm run db:generate
+
+db-migrate:
+	npm run db:migrate
+
+db-push:
+	npm run db:push
+
+db-studio:
+	npm run db:studio
+
+db-seed:
+	npm run db:seed
+
 # --- Docker ---
 
 docker-up:
