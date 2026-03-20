@@ -39,6 +39,19 @@ export class Noticia {
       throw new Error("Noticia url cannot be empty");
     }
 
+    if (!Noticia.isValidUrl(props.url)) {
+      throw new Error("Noticia url must be a valid URL");
+    }
+
     return new Noticia(props);
+  }
+
+  private static isValidUrl(url: string): boolean {
+    try {
+      new URL(url);
+      return true;
+    } catch {
+      return false;
+    }
   }
 }
