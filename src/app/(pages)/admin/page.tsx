@@ -11,6 +11,12 @@ interface Source {
   active: boolean;
 }
 
+interface Category {
+  id: string;
+  name: string;
+  type: string;
+}
+
 export default function AdminPage() {
   const [sources, setSources] = useState<Source[]>([]);
   const [newName, setNewName] = useState("");
@@ -23,8 +29,16 @@ export default function AdminPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [newCatName, setNewCatName] = useState("");
+  const [editingCatId, setEditingCatId] = useState<string | null>(null);
+  const [editCatName, setEditCatName] = useState("");
+  const [catLoading, setCatLoading] = useState(true);
+  const [catError, setCatError] = useState("");
+
   useEffect(() => {
     loadSources();
+    loadCategories();
   }, []);
 
   async function loadSources() {
@@ -89,6 +103,69 @@ export default function AdminPage() {
       loadSources();
     } catch {
       setError("Failed to delete source");
+    }
+  }
+
+  async function loadCategories() {
+    try {
+      const res = await fetch("/api/admin/categories");
+      const data = await res.json();
+      setCategories(Array.isArray(data) ? data : []);
+    } catch {
+      // silently fail
+    } finally {
+      setCatLoading(false);
+    }
+  }
+
+  async function handleCreateCategory(e: React.FormEvent) {
+    e.preventDefault();
+    setCatError("");
+    try {
+      const res = await fetch("/api/admin/categories", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: newCatName }),
+      });
+      if (!res.ok) {
+        const data = await res.json();
+        setCatError(data.error);
+        return;
+      }
+      setNewCatName("");
+      loadCategories();
+    } catch {
+      setCatError("Failed to create category");
+    }
+  }
+
+  async function handleUpdateCategory(id: string) {
+    setCatError("");
+    try {
+      const res = await fetch(`/api/admin/categories/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: editCatName }),
+      });
+      if (!res.ok) {
+        const data = await res.json();
+        setCatError(data.error);
+        return;
+      }
+      setEditingCatId(null);
+      loadCategories();
+    } catch {
+      setCatError("Failed to update category");
+    }
+  }
+
+  async function handleDeleteCategory(id: string) {
+    setCatError("");
+    try {
+      await fetch(`/api/admin/categories/${id}`, { method: "DELETE" });
+      loadCategories();
+    } catch {
+      setCatError("Failed to delete category");
     }
   }
 
@@ -235,6 +312,104 @@ export default function AdminPage() {
                     </button>
                     <button
                       onClick={() => handleDelete(source.id)}
+                      className="rounded-lg p-1.5 text-slate-400 transition-colors hover:bg-red-50 hover:text-red-500"
+                    >
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <polyline points="3 6 5 6 21 6" />
+                        <path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2" />
+                      </svg>
+                    </button>
+                  </div>
+                </>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+      {/* Default Categories Section */}
+      <div className="mt-10 mb-6 rounded-2xl border border-slate-200 bg-white p-5">
+        <h2 className="mb-4 text-sm font-semibold uppercase tracking-wider text-slate-400">
+          Default Categories
+        </h2>
+        <form onSubmit={handleCreateCategory} className="flex gap-3">
+          <input
+            type="text"
+            placeholder="New category name..."
+            value={newCatName}
+            onChange={(e) => setNewCatName(e.target.value)}
+            required
+            className="flex-1 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-900 outline-none placeholder:text-slate-300 focus:border-amber-400 focus:ring-2 focus:ring-amber-400/20"
+          />
+          <button
+            type="submit"
+            className="rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:shadow-md hover:brightness-110 active:scale-[0.98]"
+          >
+            Add
+          </button>
+        </form>
+      </div>
+
+      {catError && <p className="mb-4 text-sm text-red-500">{catError}</p>}
+
+      {catLoading ? (
+        <div className="flex justify-center py-10">
+          <svg className="h-8 w-8 animate-spin text-amber-500" viewBox="0 0 24 24" fill="none">
+            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+          </svg>
+        </div>
+      ) : categories.length === 0 ? (
+        <div className="rounded-2xl border border-dashed border-slate-200 bg-white py-12 text-center">
+          <p className="text-slate-400">No default categories</p>
+          <p className="mt-1 text-sm text-slate-300">Add your first default category above.</p>
+        </div>
+      ) : (
+        <div className="space-y-2">
+          {categories.map((cat) => (
+            <div
+              key={cat.id}
+              className="flex items-center justify-between rounded-xl border border-slate-200 bg-white px-4 py-3 transition-colors hover:border-amber-200"
+            >
+              {editingCatId === cat.id ? (
+                <div className="flex flex-1 items-center gap-3">
+                  <input
+                    type="text"
+                    value={editCatName}
+                    onChange={(e) => setEditCatName(e.target.value)}
+                    className="flex-1 rounded-lg border border-slate-200 px-3 py-1.5 text-sm outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-400/20"
+                    autoFocus
+                  />
+                  <button
+                    onClick={() => handleUpdateCategory(cat.id)}
+                    className="text-sm font-medium text-amber-600 hover:text-amber-700"
+                  >
+                    Save
+                  </button>
+                  <button
+                    onClick={() => setEditingCatId(null)}
+                    className="text-sm text-slate-400 hover:text-slate-600"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              ) : (
+                <>
+                  <span className="text-sm font-medium text-slate-700">{cat.name}</span>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => {
+                        setEditingCatId(cat.id);
+                        setEditCatName(cat.name);
+                      }}
+                      className="rounded-lg p-1.5 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600"
+                    >
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" />
+                        <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" />
+                      </svg>
+                    </button>
+                    <button
+                      onClick={() => handleDeleteCategory(cat.id)}
                       className="rounded-lg p-1.5 text-slate-400 transition-colors hover:bg-red-50 hover:text-red-500"
                     >
                       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">

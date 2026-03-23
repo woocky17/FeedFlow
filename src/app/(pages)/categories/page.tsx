@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useSession } from "next-auth/react";
 import { AppLayout } from "@/components/templates/app-layout";
 
 interface Category {
@@ -10,6 +11,9 @@ interface Category {
 }
 
 export default function CategoriasPage() {
+  const { data: session } = useSession();
+  const isAdmin = (session?.user as { role?: string })?.role === "admin";
+
   const [categories, setCategories] = useState<Category[]>([]);
   const [newName, setNewName] = useState("");
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -37,7 +41,9 @@ export default function CategoriasPage() {
     e.preventDefault();
     setError("");
     try {
-      const res = await fetch("/api/categories", {
+      // Admin creates default categories, user creates custom
+      const url = isAdmin ? "/api/admin/categories" : "/api/categories";
+      const res = await fetch(url, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name: newName }),
@@ -54,10 +60,13 @@ export default function CategoriasPage() {
     }
   }
 
-  async function handleUpdate(id: string) {
+  async function handleUpdate(id: string, type: string) {
     setError("");
     try {
-      const res = await fetch(`/api/categories/${id}`, {
+      const url = type === "default"
+        ? `/api/admin/categories/${id}`
+        : `/api/categories/${id}`;
+      const res = await fetch(url, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name: editName }),
@@ -74,14 +83,22 @@ export default function CategoriasPage() {
     }
   }
 
-  async function handleDelete(id: string) {
+  async function handleDelete(id: string, type: string) {
     setError("");
     try {
-      await fetch(`/api/categories/${id}`, { method: "DELETE" });
+      const url = type === "default"
+        ? `/api/admin/categories/${id}`
+        : `/api/categories/${id}`;
+      await fetch(url, { method: "DELETE" });
       loadCategories();
     } catch {
       setError("Failed to delete category");
     }
+  }
+
+  function canEdit(cat: Category): boolean {
+    if (cat.type === "default") return isAdmin;
+    return true; // custom categories belong to the user
   }
 
   return (
@@ -90,7 +107,7 @@ export default function CategoriasPage() {
       <form onSubmit={handleCreate} className="mb-6 flex gap-3">
         <input
           type="text"
-          placeholder="New category name..."
+          placeholder={isAdmin ? "New default category..." : "New category name..."}
           value={newName}
           onChange={(e) => setNewName(e.target.value)}
           required
@@ -115,7 +132,7 @@ export default function CategoriasPage() {
         </div>
       ) : categories.length === 0 ? (
         <div className="rounded-2xl border border-dashed border-slate-200 bg-white py-16 text-center">
-          <p className="text-slate-400">No custom categories yet</p>
+          <p className="text-slate-400">No categories yet</p>
           <p className="mt-1 text-sm text-slate-300">Create your first category above.</p>
         </div>
       ) : (
@@ -135,7 +152,7 @@ export default function CategoriasPage() {
                     autoFocus
                   />
                   <button
-                    onClick={() => handleUpdate(cat.id)}
+                    onClick={() => handleUpdate(cat.id, cat.type)}
                     className="text-sm font-medium text-amber-600 hover:text-amber-700"
                   >
                     Save
@@ -151,13 +168,15 @@ export default function CategoriasPage() {
                 <>
                   <div className="flex items-center gap-3">
                     <span className="text-sm font-medium text-slate-700">{cat.name}</span>
-                    {cat.type === "default" && (
-                      <span className="rounded-full bg-slate-100 px-2 py-0.5 text-xs text-slate-400">
-                        default
-                      </span>
-                    )}
+                    <span className={`rounded-full px-2 py-0.5 text-xs ${
+                      cat.type === "default"
+                        ? "bg-slate-100 text-slate-400"
+                        : "bg-amber-50 text-amber-600"
+                    }`}>
+                      {cat.type}
+                    </span>
                   </div>
-                  {cat.type === "custom" && (
+                  {canEdit(cat) && (
                     <div className="flex items-center gap-2">
                       <button
                         onClick={() => {
@@ -172,7 +191,7 @@ export default function CategoriasPage() {
                         </svg>
                       </button>
                       <button
-                        onClick={() => handleDelete(cat.id)}
+                        onClick={() => handleDelete(cat.id, cat.type)}
                         className="rounded-lg p-1.5 text-slate-400 transition-colors hover:bg-red-50 hover:text-red-500"
                       >
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">

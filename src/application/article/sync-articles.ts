@@ -1,4 +1,4 @@
-import { ArticleRepository, ArticlesFetcher } from "@/domain/article";
+import { ArticleRepository, ArticleFetcher } from "@/domain/article";
 import { SourceRepository } from "@/domain/source";
 import { CategoryAssignment, CategoryAssignmentRepository } from "@/domain/category";
 
@@ -10,7 +10,7 @@ export class SyncArticles {
   constructor(
     private readonly sourceRepository: SourceRepository,
     private readonly articleRepository: ArticleRepository,
-    private readonly articlesFetcher: ArticlesFetcher,
+    private readonly articlesFetcher: ArticleFetcher,
     private readonly assignmentRepository: CategoryAssignmentRepository,
     private readonly categoryClassifier: CategoryClassifier,
   ) {}
