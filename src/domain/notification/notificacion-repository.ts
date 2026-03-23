@@ -1,8 +1,8 @@
-import { Notificacion } from "./notificacion-entity";
+import { Notification } from "./notificacion-entity";
 
-export interface NotificacionRepository {
-  anadir(notificacion: Notificacion): Promise<void>;
-  obtenerPorUsuario(userId: string): Promise<Notificacion[]>;
-  marcarComoLeida(id: string): Promise<void>;
-  eliminar(id: string): Promise<void>;
+export interface NotificationRepository {
+  add(notification: Notification): Promise<void>;
+  findByUser(userId: string): Promise<Notification[]>;
+  markAsRead(id: string): Promise<void>;
+  delete(id: string): Promise<void>;
 }

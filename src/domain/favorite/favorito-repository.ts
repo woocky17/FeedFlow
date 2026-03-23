@@ -1,7 +1,8 @@
-import { Favorito } from "./favorito-entity";
+import { Favorite } from "./favorito-entity";
 
-export interface FavoritoRepository {
-  anadir(favorito: Favorito): Promise<void>;
-  obtenerPorUsuario(userId: string): Promise<Favorito[]>;
-  eliminar(id: string): Promise<void>;
+export interface FavoriteRepository {
+  add(favorite: Favorite): Promise<void>;
+  findByUser(userId: string): Promise<Favorite[]>;
+  delete(id: string): Promise<void>;
+  deleteByArticle(userId: string, articleId: string): Promise<void>;
 }

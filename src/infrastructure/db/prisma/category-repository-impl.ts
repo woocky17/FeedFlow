@@ -1,9 +1,9 @@
-import { Categoria } from "@/domain/category";
-import { CategoriaRepository } from "@/domain/category";
+import { Category } from "@/domain/category";
+import { CategoryRepository } from "@/domain/category";
 import { prisma } from "./client";
 
-export class PrismaCategoryRepository implements CategoriaRepository {
-  async crear(category: Categoria): Promise<void> {
+export class PrismaCategoryRepository implements CategoryRepository {
+  async create(category: Category): Promise<void> {
     await prisma.category.create({
       data: {
         id: category.id,
@@ -15,7 +15,7 @@ export class PrismaCategoryRepository implements CategoriaRepository {
     });
   }
 
-  async actualizar(category: Categoria): Promise<void> {
+  async update(category: Category): Promise<void> {
     await prisma.category.update({
       where: { id: category.id },
       data: {
@@ -26,11 +26,11 @@ export class PrismaCategoryRepository implements CategoriaRepository {
     });
   }
 
-  async obtener(id: string): Promise<Categoria | null> {
+  async findById(id: string): Promise<Category | null> {
     const row = await prisma.category.findUnique({ where: { id } });
     if (!row) return null;
 
-    return Categoria.create({
+    return Category.create({
       id: row.id,
       name: row.name,
       type: row.type === "DEFAULT" ? "default" : "custom",
@@ -39,11 +39,11 @@ export class PrismaCategoryRepository implements CategoriaRepository {
     });
   }
 
-  async obtenerPorUsuario(userId: string): Promise<Categoria[]> {
+  async findByUser(userId: string): Promise<Category[]> {
     const rows = await prisma.category.findMany({ where: { userId } });
 
     return rows.map((row) =>
-      Categoria.create({
+      Category.create({
         id: row.id,
         name: row.name,
         type: row.type === "DEFAULT" ? "default" : "custom",
@@ -53,13 +53,13 @@ export class PrismaCategoryRepository implements CategoriaRepository {
     );
   }
 
-  async obtenerDefault(): Promise<Categoria[]> {
+  async findDefault(): Promise<Category[]> {
     const rows = await prisma.category.findMany({
       where: { type: "DEFAULT", userId: null },
     });
 
     return rows.map((row) =>
-      Categoria.create({
+      Category.create({
         id: row.id,
         name: row.name,
         type: "default",
@@ -69,7 +69,7 @@ export class PrismaCategoryRepository implements CategoriaRepository {
     );
   }
 
-  async eliminar(id: string): Promise<void> {
+  async delete(id: string): Promise<void> {
     await prisma.category.delete({ where: { id } });
   }
 }

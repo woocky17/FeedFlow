@@ -1,5 +1,5 @@
-import { AsignacionCategoria } from "@/domain/category";
-import { AsignacionCategoriaRepository } from "@/domain/category";
+import { CategoryAssignment } from "@/domain/category";
+import { CategoryAssignmentRepository } from "@/domain/category";
 
 interface AssignCategoryManuallyInput {
   articleId: string;
@@ -9,20 +9,20 @@ interface AssignCategoryManuallyInput {
 
 export class AssignCategoryManually {
   constructor(
-    private readonly assignmentRepository: AsignacionCategoriaRepository,
+    private readonly assignmentRepository: CategoryAssignmentRepository,
   ) {}
 
-  async execute(input: AssignCategoryManuallyInput): Promise<AsignacionCategoria> {
-    const existing = await this.assignmentRepository.obtenerPorNoticia(input.articleId);
+  async execute(input: AssignCategoryManuallyInput): Promise<CategoryAssignment> {
+    const existing = await this.assignmentRepository.findByArticle(input.articleId);
     const match = existing.find((a) => a.categoryId === input.categoryId);
 
     if (match) {
-      await this.assignmentRepository.actualizarOrigen(
+      await this.assignmentRepository.updateOrigin(
         input.articleId,
         input.categoryId,
         "manual",
       );
-      return AsignacionCategoria.create({
+      return CategoryAssignment.create({
         articleId: input.articleId,
         categoryId: input.categoryId,
         userId: input.userId,
@@ -31,7 +31,7 @@ export class AssignCategoryManually {
       });
     }
 
-    const assignment = AsignacionCategoria.create({
+    const assignment = CategoryAssignment.create({
       articleId: input.articleId,
       categoryId: input.categoryId,
       userId: input.userId,
@@ -39,7 +39,7 @@ export class AssignCategoryManually {
       assignedAt: new Date(),
     });
 
-    await this.assignmentRepository.crear(assignment);
+    await this.assignmentRepository.create(assignment);
 
     return assignment;
   }

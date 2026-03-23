@@ -1,5 +1,5 @@
-import { Categoria } from "@/domain/category";
-import { CategoriaRepository } from "@/domain/category";
+import { Category } from "@/domain/category";
+import { CategoryRepository } from "@/domain/category";
 
 interface CreateDefaultCategoryInput {
   id: string;
@@ -16,10 +16,10 @@ interface DeleteDefaultCategoryInput {
 }
 
 export class ManageDefaultCategories {
-  constructor(private readonly categoryRepository: CategoriaRepository) {}
+  constructor(private readonly categoryRepository: CategoryRepository) {}
 
-  async create(input: CreateDefaultCategoryInput): Promise<Categoria> {
-    const category = Categoria.create({
+  async create(input: CreateDefaultCategoryInput): Promise<Category> {
+    const category = Category.create({
       id: input.id,
       name: input.name,
       type: "default",
@@ -27,13 +27,13 @@ export class ManageDefaultCategories {
       createdAt: new Date(),
     });
 
-    await this.categoryRepository.crear(category);
+    await this.categoryRepository.create(category);
 
     return category;
   }
 
-  async update(input: UpdateDefaultCategoryInput): Promise<Categoria> {
-    const category = await this.categoryRepository.obtener(input.categoryId);
+  async update(input: UpdateDefaultCategoryInput): Promise<Category> {
+    const category = await this.categoryRepository.findById(input.categoryId);
     if (!category) {
       throw new Error("Category not found");
     }
@@ -42,7 +42,7 @@ export class ManageDefaultCategories {
       throw new Error("Only default categories can be managed here");
     }
 
-    const updated = Categoria.create({
+    const updated = Category.create({
       id: category.id,
       name: input.name,
       type: "default",
@@ -50,13 +50,13 @@ export class ManageDefaultCategories {
       createdAt: category.createdAt,
     });
 
-    await this.categoryRepository.actualizar(updated);
+    await this.categoryRepository.update(updated);
 
     return updated;
   }
 
   async delete(input: DeleteDefaultCategoryInput): Promise<void> {
-    const category = await this.categoryRepository.obtener(input.categoryId);
+    const category = await this.categoryRepository.findById(input.categoryId);
     if (!category) {
       throw new Error("Category not found");
     }
@@ -65,6 +65,6 @@ export class ManageDefaultCategories {
       throw new Error("Only default categories can be managed here");
     }
 
-    await this.categoryRepository.eliminar(input.categoryId);
+    await this.categoryRepository.delete(input.categoryId);
   }
 }

@@ -15,8 +15,8 @@ export async function GET() {
     }
 
     const [defaultCategories, userCategories] = await Promise.all([
-      categoryRepository.obtenerDefault(),
-      categoryRepository.obtenerPorUsuario(session.user.id),
+      categoryRepository.findDefault(),
+      categoryRepository.findByUser(session.user.id),
     ]);
 
     return NextResponse.json([...defaultCategories, ...userCategories]);

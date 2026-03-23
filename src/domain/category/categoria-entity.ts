@@ -1,21 +1,21 @@
-export type CategoriaType = "default" | "custom";
+export type CategoryType = "default" | "custom";
 
-export interface CategoriaProps {
+export interface CategoryProps {
   id: string;
   name: string;
-  type: CategoriaType;
+  type: CategoryType;
   userId: string | null;
   createdAt: Date;
 }
 
-export class Categoria {
+export class Category {
   readonly id: string;
   readonly name: string;
-  readonly type: CategoriaType;
+  readonly type: CategoryType;
   readonly userId: string | null;
   readonly createdAt: Date;
 
-  private constructor(props: CategoriaProps) {
+  private constructor(props: CategoryProps) {
     this.id = props.id;
     this.name = props.name;
     this.type = props.type;
@@ -23,9 +23,9 @@ export class Categoria {
     this.createdAt = props.createdAt;
   }
 
-  static create(props: CategoriaProps): Categoria {
+  static create(props: CategoryProps): Category {
     if (!props.name || props.name.trim().length === 0) {
-      throw new Error("Categoria name cannot be empty");
+      throw new Error("Category name cannot be empty");
     }
 
     if (props.type === "default" && props.userId !== null) {
@@ -36,6 +36,6 @@ export class Categoria {
       throw new Error("Custom categories must have a userId");
     }
 
-    return new Categoria(props);
+    return new Category(props);
   }
 }

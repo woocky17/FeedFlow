@@ -1,7 +1,7 @@
-import { Noticia } from "@/domain/article";
+import { Article } from "@/domain/article";
 
 export interface AISearchService {
-  search(query: string): Promise<Noticia[]>;
+  search(query: string): Promise<Article[]>;
 }
 
 interface SearchArticlesAIInput {
@@ -11,7 +11,7 @@ interface SearchArticlesAIInput {
 export class SearchArticlesAI {
   constructor(private readonly aiSearchService: AISearchService) {}
 
-  async execute(input: SearchArticlesAIInput): Promise<Noticia[]> {
+  async execute(input: SearchArticlesAIInput): Promise<Article[]> {
     if (!input.query || input.query.trim().length === 0) {
       throw new Error("Search query cannot be empty");
     }

@@ -1,4 +1,4 @@
-export interface NotificacionProps {
+export interface NotificationProps {
   id: string;
   userId: string;
   message: string;
@@ -6,14 +6,14 @@ export interface NotificacionProps {
   createdAt: Date;
 }
 
-export class Notificacion {
+export class Notification {
   readonly id: string;
   readonly userId: string;
   readonly message: string;
   readonly read: boolean;
   readonly createdAt: Date;
 
-  private constructor(props: NotificacionProps) {
+  private constructor(props: NotificationProps) {
     this.id = props.id;
     this.userId = props.userId;
     this.message = props.message;
@@ -21,11 +21,11 @@ export class Notificacion {
     this.createdAt = props.createdAt;
   }
 
-  static create(props: NotificacionProps): Notificacion {
+  static create(props: NotificationProps): Notification {
     if (!props.message || props.message.trim().length === 0) {
-      throw new Error("Notificacion message cannot be empty");
+      throw new Error("Notification message cannot be empty");
     }
 
-    return new Notificacion(props);
+    return new Notification(props);
   }
 }

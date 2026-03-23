@@ -1,5 +1,5 @@
-import { Noticia } from "@/domain/article";
-import { NoticiasFetcher } from "@/domain/article";
+import { Article } from "@/domain/article";
+import { ArticleFetcher } from "@/domain/article";
 import { Source } from "@/domain/source";
 import { mapNewsApiArticle, NewsApiArticle } from "./article-mapper";
 
@@ -15,10 +15,10 @@ interface NewsApiResponse {
   message?: string;
 }
 
-export class NewsApiAdapter implements NoticiasFetcher {
+export class NewsApiAdapter implements ArticleFetcher {
   constructor(private readonly apiKey: string) {}
 
-  async fetchPorFuente(source: Source): Promise<Noticia[]> {
+  async fetchBySource(source: Source): Promise<Article[]> {
     const url = `${NEWSAPI_BASE_URL}/everything?domains=${this.extractDomain(source.baseUrl)}&apiKey=${this.apiKey}&pageSize=20`;
 
     const response = await this.fetchWithRetry(url);
@@ -31,7 +31,7 @@ export class NewsApiAdapter implements NoticiasFetcher {
 
     return response.articles
       .filter((a) => a.title && a.url)
-      .map((a) => Noticia.create(mapNewsApiArticle(a, source.id)));
+      .map((a) => Article.create(mapNewsApiArticle(a, source.id)));
   }
 
   private async fetchWithRetry(

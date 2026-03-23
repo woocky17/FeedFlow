@@ -1,10 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
-import { DeleteFavorite } from "@/application/favorite";
 import { PrismaFavoriteRepository } from "@/infrastructure/db/prisma/favorite-repository-impl";
 
 const favoriteRepository = new PrismaFavoriteRepository();
-const deleteFavorite = new DeleteFavorite(favoriteRepository);
 
 export async function DELETE(
   _request: NextRequest,
@@ -16,12 +14,9 @@ export async function DELETE(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { id } = await params;
+    const { id: articleId } = await params;
 
-    await deleteFavorite.execute({
-      favoriteId: id,
-      userId: session.user.id,
-    });
+    await favoriteRepository.deleteByArticle(session.user.id, articleId);
 
     return NextResponse.json({ message: "Favorite deleted" });
   } catch (error) {

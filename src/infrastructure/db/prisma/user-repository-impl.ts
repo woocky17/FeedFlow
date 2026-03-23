@@ -1,9 +1,9 @@
 import { User } from "@/domain/user";
-import { UsuarioRepository } from "@/domain/user";
+import { UserRepository } from "@/domain/user";
 import { prisma } from "./client";
 
-export class PrismaUserRepository implements UsuarioRepository {
-  async guardar(user: User): Promise<void> {
+export class PrismaUserRepository implements UserRepository {
+  async save(user: User): Promise<void> {
     await prisma.user.create({
       data: {
         id: user.id,
@@ -15,7 +15,7 @@ export class PrismaUserRepository implements UsuarioRepository {
     });
   }
 
-  async obtener(id: string): Promise<User | null> {
+  async findById(id: string): Promise<User | null> {
     const row = await prisma.user.findUnique({ where: { id } });
     if (!row) return null;
 
@@ -28,7 +28,7 @@ export class PrismaUserRepository implements UsuarioRepository {
     });
   }
 
-  async obtenerPorEmail(email: string): Promise<User | null> {
+  async findByEmail(email: string): Promise<User | null> {
     const row = await prisma.user.findUnique({ where: { email } });
     if (!row) return null;
 
@@ -41,11 +41,11 @@ export class PrismaUserRepository implements UsuarioRepository {
     });
   }
 
-  async eliminar(id: string): Promise<void> {
+  async delete(id: string): Promise<void> {
     await prisma.user.delete({ where: { id } });
   }
 
-  async actualizarPassword(id: string, passwordHash: string): Promise<void> {
+  async updatePassword(id: string, passwordHash: string): Promise<void> {
     await prisma.user.update({
       where: { id },
       data: { passwordHash },

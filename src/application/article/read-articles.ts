@@ -1,5 +1,5 @@
-import { Noticia } from "@/domain/article";
-import { NoticiaRepository } from "@/domain/article";
+import { Article } from "@/domain/article";
+import { ArticleRepository } from "@/domain/article";
 
 interface ReadArticlesInput {
   categoryId?: string;
@@ -7,17 +7,17 @@ interface ReadArticlesInput {
 }
 
 export class ReadArticles {
-  constructor(private readonly articleRepository: NoticiaRepository) {}
+  constructor(private readonly articleRepository: ArticleRepository) {}
 
-  async execute(input: ReadArticlesInput): Promise<Noticia[]> {
+  async execute(input: ReadArticlesInput): Promise<Article[]> {
     if (input.categoryId) {
-      return this.articleRepository.obtenerPorCategoria(input.categoryId);
+      return this.articleRepository.findByCategory(input.categoryId);
     }
 
     if (input.sourceId) {
-      return this.articleRepository.obtenerPorFuente(input.sourceId);
+      return this.articleRepository.findBySource(input.sourceId);
     }
 
-    return this.articleRepository.obtenerTodas();
+    return this.articleRepository.findAll();
   }
 }

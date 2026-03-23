@@ -1,9 +1,9 @@
-import { Noticia } from "./noticia-entity";
+import { Article } from "./noticia-entity";
 
-export interface NoticiaRepository {
-  guardar(noticia: Noticia): Promise<void>;
-  obtenerTodas(): Promise<Noticia[]>;
-  obtenerPorCategoria(categoryId: string): Promise<Noticia[]>;
-  obtenerPorFuente(sourceId: string): Promise<Noticia[]>;
-  existePorUrl(url: string): Promise<boolean>;
+export interface ArticleRepository {
+  save(article: Article): Promise<void>;
+  findAll(): Promise<Article[]>;
+  findByCategory(categoryId: string): Promise<Article[]>;
+  findBySource(sourceId: string): Promise<Article[]>;
+  existsByUrl(url: string): Promise<boolean>;
 }

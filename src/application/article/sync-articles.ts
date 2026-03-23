@@ -1,6 +1,6 @@
-import { NoticiaRepository, NoticiasFetcher } from "@/domain/article";
+import { ArticleRepository, ArticlesFetcher } from "@/domain/article";
 import { SourceRepository } from "@/domain/source";
-import { AsignacionCategoria, AsignacionCategoriaRepository } from "@/domain/category";
+import { CategoryAssignment, CategoryAssignmentRepository } from "@/domain/category";
 
 export interface CategoryClassifier {
   classify(title: string, description: string): Promise<string[]>;
@@ -9,9 +9,9 @@ export interface CategoryClassifier {
 export class SyncArticles {
   constructor(
     private readonly sourceRepository: SourceRepository,
-    private readonly articleRepository: NoticiaRepository,
-    private readonly articlesFetcher: NoticiasFetcher,
-    private readonly assignmentRepository: AsignacionCategoriaRepository,
+    private readonly articleRepository: ArticleRepository,
+    private readonly articlesFetcher: ArticlesFetcher,
+    private readonly assignmentRepository: CategoryAssignmentRepository,
     private readonly categoryClassifier: CategoryClassifier,
   ) {}
 
@@ -22,13 +22,13 @@ export class SyncArticles {
 
     for (const source of sources) {
       try {
-        const articles = await this.articlesFetcher.fetchPorFuente(source);
+        const articles = await this.articlesFetcher.fetchBySource(source);
 
         for (const article of articles) {
-          const exists = await this.articleRepository.existePorUrl(article.url);
+          const exists = await this.articleRepository.existsByUrl(article.url);
           if (exists) continue;
 
-          await this.articleRepository.guardar(article);
+          await this.articleRepository.save(article);
 
           const categoryIds = await this.categoryClassifier.classify(
             article.title,
@@ -36,14 +36,14 @@ export class SyncArticles {
           );
 
           for (const categoryId of categoryIds) {
-            const assignment = AsignacionCategoria.create({
+            const assignment = CategoryAssignment.create({
               articleId: article.id,
               categoryId,
               userId: "",
               origin: "auto",
               assignedAt: new Date(),
             });
-            await this.assignmentRepository.crear(assignment);
+            await this.assignmentRepository.create(assignment);
           }
 
           synced++;

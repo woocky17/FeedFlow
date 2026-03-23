@@ -1,5 +1,5 @@
-import { Categoria } from "@/domain/category";
-import { CategoriaRepository } from "@/domain/category";
+import { Category } from "@/domain/category";
+import { CategoryRepository } from "@/domain/category";
 
 interface CreateCustomCategoryInput {
   id: string;
@@ -8,16 +8,16 @@ interface CreateCustomCategoryInput {
 }
 
 export class CreateCustomCategory {
-  constructor(private readonly categoryRepository: CategoriaRepository) {}
+  constructor(private readonly categoryRepository: CategoryRepository) {}
 
-  async execute(input: CreateCustomCategoryInput): Promise<Categoria> {
-    const existing = await this.categoryRepository.obtenerPorUsuario(input.userId);
+  async execute(input: CreateCustomCategoryInput): Promise<Category> {
+    const existing = await this.categoryRepository.findByUser(input.userId);
     const duplicate = existing.some((cat) => cat.name === input.name);
     if (duplicate) {
       throw new Error("Category name already exists for this user");
     }
 
-    const category = Categoria.create({
+    const category = Category.create({
       id: input.id,
       name: input.name,
       type: "custom",
@@ -25,7 +25,7 @@ export class CreateCustomCategory {
       createdAt: new Date(),
     });
 
-    await this.categoryRepository.crear(category);
+    await this.categoryRepository.create(category);
 
     return category;
   }

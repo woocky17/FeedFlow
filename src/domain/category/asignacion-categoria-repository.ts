@@ -1,7 +1,7 @@
-import { AsignacionCategoria, AssignmentOrigin } from "./asignacion-categoria-entity";
+import { CategoryAssignment, AssignmentOrigin } from "./asignacion-categoria-entity";
 
-export interface AsignacionCategoriaRepository {
-  crear(asignacion: AsignacionCategoria): Promise<void>;
-  obtenerPorNoticia(articleId: string): Promise<AsignacionCategoria[]>;
-  actualizarOrigen(articleId: string, categoryId: string, origin: AssignmentOrigin): Promise<void>;
+export interface CategoryAssignmentRepository {
+  create(assignment: CategoryAssignment): Promise<void>;
+  findByArticle(articleId: string): Promise<CategoryAssignment[]>;
+  updateOrigin(articleId: string, categoryId: string, origin: AssignmentOrigin): Promise<void>;
 }

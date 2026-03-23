@@ -1,10 +1,10 @@
-import { Categoria } from "./categoria-entity";
+import { Category } from "./categoria-entity";
 
-export interface CategoriaRepository {
-  crear(categoria: Categoria): Promise<void>;
-  actualizar(categoria: Categoria): Promise<void>;
-  obtener(id: string): Promise<Categoria | null>;
-  obtenerPorUsuario(userId: string): Promise<Categoria[]>;
-  obtenerDefault(): Promise<Categoria[]>;
-  eliminar(id: string): Promise<void>;
+export interface CategoryRepository {
+  create(category: Category): Promise<void>;
+  update(category: Category): Promise<void>;
+  findById(id: string): Promise<Category | null>;
+  findByUser(userId: string): Promise<Category[]>;
+  findDefault(): Promise<Category[]>;
+  delete(id: string): Promise<void>;
 }

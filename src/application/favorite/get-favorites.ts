@@ -1,14 +1,14 @@
-import { Favorito } from "@/domain/favorite";
-import { FavoritoRepository } from "@/domain/favorite";
+import { Favorite } from "@/domain/favorite";
+import { FavoriteRepository } from "@/domain/favorite";
 
 interface GetFavoritesInput {
   userId: string;
 }
 
 export class GetFavorites {
-  constructor(private readonly favoriteRepository: FavoritoRepository) {}
+  constructor(private readonly favoriteRepository: FavoriteRepository) {}
 
-  async execute(input: GetFavoritesInput): Promise<Favorito[]> {
-    return this.favoriteRepository.obtenerPorUsuario(input.userId);
+  async execute(input: GetFavoritesInput): Promise<Favorite[]> {
+    return this.favoriteRepository.findByUser(input.userId);
   }
 }

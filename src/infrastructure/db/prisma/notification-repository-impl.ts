@@ -1,9 +1,9 @@
-import { Notificacion } from "@/domain/notification";
-import { NotificacionRepository } from "@/domain/notification";
+import { Notification } from "@/domain/notification";
+import { NotificationRepository } from "@/domain/notification";
 import { prisma } from "./client";
 
-export class PrismaNotificationRepository implements NotificacionRepository {
-  async anadir(notification: Notificacion): Promise<void> {
+export class PrismaNotificationRepository implements NotificationRepository {
+  async add(notification: Notification): Promise<void> {
     await prisma.notification.create({
       data: {
         id: notification.id,
@@ -15,14 +15,14 @@ export class PrismaNotificationRepository implements NotificacionRepository {
     });
   }
 
-  async obtenerPorUsuario(userId: string): Promise<Notificacion[]> {
+  async findByUser(userId: string): Promise<Notification[]> {
     const rows = await prisma.notification.findMany({
       where: { userId },
       orderBy: { createdAt: "desc" },
     });
 
     return rows.map((row) =>
-      Notificacion.create({
+      Notification.create({
         id: row.id,
         userId: row.userId,
         message: row.message,
@@ -32,14 +32,14 @@ export class PrismaNotificationRepository implements NotificacionRepository {
     );
   }
 
-  async marcarComoLeida(id: string): Promise<void> {
+  async markAsRead(id: string): Promise<void> {
     await prisma.notification.update({
       where: { id },
       data: { read: true },
     });
   }
 
-  async eliminar(id: string): Promise<void> {
+  async delete(id: string): Promise<void> {
     await prisma.notification.delete({ where: { id } });
   }
 }

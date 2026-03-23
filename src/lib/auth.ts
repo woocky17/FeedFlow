@@ -18,7 +18,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
         if (!email || !password) return null;
 
-        const user = await userRepository.obtenerPorEmail(email);
+        const user = await userRepository.findByEmail(email);
         if (!user) return null;
 
         const valid = await bcrypt.compare(password, user.passwordHash);

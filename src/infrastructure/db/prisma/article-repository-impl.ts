@@ -1,9 +1,9 @@
-import { Noticia } from "@/domain/article";
-import { NoticiaRepository } from "@/domain/article";
+import { Article } from "@/domain/article";
+import { ArticleRepository } from "@/domain/article";
 import { prisma } from "./client";
 
-export class PrismaArticleRepository implements NoticiaRepository {
-  async guardar(article: Noticia): Promise<void> {
+export class PrismaArticleRepository implements ArticleRepository {
+  async save(article: Article): Promise<void> {
     await prisma.article.create({
       data: {
         id: article.id,
@@ -18,13 +18,13 @@ export class PrismaArticleRepository implements NoticiaRepository {
     });
   }
 
-  async obtenerTodas(): Promise<Noticia[]> {
+  async findAll(): Promise<Article[]> {
     const rows = await prisma.article.findMany({
       orderBy: { publishedAt: "desc" },
     });
 
     return rows.map((row) =>
-      Noticia.create({
+      Article.create({
         id: row.id,
         title: row.title,
         url: row.url,
@@ -37,7 +37,7 @@ export class PrismaArticleRepository implements NoticiaRepository {
     );
   }
 
-  async obtenerPorCategoria(categoryId: string): Promise<Noticia[]> {
+  async findByCategory(categoryId: string): Promise<Article[]> {
     const rows = await prisma.article.findMany({
       where: {
         categoryAssignments: { some: { categoryId } },
@@ -46,7 +46,7 @@ export class PrismaArticleRepository implements NoticiaRepository {
     });
 
     return rows.map((row) =>
-      Noticia.create({
+      Article.create({
         id: row.id,
         title: row.title,
         url: row.url,
@@ -59,14 +59,14 @@ export class PrismaArticleRepository implements NoticiaRepository {
     );
   }
 
-  async obtenerPorFuente(sourceId: string): Promise<Noticia[]> {
+  async findBySource(sourceId: string): Promise<Article[]> {
     const rows = await prisma.article.findMany({
       where: { sourceId },
       orderBy: { publishedAt: "desc" },
     });
 
     return rows.map((row) =>
-      Noticia.create({
+      Article.create({
         id: row.id,
         title: row.title,
         url: row.url,
@@ -79,7 +79,7 @@ export class PrismaArticleRepository implements NoticiaRepository {
     );
   }
 
-  async existePorUrl(url: string): Promise<boolean> {
+  async existsByUrl(url: string): Promise<boolean> {
     const count = await prisma.article.count({ where: { url } });
     return count > 0;
   }

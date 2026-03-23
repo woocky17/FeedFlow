@@ -1,4 +1,4 @@
-import { NoticiaProps } from "@/domain/article";
+import { ArticleProps } from "@/domain/article";
 
 export interface WorldNewsArticle {
   id: number;
@@ -12,7 +12,7 @@ export interface WorldNewsArticle {
 export function mapWorldNewsArticle(
   raw: WorldNewsArticle,
   sourceId: string,
-): NoticiaProps {
+): ArticleProps {
   return {
     id: crypto.randomUUID(),
     title: raw.title,

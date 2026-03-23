@@ -1,4 +1,4 @@
-export interface NoticiaProps {
+export interface ArticleProps {
   id: string;
   title: string;
   url: string;
@@ -9,7 +9,7 @@ export interface NoticiaProps {
   savedAt: Date;
 }
 
-export class Noticia {
+export class Article {
   readonly id: string;
   readonly title: string;
   readonly url: string;
@@ -19,7 +19,7 @@ export class Noticia {
   readonly publishedAt: Date;
   readonly savedAt: Date;
 
-  private constructor(props: NoticiaProps) {
+  private constructor(props: ArticleProps) {
     this.id = props.id;
     this.title = props.title;
     this.url = props.url;
@@ -30,20 +30,20 @@ export class Noticia {
     this.savedAt = props.savedAt;
   }
 
-  static create(props: NoticiaProps): Noticia {
+  static create(props: ArticleProps): Article {
     if (!props.title || props.title.trim().length === 0) {
-      throw new Error("Noticia title cannot be empty");
+      throw new Error("Article title cannot be empty");
     }
 
     if (!props.url || props.url.trim().length === 0) {
-      throw new Error("Noticia url cannot be empty");
+      throw new Error("Article url cannot be empty");
     }
 
-    if (!Noticia.isValidUrl(props.url)) {
-      throw new Error("Noticia url must be a valid URL");
+    if (!Article.isValidUrl(props.url)) {
+      throw new Error("Article url must be a valid URL");
     }
 
-    return new Noticia(props);
+    return new Article(props);
   }
 
   private static isValidUrl(url: string): boolean {

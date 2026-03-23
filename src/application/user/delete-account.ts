@@ -1,7 +1,7 @@
-import { UsuarioRepository } from "@/domain/user";
-import { FavoritoRepository } from "@/domain/favorite";
-import { NotificacionRepository } from "@/domain/notification";
-import { CategoriaRepository } from "@/domain/category";
+import { UserRepository } from "@/domain/user";
+import { FavoriteRepository } from "@/domain/favorite";
+import { NotificationRepository } from "@/domain/notification";
+import { CategoryRepository } from "@/domain/category";
 
 interface DeleteAccountInput {
   userId: string;
@@ -9,33 +9,33 @@ interface DeleteAccountInput {
 
 export class DeleteAccount {
   constructor(
-    private readonly userRepository: UsuarioRepository,
-    private readonly favoriteRepository: FavoritoRepository,
-    private readonly notificationRepository: NotificacionRepository,
-    private readonly categoryRepository: CategoriaRepository,
+    private readonly userRepository: UserRepository,
+    private readonly favoriteRepository: FavoriteRepository,
+    private readonly notificationRepository: NotificationRepository,
+    private readonly categoryRepository: CategoryRepository,
   ) {}
 
   async execute(input: DeleteAccountInput): Promise<void> {
-    const user = await this.userRepository.obtener(input.userId);
+    const user = await this.userRepository.findById(input.userId);
     if (!user) {
       throw new Error("User not found");
     }
 
-    const favorites = await this.favoriteRepository.obtenerPorUsuario(input.userId);
+    const favorites = await this.favoriteRepository.findByUser(input.userId);
     for (const fav of favorites) {
-      await this.favoriteRepository.eliminar(fav.id);
+      await this.favoriteRepository.delete(fav.id);
     }
 
-    const notifications = await this.notificationRepository.obtenerPorUsuario(input.userId);
+    const notifications = await this.notificationRepository.findByUser(input.userId);
     for (const notif of notifications) {
-      await this.notificationRepository.eliminar(notif.id);
+      await this.notificationRepository.delete(notif.id);
     }
 
-    const categories = await this.categoryRepository.obtenerPorUsuario(input.userId);
+    const categories = await this.categoryRepository.findByUser(input.userId);
     for (const cat of categories) {
-      await this.categoryRepository.eliminar(cat.id);
+      await this.categoryRepository.delete(cat.id);
     }
 
-    await this.userRepository.eliminar(input.userId);
+    await this.userRepository.delete(input.userId);
   }
 }

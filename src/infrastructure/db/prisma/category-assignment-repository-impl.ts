@@ -1,9 +1,9 @@
-import { AsignacionCategoria, AssignmentOrigin } from "@/domain/category";
-import { AsignacionCategoriaRepository } from "@/domain/category";
+import { CategoryAssignment, AssignmentOrigin } from "@/domain/category";
+import { CategoryAssignmentRepository } from "@/domain/category";
 import { prisma } from "./client";
 
-export class PrismaCategoryAssignmentRepository implements AsignacionCategoriaRepository {
-  async crear(assignment: AsignacionCategoria): Promise<void> {
+export class PrismaCategoryAssignmentRepository implements CategoryAssignmentRepository {
+  async create(assignment: CategoryAssignment): Promise<void> {
     await prisma.categoryAssignment.create({
       data: {
         articleId: assignment.articleId,
@@ -15,13 +15,13 @@ export class PrismaCategoryAssignmentRepository implements AsignacionCategoriaRe
     });
   }
 
-  async obtenerPorNoticia(articleId: string): Promise<AsignacionCategoria[]> {
+  async findByArticle(articleId: string): Promise<CategoryAssignment[]> {
     const rows = await prisma.categoryAssignment.findMany({
       where: { articleId },
     });
 
     return rows.map((row) =>
-      AsignacionCategoria.create({
+      CategoryAssignment.create({
         articleId: row.articleId,
         categoryId: row.categoryId,
         userId: row.userId ?? "",
@@ -31,7 +31,7 @@ export class PrismaCategoryAssignmentRepository implements AsignacionCategoriaRe
     );
   }
 
-  async actualizarOrigen(
+  async updateOrigin(
     articleId: string,
     categoryId: string,
     origin: AssignmentOrigin,

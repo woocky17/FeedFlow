@@ -1,17 +1,17 @@
-export interface FavoritoProps {
+export interface FavoriteProps {
   id: string;
   userId: string;
   articleId: string;
   createdAt: Date;
 }
 
-export class Favorito {
+export class Favorite {
   readonly id: string;
   readonly userId: string;
   readonly articleId: string;
   readonly createdAt: Date;
 
-  private constructor(props: FavoritoProps) {
+  private constructor(props: FavoriteProps) {
     this.id = props.id;
     this.userId = props.userId;
     this.articleId = props.articleId;
@@ -19,10 +19,10 @@ export class Favorito {
   }
 
   static create(
-    props: FavoritoProps,
-    existingFavoritos: Favorito[] = [],
-  ): Favorito {
-    const duplicate = existingFavoritos.some(
+    props: FavoriteProps,
+    existingFavorites: Favorite[] = [],
+  ): Favorite {
+    const duplicate = existingFavorites.some(
       (fav) =>
         fav.userId === props.userId && fav.articleId === props.articleId,
     );
@@ -31,6 +31,6 @@ export class Favorito {
       throw new Error("User already has this article as a favorite");
     }
 
-    return new Favorito(props);
+    return new Favorite(props);
   }
 }

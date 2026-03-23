@@ -1,9 +1,9 @@
-export { Categoria } from "./categoria-entity";
-export type { CategoriaProps, CategoriaType } from "./categoria-entity";
-export { AsignacionCategoria } from "./asignacion-categoria-entity";
+export { Category } from "./categoria-entity";
+export type { CategoryProps, CategoryType } from "./categoria-entity";
+export { CategoryAssignment } from "./asignacion-categoria-entity";
 export type {
-  AsignacionCategoriaProps,
+  CategoryAssignmentProps,
   AssignmentOrigin,
 } from "./asignacion-categoria-entity";
-export type { CategoriaRepository } from "./categoria-repository";
-export type { AsignacionCategoriaRepository } from "./asignacion-categoria-repository";
+export type { CategoryRepository } from "./categoria-repository";
+export type { CategoryAssignmentRepository } from "./asignacion-categoria-repository";

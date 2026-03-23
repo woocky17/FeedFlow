@@ -1,4 +1,4 @@
-import { UsuarioRepository } from "@/domain/user";
+import { UserRepository } from "@/domain/user";
 
 export interface PasswordVerifier {
   verify(password: string, hash: string): Promise<boolean>;
@@ -20,13 +20,13 @@ interface LoginOutput {
 
 export class Login {
   constructor(
-    private readonly userRepository: UsuarioRepository,
+    private readonly userRepository: UserRepository,
     private readonly passwordVerifier: PasswordVerifier,
     private readonly tokenGenerator: TokenGenerator,
   ) {}
 
   async execute(input: LoginInput): Promise<LoginOutput> {
-    const user = await this.userRepository.obtenerPorEmail(input.email);
+    const user = await this.userRepository.findByEmail(input.email);
     if (!user) {
       throw new Error("Invalid email or password");
     }

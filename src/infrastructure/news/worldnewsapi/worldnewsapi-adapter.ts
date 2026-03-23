@@ -1,5 +1,5 @@
-import { Noticia } from "@/domain/article";
-import { NoticiasFetcher } from "@/domain/article";
+import { Article } from "@/domain/article";
+import { ArticleFetcher } from "@/domain/article";
 import { Source } from "@/domain/source";
 import { mapWorldNewsArticle, WorldNewsArticle } from "./article-mapper";
 
@@ -10,8 +10,8 @@ interface WorldNewsResponse {
   available: number;
 }
 
-export class WorldNewsApiAdapter implements NoticiasFetcher {
-  async fetchPorFuente(source: Source): Promise<Noticia[]> {
+export class WorldNewsApiAdapter implements ArticleFetcher {
+  async fetchBySource(source: Source): Promise<Article[]> {
     if (!source.apiKey) {
       throw new Error(`Source "${source.name}" has no API key configured`);
     }
@@ -31,7 +31,7 @@ export class WorldNewsApiAdapter implements NoticiasFetcher {
 
     return (data.news ?? [])
       .filter((a) => a.title && a.url)
-      .map((a) => Noticia.create(mapWorldNewsArticle(a, source.id)));
+      .map((a) => Article.create(mapWorldNewsArticle(a, source.id)));
   }
 
   private extractDomain(url: string): string {

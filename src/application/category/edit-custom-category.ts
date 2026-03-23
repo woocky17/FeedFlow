@@ -1,5 +1,5 @@
-import { Categoria } from "@/domain/category";
-import { CategoriaRepository } from "@/domain/category";
+import { Category } from "@/domain/category";
+import { CategoryRepository } from "@/domain/category";
 
 interface EditCustomCategoryInput {
   categoryId: string;
@@ -8,10 +8,10 @@ interface EditCustomCategoryInput {
 }
 
 export class EditCustomCategory {
-  constructor(private readonly categoryRepository: CategoriaRepository) {}
+  constructor(private readonly categoryRepository: CategoryRepository) {}
 
-  async execute(input: EditCustomCategoryInput): Promise<Categoria> {
-    const category = await this.categoryRepository.obtener(input.categoryId);
+  async execute(input: EditCustomCategoryInput): Promise<Category> {
+    const category = await this.categoryRepository.findById(input.categoryId);
     if (!category) {
       throw new Error("Category not found");
     }
@@ -20,7 +20,7 @@ export class EditCustomCategory {
       throw new Error("Category does not belong to this user");
     }
 
-    const updated = Categoria.create({
+    const updated = Category.create({
       id: category.id,
       name: input.name,
       type: category.type,
@@ -28,7 +28,7 @@ export class EditCustomCategory {
       createdAt: category.createdAt,
     });
 
-    await this.categoryRepository.actualizar(updated);
+    await this.categoryRepository.update(updated);
 
     return updated;
   }

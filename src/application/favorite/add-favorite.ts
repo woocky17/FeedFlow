@@ -1,5 +1,5 @@
-import { Favorito } from "@/domain/favorite";
-import { FavoritoRepository } from "@/domain/favorite";
+import { Favorite } from "@/domain/favorite";
+import { FavoriteRepository } from "@/domain/favorite";
 
 interface AddFavoriteInput {
   id: string;
@@ -8,12 +8,12 @@ interface AddFavoriteInput {
 }
 
 export class AddFavorite {
-  constructor(private readonly favoriteRepository: FavoritoRepository) {}
+  constructor(private readonly favoriteRepository: FavoriteRepository) {}
 
-  async execute(input: AddFavoriteInput): Promise<Favorito> {
-    const existing = await this.favoriteRepository.obtenerPorUsuario(input.userId);
+  async execute(input: AddFavoriteInput): Promise<Favorite> {
+    const existing = await this.favoriteRepository.findByUser(input.userId);
 
-    const favorite = Favorito.create(
+    const favorite = Favorite.create(
       {
         id: input.id,
         userId: input.userId,
@@ -23,7 +23,7 @@ export class AddFavorite {
       existing,
     );
 
-    await this.favoriteRepository.anadir(favorite);
+    await this.favoriteRepository.add(favorite);
 
     return favorite;
   }

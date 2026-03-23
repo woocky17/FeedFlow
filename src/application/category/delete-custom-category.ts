@@ -1,4 +1,4 @@
-import { CategoriaRepository } from "@/domain/category";
+import { CategoryRepository } from "@/domain/category";
 
 interface DeleteCustomCategoryInput {
   categoryId: string;
@@ -6,10 +6,10 @@ interface DeleteCustomCategoryInput {
 }
 
 export class DeleteCustomCategory {
-  constructor(private readonly categoryRepository: CategoriaRepository) {}
+  constructor(private readonly categoryRepository: CategoryRepository) {}
 
   async execute(input: DeleteCustomCategoryInput): Promise<void> {
-    const category = await this.categoryRepository.obtener(input.categoryId);
+    const category = await this.categoryRepository.findById(input.categoryId);
     if (!category) {
       throw new Error("Category not found");
     }
@@ -18,6 +18,6 @@ export class DeleteCustomCategory {
       throw new Error("Category does not belong to this user");
     }
 
-    await this.categoryRepository.eliminar(input.categoryId);
+    await this.categoryRepository.delete(input.categoryId);
   }
 }

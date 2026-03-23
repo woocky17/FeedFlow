@@ -1,5 +1,5 @@
 import { User } from "@/domain/user";
-import { UsuarioRepository } from "@/domain/user";
+import { UserRepository } from "@/domain/user";
 
 export interface PasswordHasher {
   hash(password: string): Promise<string>;
@@ -13,12 +13,12 @@ interface RegisterUserInput {
 
 export class RegisterUser {
   constructor(
-    private readonly userRepository: UsuarioRepository,
+    private readonly userRepository: UserRepository,
     private readonly passwordHasher: PasswordHasher,
   ) {}
 
   async execute(input: RegisterUserInput): Promise<User> {
-    const existing = await this.userRepository.obtenerPorEmail(input.email);
+    const existing = await this.userRepository.findByEmail(input.email);
     if (existing) {
       throw new Error("Email is already registered");
     }
@@ -33,7 +33,7 @@ export class RegisterUser {
       createdAt: new Date(),
     });
 
-    await this.userRepository.guardar(user);
+    await this.userRepository.save(user);
 
     return user;
   }
