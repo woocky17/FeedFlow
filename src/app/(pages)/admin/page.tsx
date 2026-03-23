@@ -26,7 +26,7 @@ export default function AdminPage() {
 
   async function loadSources() {
     try {
-      const res = await fetch("/api/noticias?sources=true");
+      const res = await fetch("/api/articles?sources=true");
       const data = await res.json();
       setSources(Array.isArray(data) ? data : []);
     } catch {
@@ -40,7 +40,7 @@ export default function AdminPage() {
     e.preventDefault();
     setError("");
     try {
-      const res = await fetch("/api/admin/fuentes", {
+      const res = await fetch("/api/admin/sources", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name: newName, baseUrl: newUrl }),
@@ -61,7 +61,7 @@ export default function AdminPage() {
   async function handleUpdate(id: string) {
     setError("");
     try {
-      const res = await fetch(`/api/admin/fuentes/${id}`, {
+      const res = await fetch(`/api/admin/sources/${id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name: editName, baseUrl: editUrl }),
@@ -81,7 +81,7 @@ export default function AdminPage() {
   async function handleDelete(id: string) {
     setError("");
     try {
-      await fetch(`/api/admin/fuentes/${id}`, { method: "DELETE" });
+      await fetch(`/api/admin/sources/${id}`, { method: "DELETE" });
       loadSources();
     } catch {
       setError("Failed to delete source");

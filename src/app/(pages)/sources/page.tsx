@@ -20,7 +20,7 @@ export default function FuentesPage() {
 
   async function loadSources() {
     try {
-      const res = await fetch("/api/noticias?sources=true");
+      const res = await fetch("/api/articles?sources=true");
       const data = await res.json();
       setSources(Array.isArray(data) ? data : []);
     } catch {
@@ -32,7 +32,7 @@ export default function FuentesPage() {
 
   async function toggleSource(id: string, active: boolean) {
     try {
-      await fetch(`/api/admin/fuentes/${id}`, {
+      await fetch(`/api/admin/sources/${id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ active: !active }),

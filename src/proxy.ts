@@ -7,6 +7,7 @@ export const config = {
     "/sources/:path*",
     "/notifications/:path*",
     "/admin/:path*",
+    "/api/articles/:path*",
     "/api/categories/:path*",
     "/api/favorites/:path*",
     "/api/notifications/:path*",

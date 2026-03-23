@@ -20,7 +20,7 @@ export default function NotificacionesPage() {
 
   async function loadNotifications() {
     try {
-      const res = await fetch("/api/notificaciones");
+      const res = await fetch("/api/notifications");
       const data = await res.json();
       setNotifications(Array.isArray(data) ? data : []);
     } catch {
@@ -32,7 +32,7 @@ export default function NotificacionesPage() {
 
   async function markAsRead(id: string) {
     try {
-      await fetch(`/api/notificaciones/${id}/leer`, { method: "PUT" });
+      await fetch(`/api/notifications/${id}/read`, { method: "PUT" });
       setNotifications((prev) =>
         prev.map((n) => (n.id === id ? { ...n, read: true } : n))
       );

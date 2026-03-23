@@ -26,7 +26,7 @@ export default function FavoritosPage() {
 
   async function loadFavorites() {
     try {
-      const res = await fetch("/api/favoritos");
+      const res = await fetch("/api/favorites");
       const data = await res.json();
       setFavorites(Array.isArray(data) ? data : []);
     } catch {
@@ -38,7 +38,7 @@ export default function FavoritosPage() {
 
   async function removeFavorite(id: string) {
     try {
-      await fetch(`/api/favoritos/${id}`, { method: "DELETE" });
+      await fetch(`/api/favorites/${id}`, { method: "DELETE" });
       setFavorites((prev) => prev.filter((f) => f.id !== id));
     } catch {
       // silently fail

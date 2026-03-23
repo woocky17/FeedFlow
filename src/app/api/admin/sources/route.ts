@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { auth } from "@/lib/auth";
 import { AddSource } from "@/application/source";
 import { PrismaSourceRepository } from "@/infrastructure/db/prisma/source-repository-impl";
 import { randomUUID } from "crypto";
@@ -8,8 +9,12 @@ const addSource = new AddSource(sourceRepository);
 
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json();
-    const { name, baseUrl } = body;
+    const session = await auth();
+    if (!session?.user?.id || (session.user as { role: string }).role !== "admin") {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    }
+
+    const { name, baseUrl } = await request.json();
 
     if (!name || !baseUrl) {
       return NextResponse.json({ error: "name and baseUrl are required" }, { status: 400 });
@@ -23,7 +28,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(source, { status: 201 });
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Internal server error";
+    const message = error instanceof Error ? error.message : "Failed to add source";
     return NextResponse.json({ error: message }, { status: 400 });
   }
 }

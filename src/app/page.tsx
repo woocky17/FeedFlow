@@ -26,7 +26,7 @@ export default function FeedPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch("/api/noticias")
+    fetch("/api/articles")
       .then((res) => res.json())
       .then((data) => {
         setArticles(Array.isArray(data) ? data : []);
@@ -34,7 +34,7 @@ export default function FeedPage() {
       })
       .catch(() => setLoading(false));
 
-    fetch("/api/categorias")
+    fetch("/api/categories")
       .then((res) => res.json())
       .then((data) => setCategories(Array.isArray(data) ? data : []))
       .catch(() => {});
@@ -44,7 +44,7 @@ export default function FeedPage() {
     setActiveCategory(categoryId);
     setLoading(true);
 
-    const url = categoryId ? `/api/noticias?categoryId=${categoryId}` : "/api/noticias";
+    const url = categoryId ? `/api/articles?categoryId=${categoryId}` : "/api/articles";
     fetch(url)
       .then((res) => res.json())
       .then((data) => {

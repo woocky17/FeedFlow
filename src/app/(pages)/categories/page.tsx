@@ -23,7 +23,7 @@ export default function CategoriasPage() {
 
   async function loadCategories() {
     try {
-      const res = await fetch("/api/categorias");
+      const res = await fetch("/api/categories");
       const data = await res.json();
       setCategories(Array.isArray(data) ? data : []);
     } catch {
@@ -37,7 +37,7 @@ export default function CategoriasPage() {
     e.preventDefault();
     setError("");
     try {
-      const res = await fetch("/api/categorias", {
+      const res = await fetch("/api/categories", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name: newName }),
@@ -57,7 +57,7 @@ export default function CategoriasPage() {
   async function handleUpdate(id: string) {
     setError("");
     try {
-      const res = await fetch(`/api/categorias/${id}`, {
+      const res = await fetch(`/api/categories/${id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name: editName }),
@@ -77,7 +77,7 @@ export default function CategoriasPage() {
   async function handleDelete(id: string) {
     setError("");
     try {
-      await fetch(`/api/categorias/${id}`, { method: "DELETE" });
+      await fetch(`/api/categories/${id}`, { method: "DELETE" });
       loadCategories();
     } catch {
       setError("Failed to delete category");
