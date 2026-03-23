@@ -4,6 +4,7 @@ interface EditSourceInput {
   sourceId: string;
   name?: string;
   baseUrl?: string;
+  apiKey?: string;
 }
 
 export class EditSource {
@@ -19,6 +20,7 @@ export class EditSource {
       id: source.id,
       name: input.name ?? source.name,
       baseUrl: input.baseUrl ?? source.baseUrl,
+      apiKey: input.apiKey ?? source.apiKey,
       active: source.active,
       createdAt: source.createdAt,
     });

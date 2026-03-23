@@ -18,6 +18,6 @@ export class ReadArticles {
       return this.articleRepository.obtenerPorFuente(input.sourceId);
     }
 
-    return [];
+    return this.articleRepository.obtenerTodas();
   }
 }

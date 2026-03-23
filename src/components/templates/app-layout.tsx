@@ -2,14 +2,13 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { signOut } from "next-auth/react";
+import { signOut, useSession } from "next-auth/react";
 
 const navItems = [
-  { href: "/", label: "Feed", icon: "M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2" },
-  { href: "/categories", label: "Categories", icon: "M7 7h.01M7 3h5a1.969 1.969 0 011.414.586l7 7a2 2 0 010 2.828l-7 7A2 2 0 0112 21H7a4 4 0 01-4-4V7a4 4 0 014-4z" },
-  { href: "/sources", label: "Sources", icon: "M4 11a9 9 0 019 9M4 4a16 16 0 0116 16M5 19a1 1 0 100-2 1 1 0 000 2z" },
-  { href: "/favorites", label: "Favorites", icon: "M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" },
-  { href: "/notifications", label: "Notifications", icon: "M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" },
+  { href: "/", label: "Feed", icon: "M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2", adminOnly: false },
+  { href: "/categories", label: "Categories", icon: "M7 7h.01M7 3h5a1.969 1.969 0 011.414.586l7 7a2 2 0 010 2.828l-7 7A2 2 0 0112 21H7a4 4 0 01-4-4V7a4 4 0 014-4z", adminOnly: false },
+  { href: "/sources", label: "Sources", icon: "M4 11a9 9 0 019 9M4 4a16 16 0 0116 16M5 19a1 1 0 100-2 1 1 0 000 2z", adminOnly: true },
+  { href: "/notifications", label: "Notifications", icon: "M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9", adminOnly: false },
 ];
 
 interface AppLayoutProps {
@@ -20,6 +19,9 @@ interface AppLayoutProps {
 
 export function AppLayout({ children, title, actions }: AppLayoutProps) {
   const pathname = usePathname();
+  const { data: session } = useSession();
+  const userRole = (session?.user as { role?: string })?.role;
+  const filteredNavItems = navItems.filter((item) => !item.adminOnly || userRole === "admin");
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -38,7 +40,7 @@ export function AppLayout({ children, title, actions }: AppLayoutProps) {
           </Link>
 
           <nav className="hidden sm:flex items-center gap-1">
-            {navItems.map((item) => {
+            {filteredNavItems.map((item) => {
               const isActive = item.href === "/" ? pathname === "/" : pathname.startsWith(item.href);
               return (
                 <Link
@@ -59,17 +61,26 @@ export function AppLayout({ children, title, actions }: AppLayoutProps) {
             })}
           </nav>
 
-          <button
-            onClick={() => signOut({ callbackUrl: "/login" })}
-            className="rounded-lg px-3 py-1.5 text-sm font-medium text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600"
-          >
-            Sign out
-          </button>
+          {session ? (
+            <button
+              onClick={() => signOut({ callbackUrl: "/" })}
+              className="rounded-lg px-3 py-1.5 text-sm font-medium text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600"
+            >
+              Sign out
+            </button>
+          ) : (
+            <Link
+              href="/login"
+              className="rounded-lg px-3 py-1.5 text-sm font-medium text-amber-600 transition-colors hover:bg-amber-50 hover:text-amber-700"
+            >
+              Sign in
+            </Link>
+          )}
         </div>
 
         {/* Mobile nav */}
         <nav className="flex sm:hidden overflow-x-auto border-t border-slate-100 px-2 py-1 gap-1">
-          {navItems.map((item) => {
+          {filteredNavItems.map((item) => {
             const isActive = item.href === "/" ? pathname === "/" : pathname.startsWith(item.href);
             return (
               <Link

@@ -7,6 +7,25 @@ import { randomUUID } from "crypto";
 const categoryRepository = new PrismaCategoryRepository();
 const createCustomCategory = new CreateCustomCategory(categoryRepository);
 
+export async function GET() {
+  try {
+    const session = await auth();
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const [defaultCategories, userCategories] = await Promise.all([
+      categoryRepository.obtenerDefault(),
+      categoryRepository.obtenerPorUsuario(session.user.id),
+    ]);
+
+    return NextResponse.json([...defaultCategories, ...userCategories]);
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Failed to load categories";
+    return NextResponse.json({ error: message }, { status: 500 });
+  }
+}
+
 export async function POST(request: NextRequest) {
   try {
     const session = await auth();

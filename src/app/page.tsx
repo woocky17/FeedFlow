@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useSession } from "next-auth/react";
 import { AppLayout } from "@/components/templates/app-layout";
 
 interface Article {
@@ -20,10 +21,14 @@ interface Category {
 }
 
 export default function FeedPage() {
+  const { data: session } = useSession();
   const [articles, setArticles] = useState<Article[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
+  const [showFavorites, setShowFavorites] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [favoriteIds, setFavoriteIds] = useState<Set<string>>(new Set());
+  const [animatingId, setAnimatingId] = useState<string | null>(null);
 
   useEffect(() => {
     fetch("/api/articles")
@@ -40,6 +45,44 @@ export default function FeedPage() {
       .catch(() => {});
   }, []);
 
+  useEffect(() => {
+    if (!session) return;
+    fetch("/api/favorites")
+      .then((res) => res.json())
+      .then((data) => {
+        if (Array.isArray(data)) {
+          setFavoriteIds(new Set(data.map((f: { articleId: string }) => f.articleId)));
+        }
+      })
+      .catch(() => {});
+  }, [session]);
+
+  async function toggleFavorite(e: React.MouseEvent, articleId: string) {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!session) return;
+
+    const isFav = favoriteIds.has(articleId);
+    setAnimatingId(articleId);
+    setTimeout(() => setAnimatingId(null), 400);
+
+    if (isFav) {
+      setFavoriteIds((prev) => {
+        const next = new Set(prev);
+        next.delete(articleId);
+        return next;
+      });
+      await fetch(`/api/favorites/${articleId}`, { method: "DELETE" }).catch(() => {});
+    } else {
+      setFavoriteIds((prev) => new Set(prev).add(articleId));
+      await fetch("/api/favorites", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ articleId }),
+      }).catch(() => {});
+    }
+  }
+
   function handleCategoryFilter(categoryId: string | null) {
     setActiveCategory(categoryId);
     setLoading(true);
@@ -54,20 +97,39 @@ export default function FeedPage() {
       .catch(() => setLoading(false));
   }
 
+  const displayedArticles = showFavorites
+    ? articles.filter((a) => favoriteIds.has(a.id))
+    : articles;
+
   return (
     <AppLayout title="Feed">
       {/* Category filters */}
       <div className="mb-6 flex flex-wrap gap-2">
         <button
-          onClick={() => handleCategoryFilter(null)}
+          onClick={() => { handleCategoryFilter(null); setShowFavorites(false); }}
           className={`rounded-full px-4 py-1.5 text-sm font-medium transition-colors ${
-            activeCategory === null
+            activeCategory === null && !showFavorites
               ? "bg-amber-500 text-white shadow-sm"
               : "bg-white text-slate-500 border border-slate-200 hover:border-amber-300"
           }`}
         >
           All
         </button>
+        {session && (
+          <button
+            onClick={() => setShowFavorites(!showFavorites)}
+            className={`flex items-center gap-1.5 rounded-full px-4 py-1.5 text-sm font-medium transition-colors ${
+              showFavorites
+                ? "bg-red-500 text-white shadow-sm"
+                : "bg-white text-slate-500 border border-slate-200 hover:border-red-300"
+            }`}
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill={showFavorites ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+            </svg>
+            Favorites
+          </button>
+        )}
         {categories.map((cat) => (
           <button
             key={cat.id}
@@ -91,21 +153,52 @@ export default function FeedPage() {
             <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
           </svg>
         </div>
-      ) : articles.length === 0 ? (
+      ) : displayedArticles.length === 0 ? (
         <div className="rounded-2xl border border-dashed border-slate-200 bg-white py-16 text-center">
-          <p className="text-slate-400">No articles found</p>
-          <p className="mt-1 text-sm text-slate-300">Articles will appear here once sources are synced.</p>
+          <p className="text-slate-400">{showFavorites ? "No favorites yet" : "No articles found"}</p>
+          <p className="mt-1 text-sm text-slate-300">
+            {showFavorites
+              ? "Tap the heart on any article to save it here."
+              : "Articles will appear here once sources are synced."}
+          </p>
         </div>
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {articles.map((article) => (
+          {displayedArticles.map((article) => (
             <a
               key={article.id}
               href={article.url}
               target="_blank"
               rel="noopener noreferrer"
-              className="group flex flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white transition-all hover:shadow-lg hover:shadow-slate-200/50 hover:border-amber-200"
+              className="group relative flex flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white transition-all hover:shadow-lg hover:shadow-slate-200/50 hover:border-amber-200"
             >
+              {session && (
+                <button
+                  onClick={(e) => toggleFavorite(e, article.id)}
+                  className="absolute top-3 right-3 z-10 rounded-full bg-white/80 p-1.5 backdrop-blur-sm transition-all hover:bg-white hover:scale-110"
+                >
+                  <svg
+                    width="20"
+                    height="20"
+                    viewBox="0 0 24 24"
+                    fill={favoriteIds.has(article.id) ? "currentColor" : "none"}
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className={`transition-all duration-300 ${
+                      favoriteIds.has(article.id)
+                        ? "text-red-500"
+                        : "text-slate-400 hover:text-red-400"
+                    } ${animatingId === article.id ? "scale-125" : ""}`}
+                    style={{
+                      transition: "transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), color 0.3s, fill 0.3s",
+                    }}
+                  >
+                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+                  </svg>
+                </button>
+              )}
               {article.image && (
                 <div className="aspect-video overflow-hidden bg-slate-100">
                   <img

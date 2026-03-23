@@ -53,6 +53,22 @@ export class PrismaCategoryRepository implements CategoriaRepository {
     );
   }
 
+  async obtenerDefault(): Promise<Categoria[]> {
+    const rows = await prisma.category.findMany({
+      where: { type: "DEFAULT", userId: null },
+    });
+
+    return rows.map((row) =>
+      Categoria.create({
+        id: row.id,
+        name: row.name,
+        type: "default",
+        userId: row.userId,
+        createdAt: row.createdAt,
+      }),
+    );
+  }
+
   async eliminar(id: string): Promise<void> {
     await prisma.category.delete({ where: { id } });
   }

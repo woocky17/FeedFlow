@@ -7,6 +7,7 @@ interface Source {
   id: string;
   name: string;
   baseUrl: string;
+  apiKey: string;
   active: boolean;
 }
 
@@ -14,9 +15,11 @@ export default function AdminPage() {
   const [sources, setSources] = useState<Source[]>([]);
   const [newName, setNewName] = useState("");
   const [newUrl, setNewUrl] = useState("");
+  const [newApiKey, setNewApiKey] = useState("");
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editName, setEditName] = useState("");
   const [editUrl, setEditUrl] = useState("");
+  const [editApiKey, setEditApiKey] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -26,7 +29,7 @@ export default function AdminPage() {
 
   async function loadSources() {
     try {
-      const res = await fetch("/api/articles?sources=true");
+      const res = await fetch("/api/admin/sources");
       const data = await res.json();
       setSources(Array.isArray(data) ? data : []);
     } catch {
@@ -43,7 +46,7 @@ export default function AdminPage() {
       const res = await fetch("/api/admin/sources", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: newName, baseUrl: newUrl }),
+        body: JSON.stringify({ name: newName, baseUrl: newUrl, apiKey: newApiKey }),
       });
       if (!res.ok) {
         const data = await res.json();
@@ -52,6 +55,7 @@ export default function AdminPage() {
       }
       setNewName("");
       setNewUrl("");
+      setNewApiKey("");
       loadSources();
     } catch {
       setError("Failed to add source");
@@ -64,7 +68,7 @@ export default function AdminPage() {
       const res = await fetch(`/api/admin/sources/${id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: editName, baseUrl: editUrl }),
+        body: JSON.stringify({ name: editName, baseUrl: editUrl, apiKey: editApiKey }),
       });
       if (!res.ok) {
         const data = await res.json();
@@ -95,29 +99,41 @@ export default function AdminPage() {
         <h2 className="mb-4 text-sm font-semibold uppercase tracking-wider text-slate-400">
           Add News Source
         </h2>
-        <form onSubmit={handleCreate} className="flex flex-col gap-3 sm:flex-row">
-          <input
-            type="text"
-            placeholder="Source name"
-            value={newName}
-            onChange={(e) => setNewName(e.target.value)}
-            required
-            className="flex-1 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-900 outline-none placeholder:text-slate-300 focus:border-amber-400 focus:ring-2 focus:ring-amber-400/20"
-          />
-          <input
-            type="url"
-            placeholder="https://example.com"
-            value={newUrl}
-            onChange={(e) => setNewUrl(e.target.value)}
-            required
-            className="flex-1 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-900 outline-none placeholder:text-slate-300 focus:border-amber-400 focus:ring-2 focus:ring-amber-400/20"
-          />
-          <button
-            type="submit"
-            className="rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:shadow-md hover:brightness-110 active:scale-[0.98]"
-          >
-            Add source
-          </button>
+        <form onSubmit={handleCreate} className="flex flex-col gap-3">
+          <div className="flex flex-col gap-3 sm:flex-row">
+            <input
+              type="text"
+              placeholder="Source name"
+              value={newName}
+              onChange={(e) => setNewName(e.target.value)}
+              required
+              className="flex-1 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-900 outline-none placeholder:text-slate-300 focus:border-amber-400 focus:ring-2 focus:ring-amber-400/20"
+            />
+            <input
+              type="url"
+              placeholder="https://example.com"
+              value={newUrl}
+              onChange={(e) => setNewUrl(e.target.value)}
+              required
+              className="flex-1 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-900 outline-none placeholder:text-slate-300 focus:border-amber-400 focus:ring-2 focus:ring-amber-400/20"
+            />
+          </div>
+          <div className="flex flex-col gap-3 sm:flex-row">
+            <input
+              type="text"
+              placeholder="API Key (WorldNewsAPI)"
+              value={newApiKey}
+              onChange={(e) => setNewApiKey(e.target.value)}
+              required
+              className="flex-1 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-900 outline-none placeholder:text-slate-300 focus:border-amber-400 focus:ring-2 focus:ring-amber-400/20"
+            />
+            <button
+              type="submit"
+              className="rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:shadow-md hover:brightness-110 active:scale-[0.98]"
+            >
+              Add source
+            </button>
+          </div>
         </form>
       </div>
 
@@ -144,38 +160,54 @@ export default function AdminPage() {
               className="flex items-center justify-between rounded-xl border border-slate-200 bg-white px-4 py-3 transition-colors hover:border-amber-200"
             >
               {editingId === source.id ? (
-                <div className="flex flex-1 items-center gap-3">
-                  <input
-                    type="text"
-                    value={editName}
-                    onChange={(e) => setEditName(e.target.value)}
-                    className="flex-1 rounded-lg border border-slate-200 px-3 py-1.5 text-sm outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-400/20"
-                    autoFocus
-                  />
-                  <input
-                    type="url"
-                    value={editUrl}
-                    onChange={(e) => setEditUrl(e.target.value)}
-                    className="flex-1 rounded-lg border border-slate-200 px-3 py-1.5 text-sm outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-400/20"
-                  />
-                  <button
-                    onClick={() => handleUpdate(source.id)}
-                    className="text-sm font-medium text-amber-600 hover:text-amber-700"
-                  >
-                    Save
-                  </button>
-                  <button
-                    onClick={() => setEditingId(null)}
-                    className="text-sm text-slate-400 hover:text-slate-600"
-                  >
-                    Cancel
-                  </button>
+                <div className="flex flex-1 flex-col gap-2">
+                  <div className="flex items-center gap-3">
+                    <input
+                      type="text"
+                      value={editName}
+                      onChange={(e) => setEditName(e.target.value)}
+                      placeholder="Name"
+                      className="flex-1 rounded-lg border border-slate-200 px-3 py-1.5 text-sm outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-400/20"
+                      autoFocus
+                    />
+                    <input
+                      type="url"
+                      value={editUrl}
+                      onChange={(e) => setEditUrl(e.target.value)}
+                      placeholder="URL"
+                      className="flex-1 rounded-lg border border-slate-200 px-3 py-1.5 text-sm outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-400/20"
+                    />
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <input
+                      type="text"
+                      value={editApiKey}
+                      onChange={(e) => setEditApiKey(e.target.value)}
+                      placeholder="API Key"
+                      className="flex-1 rounded-lg border border-slate-200 px-3 py-1.5 text-sm outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-400/20"
+                    />
+                    <button
+                      onClick={() => handleUpdate(source.id)}
+                      className="text-sm font-medium text-amber-600 hover:text-amber-700"
+                    >
+                      Save
+                    </button>
+                    <button
+                      onClick={() => setEditingId(null)}
+                      className="text-sm text-slate-400 hover:text-slate-600"
+                    >
+                      Cancel
+                    </button>
+                  </div>
                 </div>
               ) : (
                 <>
                   <div>
                     <p className="text-sm font-medium text-slate-700">{source.name}</p>
                     <p className="text-xs text-slate-400">{source.baseUrl}</p>
+                    <p className="text-xs text-slate-300 font-mono">
+                      {source.apiKey ? `${source.apiKey.slice(0, 8)}...` : "No API key"}
+                    </p>
                   </div>
                   <div className="flex items-center gap-2">
                     <span
@@ -192,6 +224,7 @@ export default function AdminPage() {
                         setEditingId(source.id);
                         setEditName(source.name);
                         setEditUrl(source.baseUrl);
+                        setEditApiKey(source.apiKey);
                       }}
                       className="rounded-lg p-1.5 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600"
                     >

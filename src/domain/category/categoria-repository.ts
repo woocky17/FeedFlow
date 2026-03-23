@@ -5,5 +5,6 @@ export interface CategoriaRepository {
   actualizar(categoria: Categoria): Promise<void>;
   obtener(id: string): Promise<Categoria | null>;
   obtenerPorUsuario(userId: string): Promise<Categoria[]>;
+  obtenerDefault(): Promise<Categoria[]>;
   eliminar(id: string): Promise<void>;
 }

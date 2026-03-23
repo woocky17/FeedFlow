@@ -2,6 +2,7 @@ export interface SourceProps {
   id: string;
   name: string;
   baseUrl: string;
+  apiKey: string;
   active: boolean;
   createdAt: Date;
 }
@@ -10,6 +11,7 @@ export class Source {
   readonly id: string;
   readonly name: string;
   readonly baseUrl: string;
+  readonly apiKey: string;
   readonly active: boolean;
   readonly createdAt: Date;
 
@@ -17,6 +19,7 @@ export class Source {
     this.id = props.id;
     this.name = props.name;
     this.baseUrl = props.baseUrl;
+    this.apiKey = props.apiKey;
     this.active = props.active;
     this.createdAt = props.createdAt;
   }

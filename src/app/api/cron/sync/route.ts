@@ -3,12 +3,12 @@ import { SyncArticles } from "@/application/article";
 import { PrismaSourceRepository } from "@/infrastructure/db/prisma/source-repository-impl";
 import { PrismaArticleRepository } from "@/infrastructure/db/prisma/article-repository-impl";
 import { PrismaCategoryAssignmentRepository } from "@/infrastructure/db/prisma/category-assignment-repository-impl";
-import { NewsApiAdapter } from "@/infrastructure/news/newsapi/newsapi-adapter";
+import { WorldNewsApiAdapter } from "@/infrastructure/news/worldnewsapi/worldnewsapi-adapter";
 
 const sourceRepository = new PrismaSourceRepository();
 const articleRepository = new PrismaArticleRepository();
 const assignmentRepository = new PrismaCategoryAssignmentRepository();
-const articlesFetcher = new NewsApiAdapter(process.env.NEWSAPI_KEY || "");
+const articlesFetcher = new WorldNewsApiAdapter();
 
 // Simple keyword-based classifier that maps to default category names
 const categoryClassifier = {

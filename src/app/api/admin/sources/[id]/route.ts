@@ -1,10 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
-import { EditSource, DeleteSource } from "@/application/source";
+import { EditSource, DeleteSource, ToggleSource } from "@/application/source";
 import { PrismaSourceRepository } from "@/infrastructure/db/prisma/source-repository-impl";
 
 const sourceRepository = new PrismaSourceRepository();
 const editSource = new EditSource(sourceRepository);
+const toggleSource = new ToggleSource(sourceRepository);
 const deleteSource = new DeleteSource(sourceRepository);
 
 export async function PUT(
@@ -18,12 +19,22 @@ export async function PUT(
     }
 
     const { id } = await params;
-    const { name, baseUrl } = await request.json();
+    const body = await request.json();
+
+    // If only `active` is sent, use ToggleSource
+    if ("active" in body && Object.keys(body).length === 1) {
+      const source = await toggleSource.execute({
+        sourceId: id,
+        active: body.active,
+      });
+      return NextResponse.json(source);
+    }
 
     const source = await editSource.execute({
       sourceId: id,
-      name,
-      baseUrl,
+      name: body.name,
+      baseUrl: body.baseUrl,
+      apiKey: body.apiKey,
     });
 
     return NextResponse.json(source);

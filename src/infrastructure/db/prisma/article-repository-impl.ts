@@ -18,6 +18,25 @@ export class PrismaArticleRepository implements NoticiaRepository {
     });
   }
 
+  async obtenerTodas(): Promise<Noticia[]> {
+    const rows = await prisma.article.findMany({
+      orderBy: { publishedAt: "desc" },
+    });
+
+    return rows.map((row) =>
+      Noticia.create({
+        id: row.id,
+        title: row.title,
+        url: row.url,
+        description: row.description ?? "",
+        image: row.image ?? "",
+        sourceId: row.sourceId,
+        publishedAt: row.publishedAt,
+        savedAt: row.savedAt,
+      }),
+    );
+  }
+
   async obtenerPorCategoria(categoryId: string): Promise<Noticia[]> {
     const rows = await prisma.article.findMany({
       where: {

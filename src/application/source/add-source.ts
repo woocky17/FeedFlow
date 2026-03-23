@@ -4,6 +4,7 @@ interface AddSourceInput {
   id: string;
   name: string;
   baseUrl: string;
+  apiKey: string;
 }
 
 export class AddSource {
@@ -14,6 +15,7 @@ export class AddSource {
       id: input.id,
       name: input.name,
       baseUrl: input.baseUrl,
+      apiKey: input.apiKey,
       active: true,
       createdAt: new Date(),
     });

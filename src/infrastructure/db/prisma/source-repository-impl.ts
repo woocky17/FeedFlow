@@ -8,6 +8,7 @@ export class PrismaSourceRepository implements SourceRepository {
         id: source.id,
         name: source.name,
         baseUrl: source.baseUrl,
+        apiKey: source.apiKey,
         active: source.active,
         createdAt: source.createdAt,
       },
@@ -23,9 +24,25 @@ export class PrismaSourceRepository implements SourceRepository {
       id: row.id,
       name: row.name,
       baseUrl: row.baseUrl,
+      apiKey: row.apiKey,
       active: row.active,
       createdAt: row.createdAt,
     });
+  }
+
+  async findAll(): Promise<Source[]> {
+    const rows = await prisma.source.findMany();
+
+    return rows.map((row) =>
+      Source.create({
+        id: row.id,
+        name: row.name,
+        baseUrl: row.baseUrl,
+        apiKey: row.apiKey,
+        active: row.active,
+        createdAt: row.createdAt,
+      }),
+    );
   }
 
   async findActive(): Promise<Source[]> {
@@ -36,6 +53,7 @@ export class PrismaSourceRepository implements SourceRepository {
         id: row.id,
         name: row.name,
         baseUrl: row.baseUrl,
+        apiKey: row.apiKey,
         active: row.active,
         createdAt: row.createdAt,
       }),
@@ -48,6 +66,7 @@ export class PrismaSourceRepository implements SourceRepository {
       data: {
         name: source.name,
         baseUrl: source.baseUrl,
+        apiKey: source.apiKey,
         active: source.active,
       },
     });
