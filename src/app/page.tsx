@@ -29,6 +29,9 @@ export default function FeedPage() {
   const [loading, setLoading] = useState(true);
   const [favoriteIds, setFavoriteIds] = useState<Set<string>>(new Set());
   const [animatingId, setAnimatingId] = useState<string | null>(null);
+  const [followedSourceIds, setFollowedSourceIds] = useState<Set<string>>(new Set());
+  const [followLoadingId, setFollowLoadingId] = useState<string | null>(null);
+  const [toast, setToast] = useState<{ type: "success" | "error"; text: string } | null>(null);
 
   useEffect(() => {
     fetch("/api/articles")
@@ -55,7 +58,51 @@ export default function FeedPage() {
         }
       })
       .catch(() => {});
+
+    fetch("/api/stories")
+      .then((res) => res.json())
+      .then((data) => {
+        if (Array.isArray(data)) {
+          setFollowedSourceIds(
+            new Set(
+              data
+                .map((s: { sourceArticleId?: string }) => s.sourceArticleId)
+                .filter((id): id is string => typeof id === "string"),
+            ),
+          );
+        }
+      })
+      .catch(() => {});
   }, [session]);
+
+  useEffect(() => {
+    if (!toast) return;
+    const timeout = setTimeout(() => setToast(null), 3500);
+    return () => clearTimeout(timeout);
+  }, [toast]);
+
+  async function followStory(e: React.MouseEvent, articleId: string) {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!session || followedSourceIds.has(articleId) || followLoadingId === articleId) return;
+
+    setFollowLoadingId(articleId);
+    try {
+      const res = await fetch("/api/stories", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ articleId }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data?.error || "Failed to follow story");
+      setFollowedSourceIds((prev) => new Set(prev).add(articleId));
+      setToast({ type: "success", text: `Following "${data.name}"` });
+    } catch (err) {
+      setToast({ type: "error", text: err instanceof Error ? err.message : "Follow failed" });
+    } finally {
+      setFollowLoadingId(null);
+    }
+  }
 
   async function toggleFavorite(e: React.MouseEvent, articleId: string) {
     e.preventDefault();
@@ -103,6 +150,17 @@ export default function FeedPage() {
 
   return (
     <AppLayout title="Feed">
+      {toast && (
+        <div
+          className={`fixed top-20 right-4 z-50 rounded-lg px-4 py-2 text-sm font-medium shadow-lg transition-all ${
+            toast.type === "success"
+              ? "bg-emerald-500 text-white"
+              : "bg-red-500 text-white"
+          }`}
+        >
+          {toast.text}
+        </div>
+      )}
       {/* Category filters */}
       <div className="mb-6 flex flex-wrap gap-2">
         <button
@@ -173,31 +231,64 @@ export default function FeedPage() {
               className="group relative flex flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white transition-all hover:shadow-lg hover:shadow-slate-200/50 hover:border-amber-200"
             >
               {session && (
-                <button
-                  onClick={(e) => toggleFavorite(e, article.id)}
-                  className="absolute top-3 right-3 z-10 rounded-full bg-white/80 p-1.5 backdrop-blur-sm transition-all hover:bg-white hover:scale-110"
-                >
-                  <svg
-                    width="20"
-                    height="20"
-                    viewBox="0 0 24 24"
-                    fill={favoriteIds.has(article.id) ? "currentColor" : "none"}
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    className={`transition-all duration-300 ${
-                      favoriteIds.has(article.id)
-                        ? "text-red-500"
-                        : "text-slate-400 hover:text-red-400"
-                    } ${animatingId === article.id ? "scale-125" : ""}`}
-                    style={{
-                      transition: "transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), color 0.3s, fill 0.3s",
-                    }}
+                <div className="absolute top-3 right-3 z-10 flex gap-1.5">
+                  <button
+                    onClick={(e) => followStory(e, article.id)}
+                    disabled={followedSourceIds.has(article.id) || followLoadingId === article.id}
+                    title={followedSourceIds.has(article.id) ? "Already following" : "Follow this story"}
+                    className="rounded-full bg-white/80 p-1.5 backdrop-blur-sm transition-all hover:bg-white hover:scale-110 disabled:cursor-default disabled:hover:scale-100"
                   >
-                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
-                  </svg>
-                </button>
+                    {followLoadingId === article.id ? (
+                      <svg className="h-5 w-5 animate-spin text-amber-500" viewBox="0 0 24 24" fill="none">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                      </svg>
+                    ) : (
+                      <svg
+                        width="20"
+                        height="20"
+                        viewBox="0 0 24 24"
+                        fill={followedSourceIds.has(article.id) ? "currentColor" : "none"}
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        className={`transition-all duration-300 ${
+                          followedSourceIds.has(article.id)
+                            ? "text-amber-500"
+                            : "text-slate-400 hover:text-amber-500"
+                        }`}
+                      >
+                        <path d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
+                      </svg>
+                    )}
+                  </button>
+                  <button
+                    onClick={(e) => toggleFavorite(e, article.id)}
+                    className="rounded-full bg-white/80 p-1.5 backdrop-blur-sm transition-all hover:bg-white hover:scale-110"
+                  >
+                    <svg
+                      width="20"
+                      height="20"
+                      viewBox="0 0 24 24"
+                      fill={favoriteIds.has(article.id) ? "currentColor" : "none"}
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      className={`transition-all duration-300 ${
+                        favoriteIds.has(article.id)
+                          ? "text-red-500"
+                          : "text-slate-400 hover:text-red-400"
+                      } ${animatingId === article.id ? "scale-125" : ""}`}
+                      style={{
+                        transition: "transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), color 0.3s, fill 0.3s",
+                      }}
+                    >
+                      <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+                    </svg>
+                  </button>
+                </div>
               )}
               {article.image && (
                 <div className="aspect-video overflow-hidden bg-slate-100">

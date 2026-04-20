@@ -5,10 +5,11 @@ import { usePathname } from "next/navigation";
 import { signOut, useSession } from "next-auth/react";
 
 const navItems = [
-  { href: "/", label: "Feed", icon: "M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2", adminOnly: false },
-  { href: "/categories", label: "Categories", icon: "M7 7h.01M7 3h5a1.969 1.969 0 011.414.586l7 7a2 2 0 010 2.828l-7 7A2 2 0 0112 21H7a4 4 0 01-4-4V7a4 4 0 014-4z", adminOnly: false },
-  { href: "/sources", label: "Sources", icon: "M4 11a9 9 0 019 9M4 4a16 16 0 0116 16M5 19a1 1 0 100-2 1 1 0 000 2z", adminOnly: true },
-  { href: "/notifications", label: "Notifications", icon: "M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9", adminOnly: false },
+  { href: "/", label: "Feed", icon: "M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2", adminOnly: false, authOnly: false },
+  { href: "/stories", label: "Stories", icon: "M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25", adminOnly: false, authOnly: true },
+  { href: "/categories", label: "Categories", icon: "M7 7h.01M7 3h5a1.969 1.969 0 011.414.586l7 7a2 2 0 010 2.828l-7 7A2 2 0 0112 21H7a4 4 0 01-4-4V7a4 4 0 014-4z", adminOnly: false, authOnly: false },
+  { href: "/sources", label: "Sources", icon: "M4 11a9 9 0 019 9M4 4a16 16 0 0116 16M5 19a1 1 0 100-2 1 1 0 000 2z", adminOnly: true, authOnly: false },
+  { href: "/notifications", label: "Notifications", icon: "M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9", adminOnly: false, authOnly: false },
 ];
 
 interface AppLayoutProps {
@@ -21,7 +22,11 @@ export function AppLayout({ children, title, actions }: AppLayoutProps) {
   const pathname = usePathname();
   const { data: session } = useSession();
   const userRole = (session?.user as { role?: string })?.role;
-  const filteredNavItems = navItems.filter((item) => !item.adminOnly || userRole === "admin");
+  const filteredNavItems = navItems.filter((item) => {
+    if (item.adminOnly && userRole !== "admin") return false;
+    if (item.authOnly && !session) return false;
+    return true;
+  });
 
   return (
     <div className="min-h-screen bg-slate-50">

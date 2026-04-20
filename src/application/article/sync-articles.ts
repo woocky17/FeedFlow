@@ -6,6 +6,10 @@ export interface CategoryClassifier {
   classify(title: string, description: string): Promise<string[]>;
 }
 
+export interface StoryMatcher {
+  execute(input: { articleId: string; title: string; description: string | null }): Promise<{ storiesMatched: number }>;
+}
+
 export class SyncArticles {
   constructor(
     private readonly sourceRepository: SourceRepository,
@@ -13,6 +17,7 @@ export class SyncArticles {
     private readonly articlesFetcher: ArticleFetcher,
     private readonly assignmentRepository: CategoryAssignmentRepository,
     private readonly categoryClassifier: CategoryClassifier,
+    private readonly storyMatcher?: StoryMatcher,
   ) {}
 
   async execute(): Promise<{ synced: number; errors: string[] }> {
@@ -44,6 +49,18 @@ export class SyncArticles {
               assignedAt: new Date(),
             });
             await this.assignmentRepository.create(assignment);
+          }
+
+          if (this.storyMatcher) {
+            try {
+              await this.storyMatcher.execute({
+                articleId: article.id,
+                title: article.title,
+                description: article.description,
+              });
+            } catch (err) {
+              errors.push(`Story matching failed for ${article.id}: ${err}`);
+            }
           }
 
           synced++;

@@ -37,6 +37,7 @@ model User {
   categoryAssignments CategoryAssignment[]
   favorites           Favorite[]
   notifications       Notification[]
+  stories             Story[]
 
   @@map("users")
 }
@@ -67,10 +68,13 @@ model Article {
   sourceId    String
   publishedAt DateTime
   savedAt     DateTime @default(now())
+  embedding   Float[]  @default([])
 
   source              Source               @relation(fields: [sourceId], references: [id], onDelete: Cascade)
   categoryAssignments CategoryAssignment[]
   favorites           Favorite[]
+  storyArticles       StoryArticle[]
+  storySources        Story[]              @relation("StorySource")
 
   @@index([sourceId])
   @@index([publishedAt])
@@ -142,4 +146,45 @@ model Notification {
 
   @@index([userId])
   @@map("notifications")
+}
+
+// ─── Story ───────────────────────────────────────────────
+
+model Story {
+  id              String   @id @default(cuid())
+  userId          String
+  name            String
+  summary         String
+  embedding       Float[]  @default([])
+  sourceArticleId String
+  threshold       Float    @default(0.55)
+  active          Boolean  @default(true)
+  createdAt       DateTime @default(now())
+
+  user          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  sourceArticle Article        @relation("StorySource", fields: [sourceArticleId], references: [id], onDelete: Cascade)
+  articles      StoryArticle[]
+
+  @@unique([userId, sourceArticleId])
+  @@index([userId])
+  @@index([active])
+  @@map("stories")
+}
+
+// ─── StoryArticle ────────────────────────────────────────
+
+model StoryArticle {
+  id         String   @id @default(cuid())
+  storyId    String
+  articleId  String
+  similarity Float
+  addedAt    DateTime @default(now())
+
+  story   Story   @relation(fields: [storyId], references: [id], onDelete: Cascade)
+  article Article @relation(fields: [articleId], references: [id], onDelete: Cascade)
+
+  @@unique([storyId, articleId])
+  @@index([storyId])
+  @@index([articleId])
+  @@map("story_articles")
 }
