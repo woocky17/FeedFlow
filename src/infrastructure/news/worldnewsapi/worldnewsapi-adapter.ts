@@ -10,6 +10,13 @@ interface WorldNewsResponse {
   available: number;
 }
 
+export class QuotaExhaustedError extends Error {
+  constructor(message = "WorldNewsAPI daily quota exhausted") {
+    super(message);
+    this.name = "QuotaExhaustedError";
+  }
+}
+
 export class WorldNewsApiAdapter implements ArticleFetcher {
   async fetchBySource(source: Source): Promise<Article[]> {
     if (!source.apiKey) {
@@ -22,6 +29,19 @@ export class WorldNewsApiAdapter implements ArticleFetcher {
     const res = await fetch(url, {
       headers: { "x-api-key": source.apiKey },
     });
+
+    const left = res.headers.get("x-api-quota-left");
+    const used = res.headers.get("x-api-quota-used");
+    const cost = res.headers.get("x-api-quota-request");
+    if (left !== null || used !== null) {
+      console.log(
+        `[WorldNewsAPI] source=${source.name} cost=${cost ?? "?"} used=${used ?? "?"} left=${left ?? "?"}`,
+      );
+    }
+
+    if (res.status === 402) {
+      throw new QuotaExhaustedError();
+    }
 
     if (!res.ok) {
       throw new Error(`WorldNewsAPI HTTP error: ${res.status}`);

@@ -1,4 +1,5 @@
 import { GeneratedTopic, TopicGenerator } from "@/domain/story";
+import { fetchGroqChat } from "./groq-fetch";
 
 export class GroqTopicGenerator implements TopicGenerator {
   constructor(private readonly apiKey: string) {}
@@ -11,13 +12,9 @@ export class GroqTopicGenerator implements TopicGenerator {
 
     if (!this.apiKey) return fallback();
 
-    const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${this.apiKey}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
+    let data: unknown;
+    try {
+      data = await fetchGroqChat(this.apiKey, {
         model: "llama-3.3-70b-versatile",
         temperature: 0.2,
         max_tokens: 200,
@@ -38,17 +35,15 @@ Reply with ONLY the JSON object, no prose.`,
             content: `Title: ${title}\nDescription: ${description}`,
           },
         ],
-      }),
-    });
-
-    if (!res.ok) {
-      console.error(`Groq topic generator error: ${res.status}`);
+      });
+    } catch (err) {
+      console.error(`Groq topic generator: ${err instanceof Error ? err.message : String(err)}`);
       return fallback();
     }
 
     try {
-      const data = await res.json();
-      const raw: string = data.choices?.[0]?.message?.content?.trim() ?? "";
+      const raw: string = (data as { choices?: Array<{ message?: { content?: string } }> })
+        ?.choices?.[0]?.message?.content?.trim() ?? "";
       const parsed = JSON.parse(raw);
       const name = typeof parsed.name === "string" ? parsed.name.trim() : "";
       const summary = typeof parsed.summary === "string" ? parsed.summary.trim() : "";

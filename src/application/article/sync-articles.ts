@@ -10,6 +10,14 @@ export interface StoryMatcher {
   execute(input: { articleId: string; title: string; description: string | null }): Promise<{ storiesMatched: number }>;
 }
 
+export interface ArticleClusterer {
+  execute(input: { articleId: string; title: string; description: string | null }): Promise<{ eventId: string; created: boolean }>;
+}
+
+export interface SentimentEnricher {
+  execute(input: { articleId: string; title: string; description: string | null }): Promise<void>;
+}
+
 export class SyncArticles {
   constructor(
     private readonly sourceRepository: SourceRepository,
@@ -18,6 +26,8 @@ export class SyncArticles {
     private readonly assignmentRepository: CategoryAssignmentRepository,
     private readonly categoryClassifier: CategoryClassifier,
     private readonly storyMatcher?: StoryMatcher,
+    private readonly articleClusterer?: ArticleClusterer,
+    private readonly sentimentEnricher?: SentimentEnricher,
   ) {}
 
   async execute(): Promise<{ synced: number; errors: string[] }> {
@@ -25,7 +35,13 @@ export class SyncArticles {
     let synced = 0;
     const errors: string[] = [];
 
+    let quotaExhausted = false;
+
     for (const source of sources) {
+      if (quotaExhausted) {
+        errors.push(`Skipped ${source.name}: WorldNewsAPI quota exhausted`);
+        continue;
+      }
       try {
         const articles = await this.articlesFetcher.fetchBySource(source);
 
@@ -51,6 +67,18 @@ export class SyncArticles {
             await this.assignmentRepository.create(assignment);
           }
 
+          if (this.articleClusterer) {
+            try {
+              await this.articleClusterer.execute({
+                articleId: article.id,
+                title: article.title,
+                description: article.description,
+              });
+            } catch (err) {
+              errors.push(`Clustering failed for ${article.id}: ${err}`);
+            }
+          }
+
           if (this.storyMatcher) {
             try {
               await this.storyMatcher.execute({
@@ -63,9 +91,26 @@ export class SyncArticles {
             }
           }
 
+          if (this.sentimentEnricher) {
+            try {
+              await this.sentimentEnricher.execute({
+                articleId: article.id,
+                title: article.title,
+                description: article.description,
+              });
+            } catch (err) {
+              errors.push(`Sentiment enrich failed for ${article.id}: ${err}`);
+            }
+          }
+
           synced++;
         }
       } catch (error) {
+        if (error && typeof error === "object" && (error as { name?: string }).name === "QuotaExhaustedError") {
+          quotaExhausted = true;
+          errors.push(`WorldNewsAPI quota exhausted at source ${source.name}`);
+          continue;
+        }
         errors.push(`Failed to sync source ${source.id}: ${error}`);
       }
     }

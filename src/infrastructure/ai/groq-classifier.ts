@@ -1,5 +1,6 @@
 import { CategoryClassifier } from "@/application/article/sync-articles";
 import { CategoryRepository } from "@/domain/category";
+import { fetchGroqChat } from "./groq-fetch";
 
 export class GroqClassifier implements CategoryClassifier {
   private readonly apiKey: string;
@@ -18,13 +19,9 @@ export class GroqClassifier implements CategoryClassifier {
 
     const categoryNames = categories.map((c) => c.name).join(", ");
 
-    const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${this.apiKey}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
+    let data: unknown;
+    try {
+      data = await fetchGroqChat(this.apiKey, {
         model: "llama-3.3-70b-versatile",
         temperature: 0,
         max_tokens: 100,
@@ -46,16 +43,14 @@ Rules:
             content: `Title: ${title}\nDescription: ${description}`,
           },
         ],
-      }),
-    });
-
-    if (!res.ok) {
-      console.error(`Groq API error: ${res.status}`);
+      });
+    } catch (err) {
+      console.error(`Groq classifier: ${err instanceof Error ? err.message : String(err)}`);
       return [];
     }
 
-    const data = await res.json();
-    const reply: string = data.choices?.[0]?.message?.content?.trim() ?? "";
+    const reply: string = (data as { choices?: Array<{ message?: { content?: string } }> })
+      ?.choices?.[0]?.message?.content?.trim() ?? "";
 
     if (!reply || reply.toLowerCase() === "none") return [];
 

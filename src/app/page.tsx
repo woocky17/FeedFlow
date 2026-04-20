@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 import { AppLayout } from "@/components/templates/app-layout";
 
 interface Article {
@@ -12,6 +13,8 @@ interface Article {
   image: string;
   sourceId: string;
   publishedAt: string;
+  newsEventId?: string | null;
+  eventMemberCount?: number;
 }
 
 interface Category {
@@ -22,6 +25,7 @@ interface Category {
 
 export default function FeedPage() {
   const { data: session } = useSession();
+  const router = useRouter();
   const [articles, setArticles] = useState<Article[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
@@ -306,13 +310,32 @@ export default function FeedPage() {
                 {article.description && (
                   <p className="mt-2 text-sm text-slate-400 line-clamp-3">{article.description}</p>
                 )}
-                <p className="mt-auto pt-3 text-xs text-slate-300">
-                  {new Date(article.publishedAt).toLocaleDateString("es-ES", {
-                    day: "numeric",
-                    month: "short",
-                    year: "numeric",
-                  })}
-                </p>
+                <div className="mt-auto flex items-center justify-between pt-3">
+                  <p className="text-xs text-slate-300">
+                    {new Date(article.publishedAt).toLocaleDateString("es-ES", {
+                      day: "numeric",
+                      month: "short",
+                      year: "numeric",
+                    })}
+                  </p>
+                  {article.newsEventId && (article.eventMemberCount ?? 1) > 1 && (
+                    <button
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        router.push(`/events/${article.newsEventId}`);
+                      }}
+                      className="flex items-center gap-1 rounded-full bg-indigo-50 px-2.5 py-1 text-xs font-medium text-indigo-700 transition-colors hover:bg-indigo-100"
+                      title="Compare sources"
+                    >
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                        <rect x="3" y="4" width="7" height="16" rx="1" />
+                        <rect x="14" y="4" width="7" height="16" rx="1" />
+                      </svg>
+                      {article.eventMemberCount} sources
+                    </button>
+                  )}
+                </div>
               </div>
             </a>
           ))}

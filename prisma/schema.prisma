@@ -1,6 +1,7 @@
 generator client {
-  provider = "prisma-client"
-  output   = "../generated/prisma"
+  provider      = "prisma-client"
+  output        = "../generated/prisma"
+  binaryTargets = ["native", "debian-openssl-3.0.x"]
 }
 
 datasource db {
@@ -60,24 +61,29 @@ model Source {
 // ─── Article ─────────────────────────────────────────────
 
 model Article {
-  id          String   @id @default(cuid())
-  title       String
-  url         String   @unique
-  description String?
-  image       String?
-  sourceId    String
-  publishedAt DateTime
-  savedAt     DateTime @default(now())
-  embedding   Float[]  @default([])
+  id             String   @id @default(cuid())
+  title          String
+  url            String   @unique
+  description    String?
+  image          String?
+  sourceId       String
+  publishedAt    DateTime
+  savedAt        DateTime @default(now())
+  embedding      Float[]  @default([])
+  newsEventId    String?
+  sentiment      String?
+  framingSummary String?
 
   source              Source               @relation(fields: [sourceId], references: [id], onDelete: Cascade)
   categoryAssignments CategoryAssignment[]
   favorites           Favorite[]
   storyArticles       StoryArticle[]
   storySources        Story[]              @relation("StorySource")
+  newsEvent           NewsEvent?           @relation(fields: [newsEventId], references: [id], onDelete: SetNull)
 
   @@index([sourceId])
   @@index([publishedAt])
+  @@index([newsEventId])
   @@map("articles")
 }
 
@@ -169,6 +175,22 @@ model Story {
   @@index([userId])
   @@index([active])
   @@map("stories")
+}
+
+// ─── NewsEvent ───────────────────────────────────────────
+
+model NewsEvent {
+  id          String   @id @default(cuid())
+  title       String
+  embedding   Float[]  @default([])
+  firstSeenAt DateTime @default(now())
+  lastSeenAt  DateTime @default(now())
+  createdAt   DateTime @default(now())
+
+  articles Article[]
+
+  @@index([lastSeenAt])
+  @@map("news_events")
 }
 
 // ─── StoryArticle ────────────────────────────────────────

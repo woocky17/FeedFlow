@@ -15,7 +15,7 @@ export class ResendEmailAdapter implements EmailSender {
     private readonly fromAddress: string = "FeedFlow <noreply@feedflow.app>",
   ) {}
 
-  async enviar(
+  async send(
     recipient: string,
     subject: string,
     content: string,
