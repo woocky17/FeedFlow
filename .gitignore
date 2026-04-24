@@ -39,3 +39,6 @@ next-env.d.ts
 
 # claude runtime state
 .claude/scheduled_tasks.lock
+
+*storybook.log
+storybook-static
