@@ -6,7 +6,10 @@ import { useRouter } from "next/navigation";
 import { AppLayout } from "@/components/templates/app-layout";
 import { Icon } from "@/components/atoms/icon";
 import { LoadingSpinner } from "@/components/atoms/loading-spinner";
+import { cardClassName } from "@/components/atoms/card";
 import { EmptyState } from "@/components/molecules/empty-state";
+import { useFavorites } from "@/lib/hooks/use-favorites";
+import { useFollowedStories } from "@/lib/hooks/use-followed-stories";
 
 interface Article {
   id: string;
@@ -34,11 +37,10 @@ export default function FeedPage() {
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
   const [showFavorites, setShowFavorites] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [favoriteIds, setFavoriteIds] = useState<Set<string>>(new Set());
-  const [animatingId, setAnimatingId] = useState<string | null>(null);
-  const [followedSourceIds, setFollowedSourceIds] = useState<Set<string>>(new Set());
-  const [followLoadingId, setFollowLoadingId] = useState<string | null>(null);
   const [toast, setToast] = useState<{ type: "success" | "error"; text: string } | null>(null);
+
+  const favorites = useFavorites(session);
+  const followed = useFollowedStories(session);
 
   useEffect(() => {
     fetch("/api/articles")
@@ -56,85 +58,26 @@ export default function FeedPage() {
   }, []);
 
   useEffect(() => {
-    if (!session) return;
-    fetch("/api/favorites")
-      .then((res) => res.json())
-      .then((data) => {
-        if (Array.isArray(data)) {
-          setFavoriteIds(new Set(data.map((f: { articleId: string }) => f.articleId)));
-        }
-      })
-      .catch(() => {});
-
-    fetch("/api/stories")
-      .then((res) => res.json())
-      .then((data) => {
-        if (Array.isArray(data)) {
-          setFollowedSourceIds(
-            new Set(
-              data
-                .map((s: { sourceArticleId?: string }) => s.sourceArticleId)
-                .filter((id): id is string => typeof id === "string"),
-            ),
-          );
-        }
-      })
-      .catch(() => {});
-  }, [session]);
-
-  useEffect(() => {
     if (!toast) return;
     const timeout = setTimeout(() => setToast(null), 3500);
     return () => clearTimeout(timeout);
   }, [toast]);
 
-  async function followStory(e: React.MouseEvent, articleId: string) {
+  async function handleFollow(e: React.MouseEvent, articleId: string) {
     e.preventDefault();
     e.stopPropagation();
-    if (!session || followedSourceIds.has(articleId) || followLoadingId === articleId) return;
-
-    setFollowLoadingId(articleId);
-    try {
-      const res = await fetch("/api/stories", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ articleId }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data?.error || "Failed to follow story");
-      setFollowedSourceIds((prev) => new Set(prev).add(articleId));
-      setToast({ type: "success", text: `Following "${data.name}"` });
-    } catch (err) {
-      setToast({ type: "error", text: err instanceof Error ? err.message : "Follow failed" });
-    } finally {
-      setFollowLoadingId(null);
+    const result = await followed.follow(articleId);
+    if (result.ok) {
+      setToast({ type: "success", text: `Following "${result.storyName}"` });
+    } else if (result.error) {
+      setToast({ type: "error", text: result.error });
     }
   }
 
-  async function toggleFavorite(e: React.MouseEvent, articleId: string) {
+  function handleToggleFavorite(e: React.MouseEvent, articleId: string) {
     e.preventDefault();
     e.stopPropagation();
-    if (!session) return;
-
-    const isFav = favoriteIds.has(articleId);
-    setAnimatingId(articleId);
-    setTimeout(() => setAnimatingId(null), 400);
-
-    if (isFav) {
-      setFavoriteIds((prev) => {
-        const next = new Set(prev);
-        next.delete(articleId);
-        return next;
-      });
-      await fetch(`/api/favorites/${articleId}`, { method: "DELETE" }).catch(() => {});
-    } else {
-      setFavoriteIds((prev) => new Set(prev).add(articleId));
-      await fetch("/api/favorites", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ articleId }),
-      }).catch(() => {});
-    }
+    favorites.toggle(articleId);
   }
 
   function handleCategoryFilter(categoryId: string | null) {
@@ -152,7 +95,7 @@ export default function FeedPage() {
   }
 
   const displayedArticles = showFavorites
-    ? articles.filter((a) => favoriteIds.has(a.id))
+    ? articles.filter((a) => favorites.isFavorite(a.id))
     : articles;
 
   return (
@@ -228,25 +171,29 @@ export default function FeedPage() {
               href={article.url}
               target="_blank"
               rel="noopener noreferrer"
-              className="group relative flex flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white transition-all hover:shadow-lg hover:shadow-slate-200/50 hover:border-amber-200"
+              className={cardClassName({
+                variant: "link",
+                padding: "none",
+                extra: "group relative flex flex-col overflow-hidden",
+              })}
             >
               {session && (
                 <div className="absolute top-3 right-3 z-10 flex gap-1.5">
                   <button
-                    onClick={(e) => followStory(e, article.id)}
-                    disabled={followedSourceIds.has(article.id) || followLoadingId === article.id}
-                    title={followedSourceIds.has(article.id) ? "Already following" : "Follow this story"}
+                    onClick={(e) => handleFollow(e, article.id)}
+                    disabled={followed.isFollowed(article.id) || followed.isLoading(article.id)}
+                    title={followed.isFollowed(article.id) ? "Already following" : "Follow this story"}
                     className="rounded-full bg-white/80 p-1.5 backdrop-blur-sm transition-all hover:bg-white hover:scale-110 disabled:cursor-default disabled:hover:scale-100"
                   >
-                    {followLoadingId === article.id ? (
+                    {followed.isLoading(article.id) ? (
                       <LoadingSpinner size="sm" />
                     ) : (
                       <Icon
                         name="book"
                         size={20}
-                        filled={followedSourceIds.has(article.id)}
+                        filled={followed.isFollowed(article.id)}
                         className={`transition-all duration-300 ${
-                          followedSourceIds.has(article.id)
+                          followed.isFollowed(article.id)
                             ? "text-amber-500"
                             : "text-slate-400 hover:text-amber-500"
                         }`}
@@ -254,18 +201,18 @@ export default function FeedPage() {
                     )}
                   </button>
                   <button
-                    onClick={(e) => toggleFavorite(e, article.id)}
+                    onClick={(e) => handleToggleFavorite(e, article.id)}
                     className="rounded-full bg-white/80 p-1.5 backdrop-blur-sm transition-all hover:bg-white hover:scale-110"
                   >
                     <Icon
                       name="heart"
                       size={20}
-                      filled={favoriteIds.has(article.id)}
+                      filled={favorites.isFavorite(article.id)}
                       className={`${
-                        favoriteIds.has(article.id)
+                        favorites.isFavorite(article.id)
                           ? "text-red-500"
                           : "text-slate-400 hover:text-red-400"
-                      } ${animatingId === article.id ? "scale-125" : ""}`}
+                      } ${favorites.isAnimating(article.id) ? "scale-125" : ""}`}
                       style={{
                         transition: "transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), color 0.3s, fill 0.3s",
                       }}

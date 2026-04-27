@@ -3,6 +3,10 @@
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { AppLayout } from "@/components/templates/app-layout";
+import { Card } from "@/components/atoms/card";
+import { Badge } from "@/components/atoms/badge";
+import { Icon } from "@/components/atoms/icon";
+import { LoadingSpinner } from "@/components/atoms/loading-spinner";
 
 interface EventArticle {
   id: string;
@@ -27,10 +31,10 @@ interface EventDetails {
   articles: EventArticle[];
 }
 
-const sentimentStyles: Record<string, string> = {
-  positive: "bg-emerald-50 text-emerald-700 border-emerald-200",
-  neutral: "bg-slate-50 text-slate-600 border-slate-200",
-  negative: "bg-red-50 text-red-700 border-red-200",
+const sentimentVariant: Record<string, "positive" | "neutral" | "negative"> = {
+  positive: "positive",
+  neutral: "neutral",
+  negative: "negative",
 };
 
 const sentimentLabels: Record<string, string> = {
@@ -68,10 +72,7 @@ export default function EventPage() {
     return (
       <AppLayout title="Loading...">
         <div className="flex justify-center py-20">
-          <svg className="h-8 w-8 animate-spin text-amber-500" viewBox="0 0 24 24" fill="none">
-            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-          </svg>
+          <LoadingSpinner />
         </div>
       </AppLayout>
     );
@@ -91,20 +92,21 @@ export default function EventPage() {
 
   return (
     <AppLayout title="Coverage comparison">
-      <div className="mb-6 rounded-2xl border border-slate-200 bg-white p-5">
+      <Card padding="md" className="mb-6">
         <h2 className="text-lg font-semibold text-slate-900">{data.event.title}</h2>
         <p className="mt-2 text-sm text-slate-500">
           {count} {count === 1 ? "source covering" : "sources covering"} this event
         </p>
-      </div>
+      </Card>
 
       <div className={`grid gap-4 ${count === 1 ? "grid-cols-1" : count === 2 ? "md:grid-cols-2" : "lg:grid-cols-3 md:grid-cols-2"}`}>
         {data.articles.map((article) => {
           const sentimentKey = article.sentiment ?? "neutral";
           return (
-            <article
+            <Card
               key={article.id}
-              className="flex flex-col rounded-2xl border border-slate-200 bg-white overflow-hidden"
+              padding="none"
+              className="flex flex-col overflow-hidden"
             >
               <div className="border-b border-slate-100 bg-slate-50 px-4 py-2">
                 <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">
@@ -136,11 +138,9 @@ export default function EventPage() {
 
                 {article.sentiment && (
                   <div className="mt-3">
-                    <span
-                      className={`inline-block rounded-full border px-2.5 py-0.5 text-xs font-medium ${sentimentStyles[sentimentKey] ?? sentimentStyles.neutral}`}
-                    >
+                    <Badge variant={sentimentVariant[sentimentKey] ?? "neutral"} size="sm">
                       {sentimentLabels[sentimentKey] ?? "Neutral"}
-                    </span>
+                    </Badge>
                     {article.framingSummary && (
                       <p className="mt-2 text-xs italic text-slate-500">
                         {article.framingSummary}
@@ -156,12 +156,10 @@ export default function EventPage() {
                   className="mt-4 inline-flex items-center gap-1.5 self-start rounded-lg bg-amber-50 px-3 py-1.5 text-xs font-medium text-amber-700 transition-colors hover:bg-amber-100"
                 >
                   Read original
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M7 17L17 7M17 7H8M17 7v9" />
-                  </svg>
+                  <Icon name="external" size={12} />
                 </a>
               </div>
-            </article>
+            </Card>
           );
         })}
       </div>

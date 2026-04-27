@@ -6,6 +6,7 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { AppLayout } from "@/components/templates/app-layout";
 import { LoadingSpinner } from "@/components/atoms/loading-spinner";
+import { cardClassName } from "@/components/atoms/card";
 import { EmptyState } from "@/components/molecules/empty-state";
 
 interface StorySummary {
@@ -59,7 +60,7 @@ export default function StoriesPage() {
             <Link
               key={story.id}
               href={`/stories/${story.id}`}
-              className="group flex flex-col rounded-2xl border border-slate-200 bg-white p-5 transition-all hover:border-amber-300 hover:shadow-lg hover:shadow-slate-200/50"
+              className={cardClassName({ variant: "link", padding: "md", extra: "group flex flex-col" })}
             >
               <div className="flex items-start justify-between gap-3">
                 <h3 className="font-semibold text-slate-900 group-hover:text-amber-700 transition-colors">
