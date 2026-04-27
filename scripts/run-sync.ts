@@ -1,5 +1,5 @@
 import "dotenv/config";
-import { SyncArticles } from "@/application/article";
+import { IngestArticle, SyncArticles } from "@/application/article";
 import { MatchArticleToStories } from "@/application/story";
 import { PrismaSourceRepository } from "@/infrastructure/db/prisma/source-repository-impl";
 import { PrismaArticleRepository } from "@/infrastructure/db/prisma/article-repository-impl";
@@ -31,13 +31,17 @@ async function main() {
     embedder,
   );
 
-  const syncArticles = new SyncArticles(
-    sourceRepository,
+  const ingestArticle = new IngestArticle(
     articleRepository,
-    articlesFetcher,
     assignmentRepository,
     categoryClassifier,
     matchArticleToStories,
+  );
+
+  const syncArticles = new SyncArticles(
+    sourceRepository,
+    articlesFetcher,
+    ingestArticle,
   );
 
   console.log("Starting sync...");

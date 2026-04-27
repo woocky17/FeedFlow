@@ -1,9 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-import { HealArticles, IngestArticle, SyncArticles } from "@/application/article";
+import { BackfillArticles, IngestArticle } from "@/application/article";
 import { MatchArticleToStories } from "@/application/story";
 import {
   AnalyzeArticleSentiment,
-  AnalyzeSentimentBatch,
   ClusterArticle,
 } from "@/application/news-event";
 import { PrismaSourceRepository } from "@/infrastructure/db/prisma/source-repository-impl";
@@ -47,7 +46,6 @@ const clusterArticle = new ClusterArticle(
 );
 
 const analyzeArticleSentiment = new AnalyzeArticleSentiment(sentimentAnalyzer);
-const analyzeSentimentBatch = new AnalyzeSentimentBatch(sentimentAnalyzer);
 
 const ingestArticle = new IngestArticle(
   articleRepository,
@@ -58,35 +56,52 @@ const ingestArticle = new IngestArticle(
   analyzeArticleSentiment,
 );
 
-const syncArticles = new SyncArticles(
+const backfillArticles = new BackfillArticles(
   sourceRepository,
   articlesFetcher,
   ingestArticle,
-);
-
-const healArticles = new HealArticles(
-  categoryClassifier,
-  assignmentRepository,
-  clusterArticle,
-  analyzeSentimentBatch,
 );
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
 export const dynamic = "force-dynamic";
 
-export async function GET(request: NextRequest) {
+const MAX_DAYS_DEFAULT = 3;
+
+interface BackfillBody {
+  daysBack?: number;
+  sourceIds?: string[];
+}
+
+export async function POST(request: NextRequest) {
   const authHeader = request.headers.get("authorization");
   if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
+  let body: BackfillBody = {};
   try {
-    const syncResult = await syncArticles.execute();
-    const healResult = await healArticles.execute();
-    return NextResponse.json({ sync: syncResult, heal: healResult });
+    if (request.headers.get("content-length") !== "0") {
+      body = (await request.json()) as BackfillBody;
+    }
+  } catch {
+    body = {};
+  }
+
+  const maxDays = Number(process.env.BACKFILL_MAX_DAYS ?? MAX_DAYS_DEFAULT);
+  const requested = Math.floor(Number(body.daysBack ?? maxDays));
+  const daysBack = Math.max(1, Math.min(requested, maxDays));
+
+  const sourceIds =
+    Array.isArray(body.sourceIds) && body.sourceIds.length > 0
+      ? body.sourceIds
+      : undefined;
+
+  try {
+    const result = await backfillArticles.execute({ daysBack, sourceIds });
+    return NextResponse.json({ daysBack, ...result });
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Sync failed";
+    const message = error instanceof Error ? error.message : "Backfill failed";
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }

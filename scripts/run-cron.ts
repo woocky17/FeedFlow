@@ -1,5 +1,5 @@
 import "dotenv/config";
-import { HealArticles, SyncArticles } from "@/application/article";
+import { HealArticles, IngestArticle, SyncArticles } from "@/application/article";
 import { MatchArticleToStories } from "@/application/story";
 import {
   AnalyzeArticleSentiment,
@@ -50,15 +50,19 @@ async function main() {
   const analyzeArticleSentiment = new AnalyzeArticleSentiment(sentimentAnalyzer);
   const analyzeSentimentBatch = new AnalyzeSentimentBatch(sentimentAnalyzer);
 
-  const syncArticles = new SyncArticles(
-    sourceRepository,
+  const ingestArticle = new IngestArticle(
     articleRepository,
-    articlesFetcher,
     assignmentRepository,
     categoryClassifier,
     matchArticleToStories,
     clusterArticle,
     analyzeArticleSentiment,
+  );
+
+  const syncArticles = new SyncArticles(
+    sourceRepository,
+    articlesFetcher,
+    ingestArticle,
   );
 
   const healArticles = new HealArticles(
