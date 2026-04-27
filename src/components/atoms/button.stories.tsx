@@ -8,16 +8,17 @@ const meta: Meta<typeof Button> = {
   argTypes: {
     variant: {
       control: "select",
-      options: ["primary", "secondary", "danger", "ghost", "primary-gradient"],
+      options: ["primary-gradient", "secondary", "danger", "ghost"],
     },
+    size: { control: "select", options: ["sm", "md"] },
   },
 };
 
 export default meta;
 type Story = StoryObj<typeof Button>;
 
-export const Primary: Story = {
-  args: { children: "Save changes", variant: "primary" },
+export const PrimaryGradient: Story = {
+  args: { children: "Add source", variant: "primary-gradient" },
 };
 
 export const Secondary: Story = {
@@ -32,8 +33,8 @@ export const Ghost: Story = {
   args: { children: "Dismiss", variant: "ghost" },
 };
 
-export const PrimaryGradient: Story = {
-  args: { children: "Create category", variant: "primary-gradient" },
+export const Small: Story = {
+  args: { children: "Add", size: "sm", variant: "primary-gradient" },
 };
 
 export const Loading: Story = {
@@ -47,11 +48,10 @@ export const Disabled: Story = {
 export const AllVariants: Story = {
   render: () => (
     <div className="flex flex-wrap gap-3">
-      <Button variant="primary">primary</Button>
+      <Button variant="primary-gradient">primary-gradient</Button>
       <Button variant="secondary">secondary</Button>
       <Button variant="danger">danger</Button>
       <Button variant="ghost">ghost</Button>
-      <Button variant="primary-gradient">primary-gradient</Button>
     </div>
   ),
 };

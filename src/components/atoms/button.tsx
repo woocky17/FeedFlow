@@ -3,24 +3,31 @@
 import { ButtonHTMLAttributes } from "react";
 import { LoadingSpinner } from "./loading-spinner";
 
-type ButtonVariant = "primary" | "secondary" | "danger" | "ghost" | "primary-gradient";
+type ButtonVariant = "primary-gradient" | "secondary" | "danger" | "ghost";
+type ButtonSize = "sm" | "md";
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: ButtonVariant;
+  size?: ButtonSize;
   isLoading?: boolean;
 }
 
 const variantStyles: Record<ButtonVariant, string> = {
-  primary: "bg-blue-600 text-white hover:bg-blue-700",
-  secondary: "bg-gray-200 text-gray-800 hover:bg-gray-300",
-  danger: "bg-red-600 text-white hover:bg-red-700",
-  ghost: "bg-transparent text-gray-600 hover:bg-gray-100",
   "primary-gradient":
-    "bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-sm hover:from-amber-600 hover:to-orange-600",
+    "bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-sm hover:shadow-md hover:brightness-110 active:scale-[0.98]",
+  secondary: "bg-slate-100 text-slate-700 hover:bg-slate-200",
+  danger: "bg-red-500 text-white hover:bg-red-600",
+  ghost: "bg-transparent text-slate-500 hover:bg-slate-100 hover:text-slate-700",
+};
+
+const sizeStyles: Record<ButtonSize, string> = {
+  sm: "px-3 py-1.5 text-xs",
+  md: "px-5 py-2.5 text-sm",
 };
 
 export function Button({
-  variant = "primary",
+  variant = "primary-gradient",
+  size = "md",
   isLoading,
   disabled,
   children,
@@ -30,7 +37,7 @@ export function Button({
   return (
     <button
       disabled={isLoading || disabled}
-      className={`inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50 ${variantStyles[variant]} ${className}`}
+      className={`inline-flex items-center justify-center gap-2 rounded-xl font-semibold transition-all disabled:cursor-not-allowed disabled:opacity-50 ${sizeStyles[size]} ${variantStyles[variant]} ${className}`}
       {...props}
     >
       {isLoading ? (

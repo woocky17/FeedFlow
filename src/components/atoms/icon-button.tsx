@@ -3,31 +3,47 @@
 import { ButtonHTMLAttributes, ReactNode } from "react";
 import { LoadingSpinner } from "./loading-spinner";
 
-type IconButtonVariant = "default" | "active-amber" | "active-red";
+type IconButtonAppearance = "overlay" | "subtle";
+type IconButtonTone = "neutral" | "amber" | "red";
 type IconButtonSize = "sm" | "md";
 
 interface IconButtonProps extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, "children"> {
   icon: ReactNode;
-  variant?: IconButtonVariant;
+  appearance?: IconButtonAppearance;
+  tone?: IconButtonTone;
   size?: IconButtonSize;
   isLoading?: boolean;
   label?: string;
 }
 
-const variantStyles: Record<IconButtonVariant, string> = {
-  default: "text-slate-400 hover:text-amber-500",
-  "active-amber": "text-amber-500",
-  "active-red": "text-red-500",
+const APPEARANCE: Record<IconButtonAppearance, string> = {
+  overlay:
+    "rounded-full bg-white/80 backdrop-blur-sm transition-all hover:bg-white hover:scale-110",
+  subtle: "rounded-lg transition-colors",
 };
 
-const sizeStyles: Record<IconButtonSize, { button: string; icon: string }> = {
-  sm: { button: "p-1", icon: "h-4 w-4" },
-  md: { button: "p-1.5", icon: "h-5 w-5" },
+const TONE: Record<IconButtonAppearance, Record<IconButtonTone, string>> = {
+  overlay: {
+    neutral: "text-slate-400 hover:text-slate-600",
+    amber: "text-amber-500",
+    red: "text-red-500",
+  },
+  subtle: {
+    neutral: "text-slate-400 hover:bg-slate-100 hover:text-slate-600",
+    amber: "text-slate-400 hover:bg-amber-50 hover:text-amber-600",
+    red: "text-slate-400 hover:bg-red-50 hover:text-red-500",
+  },
+};
+
+const SIZE: Record<IconButtonSize, { padding: string; icon: string }> = {
+  sm: { padding: "p-1", icon: "h-4 w-4" },
+  md: { padding: "p-1.5", icon: "h-5 w-5" },
 };
 
 export function IconButton({
   icon,
-  variant = "default",
+  appearance = "subtle",
+  tone = "neutral",
   size = "md",
   isLoading,
   disabled,
@@ -35,7 +51,7 @@ export function IconButton({
   className = "",
   ...props
 }: IconButtonProps) {
-  const sizing = sizeStyles[size];
+  const sizing = SIZE[size];
 
   return (
     <button
@@ -43,7 +59,7 @@ export function IconButton({
       aria-label={label}
       title={label}
       disabled={isLoading || disabled}
-      className={`rounded-full bg-white/80 ${sizing.button} backdrop-blur-sm transition-all hover:bg-white hover:scale-110 disabled:cursor-default disabled:hover:scale-100 disabled:opacity-60 ${variantStyles[variant]} ${className}`}
+      className={`${APPEARANCE[appearance]} ${TONE[appearance][tone]} ${sizing.padding} disabled:cursor-default disabled:opacity-60 ${className}`}
       {...props}
     >
       <span className={`flex items-center justify-center ${sizing.icon}`}>
