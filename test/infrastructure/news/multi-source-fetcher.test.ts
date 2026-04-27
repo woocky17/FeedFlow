@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 import { Article, ArticleFetcher } from "@/domain/article";
 import { Source, SourceKind } from "@/domain/source";
-import { MultiSourceArticleFetcher } from "./multi-source-fetcher";
+import { MultiSourceArticleFetcher } from "@/infrastructure/news/multi-source-fetcher";
 
 function makeSource(kind: SourceKind): Source {
   return Source.create({

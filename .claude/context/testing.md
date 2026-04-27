@@ -9,10 +9,10 @@
 
 ## Dónde viven los tests
 
-- **Unit tests**: coubicados con el código (`xxx.test.ts` junto a `xxx.ts`).
-- **Integration tests** (p. ej. adaptadores Prisma contra BD real): también coubicados, opcionalmente con sufijo `.integration.test.ts` si se distinguen del unit.
-- **E2E**: `tests/e2e/**` o `e2e/**` (decidirlo al añadir los primeros).
-- **Stories como tests**: el propio `*.stories.tsx`.
+- **Unit + integration tests**: en `test/` en la raíz, espejando el árbol de `src/`. Ejemplo: `src/application/article/sync-articles.ts` → `test/application/article/sync-articles.test.ts`. Sufijo `.integration.test.ts` si quieres separarlos del unit.
+- Imports dentro del test usan los aliases `@/...` (mismo `tsconfig.paths` que el código), nunca rutas relativas a `src/`.
+- **E2E**: `test/e2e/**` (decidirlo al añadir los primeros).
+- **Stories como tests**: el propio `*.stories.tsx` coubicado con el componente — viven en `src/components/**`, no en `test/`.
 
 ## Qué testear y cómo
 
@@ -62,4 +62,9 @@ npx playwright test     # e2e
 npm run storybook       # Storybook interactivo
 ```
 
-No hay script de test en `package.json` aún — añadir cuando se consolide la estrategia.
+Atajos del proyecto (ya en `package.json`):
+
+```bash
+npm test            # vitest run --project unit (los .test.ts en test/)
+npm run test:watch  # watch mode sobre el mismo proyecto
+```

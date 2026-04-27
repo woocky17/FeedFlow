@@ -1,13 +1,13 @@
 import { describe, expect, it, vi } from "vitest";
 import { Article, ArticleRepository } from "@/domain/article";
 import { CategoryAssignmentRepository } from "@/domain/category";
-import { IngestArticle } from "./ingest-article";
+import { IngestArticle } from "@/application/article/ingest-article";
 import {
   ArticleClusterer,
   CategoryClassifier,
   SentimentEnricher,
   StoryMatcher,
-} from "./sync-articles";
+} from "@/application/article/sync-articles";
 
 function makeArticle(overrides: Partial<{ id: string; url: string }> = {}): Article {
   return Article.create({

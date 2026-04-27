@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 import { Source } from "@/domain/source";
-import { RssArticleFetcher } from "./rss-adapter";
+import { RssArticleFetcher } from "@/infrastructure/news/rss/rss-adapter";
 
 function makeSource(overrides: Partial<{ id: string; baseUrl: string }> = {}): Source {
   return Source.create({

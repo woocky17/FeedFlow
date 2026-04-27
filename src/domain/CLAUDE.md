@@ -24,6 +24,6 @@ Algunos módulos históricos usan español: `article` contiene `Noticia`, `categ
 
 ## Tests
 
-Tests unitarios coubicados (`story.test.ts` junto a `story.ts`). Sin mocks — el dominio es puro.
+Tests unitarios en `test/domain/<feature>/<entidad>.test.ts` (mismo árbol que `src/domain/`). Sin mocks — el dominio es puro.
 
 > Para el contexto completo del dominio y sus invariantes, lee `.claude/context/domain.md`.

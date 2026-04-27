@@ -40,7 +40,7 @@ DTOs de input/output definidos en el mismo archivo cuando son simples.
 1. Crea `application/<feature>/<kebab-case-action>.ts`.
 2. Declara el puerto en `domain/` si es nuevo; referencia puertos existentes si no.
 3. Añade a `application/<feature>/index.ts`.
-4. Crea tests unitarios con mocks de puertos (`*.test.ts` coubicado).
+4. Crea tests unitarios con mocks de puertos en `test/application/<feature>/<accion>.test.ts`.
 5. Instancia el caso de uso desde `app/api/<feature>/[...]/route.ts` o desde la page que lo use.
 
 > Para casos de uso detallados por feature, lee `.claude/context/architecture.md` (sección `application/`).

@@ -1,8 +1,8 @@
 import { describe, expect, it, vi } from "vitest";
 import { Article, ArticleFetcher } from "@/domain/article";
 import { Source, SourceRepository } from "@/domain/source";
-import { SyncArticles } from "./sync-articles";
-import { IngestArticle, IngestResult } from "./ingest-article";
+import { SyncArticles } from "@/application/article/sync-articles";
+import { IngestArticle, IngestResult } from "@/application/article/ingest-article";
 import { QuotaExhaustedError } from "@/infrastructure/news/worldnewsapi/worldnewsapi-adapter";
 
 function makeSource(id: string): Source {
