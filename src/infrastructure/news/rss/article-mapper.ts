@@ -1,4 +1,5 @@
 import { ArticleProps } from "@/domain/article";
+import type { Language } from "@/domain/shared";
 
 export interface RssItem {
   title?: string | { "#text"?: string };
@@ -72,7 +73,7 @@ function stripHtml(input: string): string {
     .trim();
 }
 
-export function mapRssItem(item: RssItem, sourceId: string): ArticleProps | null {
+export function mapRssItem(item: RssItem, sourceId: string, language: Language): ArticleProps | null {
   const title = pickText(item.title).trim();
   const url = pickLink(item.link).trim();
   if (!title || !url) return null;
@@ -87,6 +88,7 @@ export function mapRssItem(item: RssItem, sourceId: string): ArticleProps | null
     description,
     image: pickImage(item),
     sourceId,
+    language,
     publishedAt,
     savedAt: new Date(),
   };

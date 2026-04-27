@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 import { AppLayout } from "@/components/templates/app-layout";
 import { LoadingSpinner } from "@/components/atoms/loading-spinner";
 import { EmptyState } from "@/components/molecules/empty-state";
@@ -15,6 +16,7 @@ interface Notification {
 }
 
 export default function NotificacionesPage() {
+  const t = useTranslations("notifications");
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -49,19 +51,22 @@ export default function NotificacionesPage() {
   const read = notifications.filter((n) => n.read);
 
   return (
-    <AppLayout title="Notifications">
+    <AppLayout title={t("title")}>
       {loading ? (
         <div className="flex justify-center py-20">
           <LoadingSpinner size="md" color="amber" />
         </div>
       ) : notifications.length === 0 ? (
-        <EmptyState title="No notifications" description="You're all caught up." />
+        <EmptyState
+          title={t("noNotificationsTitle")}
+          description={t("noNotificationsDescription")}
+        />
       ) : (
         <div className="space-y-6">
           {unread.length > 0 && (
             <div>
               <SectionHeader className="mb-3 text-amber-600">
-                New ({unread.length})
+                {t("newSection", { count: unread.length })}
               </SectionHeader>
               <div className="space-y-2">
                 {unread.map((notif) => (
@@ -79,7 +84,7 @@ export default function NotificacionesPage() {
 
           {read.length > 0 && (
             <div>
-              <SectionHeader className="mb-3">Previous</SectionHeader>
+              <SectionHeader className="mb-3">{t("previousSection")}</SectionHeader>
               <div className="space-y-2">
                 {read.map((notif) => (
                   <NotificationItem

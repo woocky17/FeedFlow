@@ -1,0 +1,135 @@
+{
+  "nav": {
+    "feed": "Feed",
+    "stories": "Stories",
+    "categories": "Categories",
+    "sources": "Sources",
+    "notifications": "Notifications",
+    "settings": "Settings",
+    "signIn": "Sign in",
+    "signOut": "Sign out"
+  },
+  "branding": {
+    "tagline": "Your news, your way.",
+    "subtagline": "Stay connected with the sources that matter. Curate, filter, and never miss a beat."
+  },
+  "auth": {
+    "login": {
+      "title": "Welcome back",
+      "subtitle": "Sign in to your FeedFlow account",
+      "email": "Email",
+      "emailPlaceholder": "you@example.com",
+      "password": "Password",
+      "passwordPlaceholder": "Enter your password",
+      "forgotPassword": "Forgot password?",
+      "submit": "Sign in",
+      "submitting": "Signing in...",
+      "or": "or",
+      "noAccount": "Don't have an account?",
+      "createOne": "Create one",
+      "invalidCredentials": "Invalid email or password"
+    },
+    "register": {
+      "title": "Get started",
+      "subtitle": "Create your FeedFlow account",
+      "email": "Email",
+      "emailPlaceholder": "you@example.com",
+      "password": "Password",
+      "passwordPlaceholder": "Min. 8 characters",
+      "confirmPassword": "Confirm password",
+      "confirmPasswordPlaceholder": "Repeat your password",
+      "submit": "Create account",
+      "submitting": "Creating account...",
+      "or": "or",
+      "passwordsDoNotMatch": "Passwords do not match",
+      "registrationFailed": "Registration failed",
+      "alreadyHaveAccount": "Already have an account?",
+      "signIn": "Sign in"
+    },
+    "forgotPassword": {
+      "title": "Reset password",
+      "subtitle": "We'll help you get back in",
+      "intro": "Enter your email and we'll send you a link to reset your password.",
+      "email": "Email",
+      "emailPlaceholder": "you@example.com",
+      "submit": "Send recovery email",
+      "submitting": "Sending...",
+      "successMessage": "If an account with that email exists, we've sent a recovery link to your inbox.",
+      "backToSignIn": "Back to sign in"
+    }
+  },
+  "common": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "languageSwitcher": {
+      "label": "Language",
+      "spanish": "Español",
+      "english": "English"
+    }
+  },
+  "settings": {
+    "title": "Settings",
+    "language": {
+      "title": "Application language",
+      "description": "Choose the language for the interface and automatic news translations."
+    }
+  },
+  "feed": {
+    "title": "Feed",
+    "all": "All",
+    "favorites": "Favorites",
+    "noFavoritesTitle": "No favorites yet",
+    "noFavoritesDescription": "Tap the heart on any article to save it here.",
+    "noArticlesTitle": "No articles found",
+    "noArticlesDescription": "Articles will appear here once sources are synced.",
+    "followingToast": "Following \"{name}\"",
+    "followStory": "Follow this story",
+    "alreadyFollowing": "Already following",
+    "addToFavorites": "Add to favorites",
+    "removeFromFavorites": "Remove from favorites"
+  },
+  "stories": {
+    "title": "Stories",
+    "intro": "Follow a news story from any article and we'll track how it evolves over time.",
+    "noStoriesTitle": "No stories followed yet",
+    "noStoriesDescription": "Head to the Feed and tap the book icon on any article to start following its story.",
+    "articleCount": "{count, plural, =1 {1 article} other {# articles}}",
+    "latest": "Latest {date}",
+    "started": "Started {date}"
+  },
+  "categories": {
+    "title": "Categories",
+    "noCategoriesTitle": "No categories yet",
+    "noCategoriesDescription": "Create your first category above.",
+    "newDefaultPlaceholder": "New default category...",
+    "newCustomPlaceholder": "New category name...",
+    "editLabel": "Edit category",
+    "deleteLabel": "Delete category",
+    "loadFailed": "Failed to load categories",
+    "updateFailed": "Failed to update category",
+    "deleteFailed": "Failed to delete category"
+  },
+  "notifications": {
+    "title": "Notifications",
+    "noNotificationsTitle": "No notifications",
+    "noNotificationsDescription": "You're all caught up.",
+    "newSection": "New ({count})",
+    "previousSection": "Previous"
+  },
+  "articleTranslation": {
+    "translated": "Translated",
+    "seeOriginal": "See original",
+    "seeTranslation": "See translation"
+  },
+  "sources": {
+    "title": "Sources",
+    "addSource": "+ Add source",
+    "newSource": "New source",
+    "noSourcesTitle": "No sources yet",
+    "noSourcesDescription": "Add your first news source above.",
+    "toggleLabel": "Toggle {name}",
+    "deleteLabel": "Delete source"
+  }
+}

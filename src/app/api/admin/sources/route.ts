@@ -29,7 +29,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
-    const { name, baseUrl, apiKey, kind } = await request.json();
+    const { name, baseUrl, apiKey, kind, language } = await request.json();
 
     if (!name || !baseUrl) {
       return NextResponse.json({ error: "name and baseUrl are required" }, { status: 400 });
@@ -41,12 +41,15 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "apiKey is required for WorldNewsAPI sources" }, { status: 400 });
     }
 
+    const resolvedLanguage = language === "es" || language === "en" ? language : undefined;
+
     const source = await addSource.execute({
       id: randomUUID(),
       name,
       baseUrl,
       apiKey: apiKey ?? "",
       kind: resolvedKind,
+      language: resolvedLanguage,
     });
 
     return NextResponse.json(source, { status: 201 });

@@ -29,7 +29,7 @@ export class WorldNewsApiAdapter implements ArticleFetcher {
 
     const params = new URLSearchParams({
       "news-sources": `https://${domain}`,
-      language: "en",
+      language: source.language,
       number: String(limit),
     });
     if (options.from) params.set("earliest-publish-date", this.formatDate(options.from));
@@ -62,7 +62,7 @@ export class WorldNewsApiAdapter implements ArticleFetcher {
 
     return (data.news ?? [])
       .filter((a) => a.title && a.url)
-      .map((a) => Article.create(mapWorldNewsArticle(a, source.id)));
+      .map((a) => Article.create(mapWorldNewsArticle(a, source.id, source.language)));
   }
 
   private extractDomain(url: string): string {

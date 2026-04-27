@@ -1,4 +1,5 @@
 import { Source, SourceKind, SourceRepository } from "@/domain/source";
+import type { Language } from "@/domain/shared";
 
 interface EditSourceInput {
   sourceId: string;
@@ -6,6 +7,7 @@ interface EditSourceInput {
   baseUrl?: string;
   apiKey?: string;
   kind?: SourceKind;
+  language?: Language;
 }
 
 export class EditSource {
@@ -23,6 +25,7 @@ export class EditSource {
       baseUrl: input.baseUrl ?? source.baseUrl,
       apiKey: input.apiKey ?? source.apiKey,
       kind: input.kind ?? source.kind,
+      language: input.language ?? source.language,
       active: source.active,
       createdAt: source.createdAt,
     });

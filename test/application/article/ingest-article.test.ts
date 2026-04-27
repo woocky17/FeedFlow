@@ -17,6 +17,7 @@ function makeArticle(overrides: Partial<{ id: string; url: string }> = {}): Arti
     description: "desc",
     image: "",
     sourceId: "src-1",
+    language: "en",
     publishedAt: new Date("2026-04-20T00:00:00Z"),
     savedAt: new Date("2026-04-20T00:00:00Z"),
   });

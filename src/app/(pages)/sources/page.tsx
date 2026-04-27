@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 import { AppLayout } from "@/components/templates/app-layout";
 import { Button } from "@/components/atoms/button";
 import { Badge } from "@/components/atoms/badge";
@@ -21,9 +22,11 @@ interface Source {
   baseUrl: string;
   kind: SourceKind;
   active: boolean;
+  language: "es" | "en";
 }
 
 export default function SourcesPage() {
+  const t = useTranslations("sources");
   const [sources, setSources] = useState<Source[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
@@ -70,18 +73,18 @@ export default function SourcesPage() {
 
   return (
     <AppLayout
-      title="Sources"
+      title={t("title")}
       actions={
         !showForm ? (
           <Button onClick={() => setShowForm(true)} size="sm">
-            + Add source
+            {t("addSource")}
           </Button>
         ) : undefined
       }
     >
       {showForm && (
         <Card padding="md" className="mb-6">
-          <h2 className="mb-3 text-sm font-semibold text-slate-700">New source</h2>
+          <h2 className="mb-3 text-sm font-semibold text-slate-700">{t("newSource")}</h2>
           <SourceForm
             onSuccess={() => {
               setShowForm(false);
@@ -98,8 +101,8 @@ export default function SourcesPage() {
         </div>
       ) : sources.length === 0 ? (
         <EmptyState
-          title="No sources yet"
-          description="Add your first news source above."
+          title={t("noSourcesTitle")}
+          description={t("noSourcesDescription")}
         />
       ) : (
         <div className="space-y-2">
@@ -111,6 +114,9 @@ export default function SourcesPage() {
                   <Badge variant="neutral" size="sm" className="uppercase tracking-wider">
                     {source.kind === "rss" ? "RSS" : "WorldNews"}
                   </Badge>
+                  <Badge variant="amber" size="sm" className="uppercase tracking-wider">
+                    {source.language}
+                  </Badge>
                 </p>
                 <p className="truncate text-xs text-slate-400">{source.baseUrl}</p>
               </div>
@@ -118,13 +124,13 @@ export default function SourcesPage() {
                 <ToggleSwitch
                   checked={source.active}
                   onChange={() => toggleSource(source.id, source.active)}
-                  label={`Toggle ${source.name}`}
+                  label={t("toggleLabel", { name: source.name })}
                 />
                 <IconButton
                   icon={<Icon name="trash" />}
                   appearance="subtle"
                   tone="red"
-                  label="Delete source"
+                  label={t("deleteLabel")}
                   onClick={() => handleDelete(source.id)}
                 />
               </div>

@@ -14,3 +14,4 @@ export { Icon } from "./icon";
 export type { IconName } from "./icon";
 export { ToggleSwitch } from "./toggle-switch";
 export { Logo } from "./logo";
+export { LanguageSwitcher } from "./language-switcher";

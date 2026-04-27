@@ -2,26 +2,29 @@
 
 import Link from "next/link";
 import { signOut, useSession } from "next-auth/react";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/atoms/button";
 import { Icon, IconName } from "@/components/atoms/icon";
+import { LanguageSwitcher } from "@/components/atoms/language-switcher";
 import { LinkButton } from "@/components/atoms/link-button";
 import { Logo } from "@/components/atoms/logo";
 import { NavItem } from "@/components/molecules/nav-item";
 
 interface NavConfig {
   href: string;
-  label: string;
+  labelKey: "feed" | "stories" | "categories" | "sources" | "notifications" | "settings";
   icon: IconName;
   adminOnly: boolean;
   authOnly: boolean;
 }
 
 const navItems: NavConfig[] = [
-  { href: "/", label: "Feed", icon: "feed", adminOnly: false, authOnly: false },
-  { href: "/stories", label: "Stories", icon: "book", adminOnly: false, authOnly: true },
-  { href: "/categories", label: "Categories", icon: "categories", adminOnly: false, authOnly: false },
-  { href: "/sources", label: "Sources", icon: "sources", adminOnly: true, authOnly: false },
-  { href: "/notifications", label: "Notifications", icon: "bell", adminOnly: false, authOnly: false },
+  { href: "/", labelKey: "feed", icon: "feed", adminOnly: false, authOnly: false },
+  { href: "/stories", labelKey: "stories", icon: "book", adminOnly: false, authOnly: true },
+  { href: "/categories", labelKey: "categories", icon: "categories", adminOnly: false, authOnly: false },
+  { href: "/sources", labelKey: "sources", icon: "sources", adminOnly: true, authOnly: false },
+  { href: "/notifications", labelKey: "notifications", icon: "bell", adminOnly: false, authOnly: false },
+  { href: "/settings", labelKey: "settings", icon: "settings", adminOnly: false, authOnly: true },
 ];
 
 interface AppLayoutProps {
@@ -32,6 +35,7 @@ interface AppLayoutProps {
 
 export function AppLayout({ children, title, actions }: AppLayoutProps) {
   const { data: session } = useSession();
+  const t = useTranslations("nav");
   const userRole = (session?.user as { role?: string })?.role;
   const filteredNavItems = navItems.filter((item) => {
     if (item.adminOnly && userRole !== "admin") return false;
@@ -54,25 +58,28 @@ export function AppLayout({ children, title, actions }: AppLayoutProps) {
               <NavItem
                 key={item.href}
                 href={item.href}
-                label={item.label}
+                label={t(item.labelKey)}
                 icon={<Icon name={item.icon} />}
               />
             ))}
           </nav>
 
-          {session ? (
-            <Button
-              size="sm"
-              variant="ghost"
-              onClick={() => signOut({ callbackUrl: "/" })}
-            >
-              Sign out
-            </Button>
-          ) : (
-            <LinkButton size="sm" variant="ghost-amber" href="/login">
-              Sign in
-            </LinkButton>
-          )}
+          <div className="flex items-center gap-2">
+            <LanguageSwitcher />
+            {session ? (
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={() => signOut({ callbackUrl: "/" })}
+              >
+                {t("signOut")}
+              </Button>
+            ) : (
+              <LinkButton size="sm" variant="ghost-amber" href="/login">
+                {t("signIn")}
+              </LinkButton>
+            )}
+          </div>
         </div>
 
         {/* Mobile nav */}
@@ -81,7 +88,7 @@ export function AppLayout({ children, title, actions }: AppLayoutProps) {
             <NavItem
               key={item.href}
               href={item.href}
-              label={item.label}
+              label={t(item.labelKey)}
               size="sm"
               className="flex-shrink-0"
             />

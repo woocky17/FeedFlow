@@ -2,11 +2,13 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { ErrorText } from "@/components/atoms/error-text";
 import Link from "next/link";
 
 export function RegisterForm() {
   const router = useRouter();
+  const t = useTranslations("auth.register");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -18,7 +20,7 @@ export function RegisterForm() {
     setError("");
 
     if (password !== confirmPassword) {
-      setError("Passwords do not match");
+      setError(t("passwordsDoNotMatch"));
       return;
     }
 
@@ -34,7 +36,7 @@ export function RegisterForm() {
     setIsLoading(false);
 
     if (!res.ok) {
-      setError(data.error || "Registration failed");
+      setError(data.error || t("registrationFailed"));
       return;
     }
 
@@ -49,12 +51,12 @@ export function RegisterForm() {
           htmlFor="reg-email"
           className="absolute -top-2.5 left-3 bg-white px-1 text-xs font-medium text-slate-400 transition-colors group-focus-within:text-amber-600"
         >
-          Email
+          {t("email")}
         </label>
         <input
           id="reg-email"
           type="email"
-          placeholder="you@example.com"
+          placeholder={t("emailPlaceholder")}
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
@@ -68,12 +70,12 @@ export function RegisterForm() {
           htmlFor="reg-password"
           className="absolute -top-2.5 left-3 bg-white px-1 text-xs font-medium text-slate-400 transition-colors group-focus-within:text-amber-600"
         >
-          Password
+          {t("password")}
         </label>
         <input
           id="reg-password"
           type="password"
-          placeholder="Min. 8 characters"
+          placeholder={t("passwordPlaceholder")}
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           minLength={8}
@@ -88,12 +90,12 @@ export function RegisterForm() {
           htmlFor="reg-confirm"
           className="absolute -top-2.5 left-3 bg-white px-1 text-xs font-medium text-slate-400 transition-colors group-focus-within:text-amber-600"
         >
-          Confirm password
+          {t("confirmPassword")}
         </label>
         <input
           id="reg-confirm"
           type="password"
-          placeholder="Repeat your password"
+          placeholder={t("confirmPasswordPlaceholder")}
           value={confirmPassword}
           onChange={(e) => setConfirmPassword(e.target.value)}
           required
@@ -115,28 +117,28 @@ export function RegisterForm() {
               <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
               <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
             </svg>
-            Creating account...
+            {t("submitting")}
           </span>
         ) : (
-          "Create account"
+          t("submit")
         )}
       </button>
 
       {/* Divider */}
       <div className="flex items-center gap-3 my-1">
         <div className="h-px flex-1 bg-slate-100" />
-        <span className="text-xs text-slate-300 uppercase tracking-wider">or</span>
+        <span className="text-xs text-slate-300 uppercase tracking-wider">{t("or")}</span>
         <div className="h-px flex-1 bg-slate-100" />
       </div>
 
       {/* Login link */}
       <p className="text-center text-sm text-slate-500">
-        Already have an account?{" "}
+        {t("alreadyHaveAccount")}{" "}
         <Link
           href="/login"
           className="font-semibold text-amber-600 transition-colors hover:text-amber-700"
         >
-          Sign in
+          {t("signIn")}
         </Link>
       </p>
     </form>

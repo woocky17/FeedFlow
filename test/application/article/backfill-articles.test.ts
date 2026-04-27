@@ -12,6 +12,7 @@ function makeSource(id: string, active = true): Source {
     baseUrl: "https://example.com",
     apiKey: "key",
     kind: "worldnews",
+    language: "en",
     active,
     createdAt: new Date("2026-01-01T00:00:00Z"),
   });
@@ -25,6 +26,7 @@ function makeArticle(url: string): Article {
     description: "d",
     image: "",
     sourceId: "src-1",
+    language: "en",
     publishedAt: new Date(),
     savedAt: new Date(),
   });

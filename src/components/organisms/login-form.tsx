@@ -3,11 +3,13 @@
 import { useState } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { ErrorText } from "@/components/atoms/error-text";
 import Link from "next/link";
 
 export function LoginForm() {
   const router = useRouter();
+  const t = useTranslations("auth.login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -27,7 +29,7 @@ export function LoginForm() {
     setIsLoading(false);
 
     if (result?.error) {
-      setError("Invalid email or password");
+      setError(t("invalidCredentials"));
       return;
     }
 
@@ -43,12 +45,12 @@ export function LoginForm() {
           htmlFor="email"
           className="absolute -top-2.5 left-3 bg-white px-1 text-xs font-medium text-slate-400 transition-colors group-focus-within:text-amber-600"
         >
-          Email
+          {t("email")}
         </label>
         <input
           id="email"
           type="email"
-          placeholder="you@example.com"
+          placeholder={t("emailPlaceholder")}
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
@@ -62,12 +64,12 @@ export function LoginForm() {
           htmlFor="password"
           className="absolute -top-2.5 left-3 bg-white px-1 text-xs font-medium text-slate-400 transition-colors group-focus-within:text-amber-600"
         >
-          Password
+          {t("password")}
         </label>
         <input
           id="password"
           type="password"
-          placeholder="Enter your password"
+          placeholder={t("passwordPlaceholder")}
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           required
@@ -81,7 +83,7 @@ export function LoginForm() {
           href="/forgot-password"
           className="text-sm text-slate-400 transition-colors hover:text-amber-600"
         >
-          Forgot password?
+          {t("forgotPassword")}
         </Link>
       </div>
 
@@ -99,28 +101,28 @@ export function LoginForm() {
               <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
               <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
             </svg>
-            Signing in...
+            {t("submitting")}
           </span>
         ) : (
-          "Sign in"
+          t("submit")
         )}
       </button>
 
       {/* Divider */}
       <div className="flex items-center gap-3 my-1">
         <div className="h-px flex-1 bg-slate-100" />
-        <span className="text-xs text-slate-300 uppercase tracking-wider">or</span>
+        <span className="text-xs text-slate-300 uppercase tracking-wider">{t("or")}</span>
         <div className="h-px flex-1 bg-slate-100" />
       </div>
 
       {/* Register link */}
       <p className="text-center text-sm text-slate-500">
-        Don&apos;t have an account?{" "}
+        {t("noAccount")}{" "}
         <Link
           href="/register"
           className="font-semibold text-amber-600 transition-colors hover:text-amber-700"
         >
-          Create one
+          {t("createOne")}
         </Link>
       </p>
     </form>

@@ -36,6 +36,7 @@ export async function PUT(
       baseUrl: body.baseUrl,
       apiKey: body.apiKey,
       kind: body.kind === "rss" || body.kind === "worldnews" ? body.kind : undefined,
+      language: body.language === "es" || body.language === "en" ? body.language : undefined,
     });
 
     return NextResponse.json(source);

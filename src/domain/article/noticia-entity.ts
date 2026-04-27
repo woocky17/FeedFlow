@@ -1,3 +1,5 @@
+import { isLanguage, type Language } from "@/domain/shared";
+
 export interface ArticleProps {
   id: string;
   title: string;
@@ -5,6 +7,7 @@ export interface ArticleProps {
   description: string;
   image: string;
   sourceId: string;
+  language: Language;
   publishedAt: Date;
   savedAt: Date;
 }
@@ -16,6 +19,7 @@ export class Article {
   readonly description: string;
   readonly image: string;
   readonly sourceId: string;
+  readonly language: Language;
   readonly publishedAt: Date;
   readonly savedAt: Date;
 
@@ -26,6 +30,7 @@ export class Article {
     this.description = props.description;
     this.image = props.image;
     this.sourceId = props.sourceId;
+    this.language = props.language;
     this.publishedAt = props.publishedAt;
     this.savedAt = props.savedAt;
   }
@@ -41,6 +46,10 @@ export class Article {
 
     if (!Article.isValidUrl(props.url)) {
       throw new Error("Article url must be a valid URL");
+    }
+
+    if (!isLanguage(props.language)) {
+      throw new Error("Article language must be a supported language");
     }
 
     return new Article(props);

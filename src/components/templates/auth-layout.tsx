@@ -1,3 +1,5 @@
+import { useTranslations } from "next-intl";
+import { LanguageSwitcher } from "@/components/atoms/language-switcher";
 import { Logo } from "@/components/atoms/logo";
 
 interface AuthLayoutProps {
@@ -7,6 +9,8 @@ interface AuthLayoutProps {
 }
 
 export function AuthLayout({ title, subtitle, children }: AuthLayoutProps) {
+  const t = useTranslations("branding");
+
   return (
     <div className="flex min-h-screen">
       {/* Branded left panel */}
@@ -35,10 +39,10 @@ export function AuthLayout({ title, subtitle, children }: AuthLayoutProps) {
         {/* Tagline */}
         <div className="relative z-10 max-w-sm">
           <p className="text-3xl font-semibold text-white/90 leading-snug">
-            Your news, your way.
+            {t("tagline")}
           </p>
           <p className="mt-4 text-base text-indigo-200/70 leading-relaxed">
-            Stay connected with the sources that matter. Curate, filter, and never miss a beat.
+            {t("subtagline")}
           </p>
         </div>
 
@@ -53,10 +57,15 @@ export function AuthLayout({ title, subtitle, children }: AuthLayoutProps) {
       {/* Form panel */}
       <div className="flex flex-1 flex-col justify-center px-6 sm:px-12 lg:px-20 bg-white">
         <div className="mx-auto w-full max-w-sm">
-          {/* Mobile logo */}
-          <div className="mb-10 lg:hidden flex items-center gap-3">
-            <Logo size="md" />
-            <span className="text-xl font-bold text-slate-900 tracking-tight">FeedFlow</span>
+          <div className="mb-6 flex items-center justify-between gap-3">
+            {/* Mobile logo */}
+            <div className="lg:hidden flex items-center gap-3">
+              <Logo size="md" />
+              <span className="text-xl font-bold text-slate-900 tracking-tight">FeedFlow</span>
+            </div>
+            <div className="ml-auto">
+              <LanguageSwitcher />
+            </div>
           </div>
 
           <div className="mb-8">

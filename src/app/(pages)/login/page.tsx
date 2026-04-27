@@ -1,9 +1,12 @@
+import { getTranslations } from "next-intl/server";
 import { AuthLayout } from "@/components/templates/auth-layout";
 import { LoginForm } from "@/components/organisms/login-form";
 
-export default function LoginPage() {
+export default async function LoginPage() {
+  const t = await getTranslations("auth.login");
+
   return (
-    <AuthLayout title="Welcome back" subtitle="Sign in to your FeedFlow account">
+    <AuthLayout title={t("title")} subtitle={t("subtitle")}>
       <LoginForm />
     </AuthLayout>
   );

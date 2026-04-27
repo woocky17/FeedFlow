@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import { useSession } from "next-auth/react";
+import { useLocale, useTranslations } from "next-intl";
 import { AppLayout } from "@/components/templates/app-layout";
 import { Icon } from "@/components/atoms/icon";
 import { IconButton } from "@/components/atoms/icon-button";
@@ -13,6 +14,8 @@ import { EventSourcesPill } from "@/components/molecules/event-sources-pill";
 import { FilterPill } from "@/components/molecules/filter-pill";
 import { useFavorites } from "@/lib/hooks/use-favorites";
 import { useFollowedStories } from "@/lib/hooks/use-followed-stories";
+import { ArticleLanguageBadge } from "@/components/molecules/article-language-badge";
+import type { Language } from "@/domain/shared";
 
 interface Article {
   id: string;
@@ -24,6 +27,10 @@ interface Article {
   publishedAt: string;
   newsEventId?: string | null;
   eventMemberCount?: number;
+  language: Language;
+  original: { title: string; description: string };
+  isTranslated: boolean;
+  displayedLanguage: Language;
 }
 
 interface Category {
@@ -34,12 +41,25 @@ interface Category {
 
 export default function FeedPage() {
   const { data: session } = useSession();
+  const t = useTranslations("feed");
+  const locale = useLocale();
+  const dateLocale = locale === "es" ? "es-ES" : "en-US";
   const [articles, setArticles] = useState<Article[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
   const [showFavorites, setShowFavorites] = useState(false);
   const [loading, setLoading] = useState(true);
   const [toast, setToast] = useState<{ type: "success" | "error"; text: string } | null>(null);
+  const [showOriginal, setShowOriginal] = useState<Set<string>>(new Set());
+
+  function toggleOriginal(articleId: string) {
+    setShowOriginal((prev) => {
+      const next = new Set(prev);
+      if (next.has(articleId)) next.delete(articleId);
+      else next.add(articleId);
+      return next;
+    });
+  }
 
   const favorites = useFavorites(session);
   const followed = useFollowedStories(session);
@@ -70,7 +90,7 @@ export default function FeedPage() {
     e.stopPropagation();
     const result = await followed.follow(articleId);
     if (result.ok) {
-      setToast({ type: "success", text: `Following "${result.storyName}"` });
+      setToast({ type: "success", text: t("followingToast", { name: result.storyName ?? "" }) });
     } else if (result.error) {
       setToast({ type: "error", text: result.error });
     }
@@ -101,7 +121,7 @@ export default function FeedPage() {
     : articles;
 
   return (
-    <AppLayout title="Feed">
+    <AppLayout title={t("title")}>
       {toast && (
         <div
           className={`fixed top-20 right-4 z-50 rounded-lg px-4 py-2 text-sm font-medium shadow-lg transition-all ${
@@ -118,7 +138,7 @@ export default function FeedPage() {
           active={activeCategory === null && !showFavorites}
           onClick={() => { handleCategoryFilter(null); setShowFavorites(false); }}
         >
-          All
+          {t("all")}
         </FilterPill>
         {session && (
           <FilterPill
@@ -127,7 +147,7 @@ export default function FeedPage() {
             icon={<Icon name="heart" size={14} filled={showFavorites} />}
             onClick={() => setShowFavorites(!showFavorites)}
           >
-            Favorites
+            {t("favorites")}
           </FilterPill>
         )}
         {categories.map((cat) => (
@@ -147,11 +167,9 @@ export default function FeedPage() {
         </div>
       ) : displayedArticles.length === 0 ? (
         <EmptyState
-          title={showFavorites ? "No favorites yet" : "No articles found"}
+          title={showFavorites ? t("noFavoritesTitle") : t("noArticlesTitle")}
           description={
-            showFavorites
-              ? "Tap the heart on any article to save it here."
-              : "Articles will appear here once sources are synced."
+            showFavorites ? t("noFavoritesDescription") : t("noArticlesDescription")
           }
         />
       ) : (
@@ -175,7 +193,7 @@ export default function FeedPage() {
                     onClick={(e) => handleFollow(e, article.id)}
                     disabled={followed.isFollowed(article.id) || followed.isLoading(article.id)}
                     isLoading={followed.isLoading(article.id)}
-                    label={followed.isFollowed(article.id) ? "Already following" : "Follow this story"}
+                    label={followed.isFollowed(article.id) ? t("alreadyFollowing") : t("followStory")}
                     icon={
                       <Icon
                         name="book"
@@ -192,7 +210,7 @@ export default function FeedPage() {
                   <IconButton
                     appearance="overlay"
                     onClick={(e) => handleToggleFavorite(e, article.id)}
-                    label={favorites.isFavorite(article.id) ? "Remove from favorites" : "Add to favorites"}
+                    label={favorites.isFavorite(article.id) ? t("removeFromFavorites") : t("addToFavorites")}
                     icon={
                       <Icon
                         name="heart"
@@ -223,15 +241,27 @@ export default function FeedPage() {
                 </div>
               )}
               <div className="flex flex-1 flex-col p-4">
+                {article.isTranslated && (
+                  <div className="mb-2">
+                    <ArticleLanguageBadge
+                      isTranslated
+                      showingOriginal={showOriginal.has(article.id)}
+                      sourceLanguage={article.language}
+                      onToggle={() => toggleOriginal(article.id)}
+                    />
+                  </div>
+                )}
                 <h3 className="font-semibold text-slate-900 line-clamp-2 group-hover:text-amber-700 transition-colors">
-                  {article.title}
+                  {showOriginal.has(article.id) ? article.original.title : article.title}
                 </h3>
-                {article.description && (
-                  <p className="mt-2 text-sm text-slate-400 line-clamp-3">{article.description}</p>
+                {(showOriginal.has(article.id) ? article.original.description : article.description) && (
+                  <p className="mt-2 text-sm text-slate-400 line-clamp-3">
+                    {showOriginal.has(article.id) ? article.original.description : article.description}
+                  </p>
                 )}
                 <div className="mt-auto flex items-center justify-between pt-3">
                   <p className="text-xs text-slate-300">
-                    {new Date(article.publishedAt).toLocaleDateString("es-ES", {
+                    {new Date(article.publishedAt).toLocaleDateString(dateLocale, {
                       day: "numeric",
                       month: "short",
                       year: "numeric",

@@ -1,6 +1,33 @@
 import { Article } from "@/domain/article";
 import { ArticleRepository } from "@/domain/article";
 import { prisma } from "./client";
+import { fromPrismaLanguage, toPrismaLanguage } from "./language-mapper";
+
+type ArticleRow = {
+  id: string;
+  title: string;
+  url: string;
+  description: string | null;
+  image: string | null;
+  sourceId: string;
+  language: "ES" | "EN";
+  publishedAt: Date;
+  savedAt: Date;
+};
+
+function toDomain(row: ArticleRow): Article {
+  return Article.create({
+    id: row.id,
+    title: row.title,
+    url: row.url,
+    description: row.description ?? "",
+    image: row.image ?? "",
+    sourceId: row.sourceId,
+    language: fromPrismaLanguage(row.language),
+    publishedAt: row.publishedAt,
+    savedAt: row.savedAt,
+  });
+}
 
 export class PrismaArticleRepository implements ArticleRepository {
   async save(article: Article): Promise<void> {
@@ -12,6 +39,7 @@ export class PrismaArticleRepository implements ArticleRepository {
         description: article.description,
         image: article.image,
         sourceId: article.sourceId,
+        language: toPrismaLanguage(article.language),
         publishedAt: article.publishedAt,
         savedAt: article.savedAt,
       },
@@ -23,18 +51,7 @@ export class PrismaArticleRepository implements ArticleRepository {
       orderBy: { publishedAt: "desc" },
     });
 
-    return rows.map((row) =>
-      Article.create({
-        id: row.id,
-        title: row.title,
-        url: row.url,
-        description: row.description ?? "",
-        image: row.image ?? "",
-        sourceId: row.sourceId,
-        publishedAt: row.publishedAt,
-        savedAt: row.savedAt,
-      }),
-    );
+    return rows.map(toDomain);
   }
 
   async findByCategory(categoryId: string): Promise<Article[]> {
@@ -45,18 +62,7 @@ export class PrismaArticleRepository implements ArticleRepository {
       orderBy: { publishedAt: "desc" },
     });
 
-    return rows.map((row) =>
-      Article.create({
-        id: row.id,
-        title: row.title,
-        url: row.url,
-        description: row.description ?? "",
-        image: row.image ?? "",
-        sourceId: row.sourceId,
-        publishedAt: row.publishedAt,
-        savedAt: row.savedAt,
-      }),
-    );
+    return rows.map(toDomain);
   }
 
   async findBySource(sourceId: string): Promise<Article[]> {
@@ -65,18 +71,7 @@ export class PrismaArticleRepository implements ArticleRepository {
       orderBy: { publishedAt: "desc" },
     });
 
-    return rows.map((row) =>
-      Article.create({
-        id: row.id,
-        title: row.title,
-        url: row.url,
-        description: row.description ?? "",
-        image: row.image ?? "",
-        sourceId: row.sourceId,
-        publishedAt: row.publishedAt,
-        savedAt: row.savedAt,
-      }),
-    );
+    return rows.map(toDomain);
   }
 
   async existsByUrl(url: string): Promise<boolean> {

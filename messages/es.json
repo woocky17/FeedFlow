@@ -1,0 +1,135 @@
+{
+  "nav": {
+    "feed": "Feed",
+    "stories": "Historias",
+    "categories": "Categorías",
+    "sources": "Fuentes",
+    "notifications": "Notificaciones",
+    "settings": "Ajustes",
+    "signIn": "Iniciar sesión",
+    "signOut": "Cerrar sesión"
+  },
+  "branding": {
+    "tagline": "Tus noticias, a tu manera.",
+    "subtagline": "Mantente conectado con las fuentes que importan. Filtra, organiza y no te pierdas nada."
+  },
+  "auth": {
+    "login": {
+      "title": "Bienvenido de nuevo",
+      "subtitle": "Inicia sesión en tu cuenta de FeedFlow",
+      "email": "Email",
+      "emailPlaceholder": "tu@ejemplo.com",
+      "password": "Contraseña",
+      "passwordPlaceholder": "Introduce tu contraseña",
+      "forgotPassword": "¿Olvidaste tu contraseña?",
+      "submit": "Iniciar sesión",
+      "submitting": "Iniciando sesión...",
+      "or": "o",
+      "noAccount": "¿No tienes cuenta?",
+      "createOne": "Crear una",
+      "invalidCredentials": "Email o contraseña inválidos"
+    },
+    "register": {
+      "title": "Empieza ahora",
+      "subtitle": "Crea tu cuenta de FeedFlow",
+      "email": "Email",
+      "emailPlaceholder": "tu@ejemplo.com",
+      "password": "Contraseña",
+      "passwordPlaceholder": "Mín. 8 caracteres",
+      "confirmPassword": "Confirmar contraseña",
+      "confirmPasswordPlaceholder": "Repite tu contraseña",
+      "submit": "Crear cuenta",
+      "submitting": "Creando cuenta...",
+      "or": "o",
+      "passwordsDoNotMatch": "Las contraseñas no coinciden",
+      "registrationFailed": "Error al registrarse",
+      "alreadyHaveAccount": "¿Ya tienes cuenta?",
+      "signIn": "Inicia sesión"
+    },
+    "forgotPassword": {
+      "title": "Recuperar contraseña",
+      "subtitle": "Te ayudamos a volver",
+      "intro": "Introduce tu email y te enviaremos un enlace para restablecer tu contraseña.",
+      "email": "Email",
+      "emailPlaceholder": "tu@ejemplo.com",
+      "submit": "Enviar email de recuperación",
+      "submitting": "Enviando...",
+      "successMessage": "Si existe una cuenta con ese email, te hemos enviado un enlace de recuperación a tu bandeja de entrada.",
+      "backToSignIn": "Volver a iniciar sesión"
+    }
+  },
+  "common": {
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "delete": "Eliminar",
+    "edit": "Editar",
+    "languageSwitcher": {
+      "label": "Idioma",
+      "spanish": "Español",
+      "english": "English"
+    }
+  },
+  "settings": {
+    "title": "Ajustes",
+    "language": {
+      "title": "Idioma de la aplicación",
+      "description": "Elige el idioma en el que se mostrará la interfaz y se traducirán las noticias."
+    }
+  },
+  "feed": {
+    "title": "Feed",
+    "all": "Todas",
+    "favorites": "Favoritos",
+    "noFavoritesTitle": "Aún no tienes favoritos",
+    "noFavoritesDescription": "Toca el corazón en cualquier noticia para guardarla aquí.",
+    "noArticlesTitle": "No hay noticias",
+    "noArticlesDescription": "Las noticias aparecerán aquí cuando se sincronicen las fuentes.",
+    "followingToast": "Siguiendo \"{name}\"",
+    "followStory": "Seguir esta historia",
+    "alreadyFollowing": "Ya la sigues",
+    "addToFavorites": "Añadir a favoritos",
+    "removeFromFavorites": "Quitar de favoritos"
+  },
+  "stories": {
+    "title": "Historias",
+    "intro": "Sigue una historia desde cualquier noticia y rastrearemos cómo evoluciona con el tiempo.",
+    "noStoriesTitle": "Aún no sigues ninguna historia",
+    "noStoriesDescription": "Ve al feed y toca el icono del libro en cualquier noticia para empezar a seguir su historia.",
+    "articleCount": "{count, plural, =1 {1 noticia} other {# noticias}}",
+    "latest": "Última {date}",
+    "started": "Iniciada {date}"
+  },
+  "categories": {
+    "title": "Categorías",
+    "noCategoriesTitle": "Sin categorías aún",
+    "noCategoriesDescription": "Crea tu primera categoría arriba.",
+    "newDefaultPlaceholder": "Nueva categoría por defecto...",
+    "newCustomPlaceholder": "Nuevo nombre de categoría...",
+    "editLabel": "Editar categoría",
+    "deleteLabel": "Eliminar categoría",
+    "loadFailed": "Error al cargar categorías",
+    "updateFailed": "Error al actualizar categoría",
+    "deleteFailed": "Error al eliminar categoría"
+  },
+  "notifications": {
+    "title": "Notificaciones",
+    "noNotificationsTitle": "No tienes notificaciones",
+    "noNotificationsDescription": "Estás al día.",
+    "newSection": "Nuevas ({count})",
+    "previousSection": "Anteriores"
+  },
+  "articleTranslation": {
+    "translated": "Traducido",
+    "seeOriginal": "Ver original",
+    "seeTranslation": "Ver traducción"
+  },
+  "sources": {
+    "title": "Fuentes",
+    "addSource": "+ Añadir fuente",
+    "newSource": "Nueva fuente",
+    "noSourcesTitle": "Aún no hay fuentes",
+    "noSourcesDescription": "Añade tu primera fuente de noticias arriba.",
+    "toggleLabel": "Activar/desactivar {name}",
+    "deleteLabel": "Eliminar fuente"
+  }
+}

@@ -1,5 +1,6 @@
 import { User } from "@/domain/user";
 import { UserRepository } from "@/domain/user";
+import { DEFAULT_LANGUAGE, type Language } from "@/domain/shared";
 
 export interface PasswordHasher {
   hash(password: string): Promise<string>;
@@ -9,6 +10,7 @@ interface RegisterUserInput {
   id: string;
   email: string;
   password: string;
+  language?: Language;
 }
 
 export class RegisterUser {
@@ -30,6 +32,7 @@ export class RegisterUser {
       email: input.email,
       passwordHash,
       role: "user",
+      language: input.language ?? DEFAULT_LANGUAGE,
       createdAt: new Date(),
     });
 

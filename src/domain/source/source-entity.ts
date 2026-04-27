@@ -1,3 +1,5 @@
+import { isLanguage, type Language } from "@/domain/shared";
+
 export type SourceKind = "worldnews" | "rss";
 
 export interface SourceProps {
@@ -6,6 +8,7 @@ export interface SourceProps {
   baseUrl: string;
   apiKey: string;
   kind: SourceKind;
+  language: Language;
   active: boolean;
   createdAt: Date;
 }
@@ -16,6 +19,7 @@ export class Source {
   readonly baseUrl: string;
   readonly apiKey: string;
   readonly kind: SourceKind;
+  readonly language: Language;
   readonly active: boolean;
   readonly createdAt: Date;
 
@@ -25,6 +29,7 @@ export class Source {
     this.baseUrl = props.baseUrl;
     this.apiKey = props.apiKey;
     this.kind = props.kind;
+    this.language = props.language;
     this.active = props.active;
     this.createdAt = props.createdAt;
   }
@@ -40,6 +45,10 @@ export class Source {
 
     if (props.kind === "worldnews" && (!props.apiKey || props.apiKey.trim().length === 0)) {
       throw new Error("WorldNews sources require an API key");
+    }
+
+    if (!isLanguage(props.language)) {
+      throw new Error("Source language must be a supported language");
     }
 
     return new Source(props);

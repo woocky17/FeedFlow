@@ -10,6 +10,7 @@ function makeSource(kind: SourceKind): Source {
     baseUrl: "https://example.com",
     apiKey: kind === "rss" ? "" : "key",
     kind,
+    language: "en",
     active: true,
     createdAt: new Date("2026-01-01T00:00:00Z"),
   });
@@ -23,6 +24,7 @@ function makeArticle(url: string): Article {
     description: "",
     image: "",
     sourceId: "src-any",
+    language: "en",
     publishedAt: new Date(),
     savedAt: new Date(),
   });

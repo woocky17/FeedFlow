@@ -2,8 +2,10 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 
 export function ForgotPasswordForm() {
+  const t = useTranslations("auth.forgotPassword");
   const [email, setEmail] = useState("");
   const [sent, setSent] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -34,14 +36,14 @@ export function ForgotPasswordForm() {
         </div>
         <div>
           <p className="text-sm text-slate-600 leading-relaxed">
-            If an account with that email exists, we&apos;ve sent a recovery link to your inbox.
+            {t("successMessage")}
           </p>
         </div>
         <Link
           href="/login"
           className="text-sm font-semibold text-amber-600 transition-colors hover:text-amber-700"
         >
-          Back to sign in
+          {t("backToSignIn")}
         </Link>
       </div>
     );
@@ -50,7 +52,7 @@ export function ForgotPasswordForm() {
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-5">
       <p className="text-sm text-slate-400 -mt-2 mb-1">
-        Enter your email and we&apos;ll send you a link to reset your password.
+        {t("intro")}
       </p>
 
       {/* Email */}
@@ -59,12 +61,12 @@ export function ForgotPasswordForm() {
           htmlFor="recover-email"
           className="absolute -top-2.5 left-3 bg-white px-1 text-xs font-medium text-slate-400 transition-colors group-focus-within:text-amber-600"
         >
-          Email
+          {t("email")}
         </label>
         <input
           id="recover-email"
           type="email"
-          placeholder="you@example.com"
+          placeholder={t("emailPlaceholder")}
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
@@ -84,10 +86,10 @@ export function ForgotPasswordForm() {
               <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
               <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
             </svg>
-            Sending...
+            {t("submitting")}
           </span>
         ) : (
-          "Send recovery email"
+          t("submit")
         )}
       </button>
 
@@ -96,7 +98,7 @@ export function ForgotPasswordForm() {
         href="/login"
         className="text-center text-sm text-slate-400 transition-colors hover:text-amber-600"
       >
-        Back to sign in
+        {t("backToSignIn")}
       </Link>
     </form>
   );

@@ -26,8 +26,13 @@ import { RssArticleFetcher } from "@/infrastructure/news/rss/rss-adapter";
 import { MultiSourceArticleFetcher } from "@/infrastructure/news/multi-source-fetcher";
 import { GroqClassifier } from "@/infrastructure/ai/groq-classifier";
 import { GroqSentimentAnalyzer } from "@/infrastructure/ai/groq-sentiment-analyzer";
+import { GroqTranslationService } from "@/infrastructure/ai/groq-translator";
 import { TransformersEmbedder } from "@/infrastructure/ai/transformers-embedder";
 import { ResendEmailAdapter } from "@/infrastructure/mail/resend/resend-email-adapter";
+import { PrismaArticleTranslationRepository } from "@/infrastructure/db/prisma/article-translation-repository-impl";
+import { PrismaArticleTitleSource } from "@/infrastructure/db/prisma/article-title-source-impl";
+import { PrefetchArticleTitles } from "@/application/article-translation";
+import type { TranslationService } from "@/domain/article-translation";
 
 export interface Container {
   syncArticles: SyncArticles;
@@ -35,6 +40,7 @@ export interface Container {
   backfillArticles: BackfillArticles;
   sendNotifications: SendNotifications;
   runNotificationsAllUsers: () => Promise<{ processed: number; results: Array<{ userId: string; status: string }> }>;
+  prefetchArticleTitles: PrefetchArticleTitles | null;
   prisma: typeof prisma;
 }
 
@@ -130,12 +136,24 @@ export function buildContainer(): Container {
     return { processed: results.length, results };
   }
 
+  const translator: TranslationService | null = process.env.GROQ_API_KEY
+    ? new GroqTranslationService(process.env.GROQ_API_KEY)
+    : null;
+
+  const articleTranslationRepository = new PrismaArticleTranslationRepository();
+  const articleTitleSource = new PrismaArticleTitleSource();
+
+  const prefetchArticleTitles = translator
+    ? new PrefetchArticleTitles(articleTitleSource, articleTranslationRepository, translator)
+    : null;
+
   return {
     syncArticles,
     healArticles,
     backfillArticles,
     sendNotifications,
     runNotificationsAllUsers,
+    prefetchArticleTitles,
     prisma,
   };
 }

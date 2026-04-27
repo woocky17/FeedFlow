@@ -16,18 +16,21 @@ const defaultCategories = [
   "World",
 ];
 
-const demoRssSources = [
+const demoRssSources: Array<{ name: string; baseUrl: string; language: "ES" | "EN" }> = [
   {
     name: "El País",
     baseUrl: "https://feeds.elpais.com/mrss-s/pages/ep/site/elpais.com/portada",
+    language: "ES",
   },
   {
     name: "20 Minutos",
     baseUrl: "https://www.20minutos.es/rss/",
+    language: "ES",
   },
   {
     name: "Google News (España)",
     baseUrl: "https://news.google.com/rss?hl=es&gl=ES&ceid=ES:es",
+    language: "ES",
   },
 ];
 
@@ -47,11 +50,11 @@ async function main() {
   console.log(`Seeded ${defaultCategories.length} default categories`);
 
   let createdSources = 0;
-  for (const { name, baseUrl } of demoRssSources) {
+  for (const { name, baseUrl, language } of demoRssSources) {
     const exists = await prisma.source.findFirst({ where: { name } });
     if (exists) continue;
     await prisma.source.create({
-      data: { name, baseUrl, apiKey: "", kind: "RSS", active: true },
+      data: { name, baseUrl, apiKey: "", kind: "RSS", language, active: true },
     });
     createdSources++;
   }

@@ -2,6 +2,7 @@ import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
 import { PrismaUserRepository } from "@/infrastructure/db/prisma/user-repository-impl";
+import type { Language } from "@/domain/shared";
 
 const userRepository = new PrismaUserRepository();
 
@@ -24,7 +25,12 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         const valid = await bcrypt.compare(password, user.passwordHash);
         if (!valid) return null;
 
-        return { id: user.id, email: user.email, role: user.role };
+        return {
+          id: user.id,
+          email: user.email,
+          role: user.role,
+          language: user.language,
+        };
       },
     }),
   ],
@@ -35,16 +41,21 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     authorized({ auth }) {
       return !!auth?.user;
     },
-    async jwt({ token, user }) {
+    async jwt({ token, user, trigger, session }) {
       if (user) {
         token.role = (user as { role: string }).role;
+        token.language = (user as { language: Language }).language;
+      }
+      if (trigger === "update" && session?.language) {
+        token.language = session.language as Language;
       }
       return token;
     },
     async session({ session, token }) {
       if (session.user) {
         session.user.id = token.sub!;
-        (session.user as unknown as { role: string }).role = token.role as string;
+        session.user.role = token.role as string;
+        session.user.language = (token.language as Language) ?? "es";
       }
       return session;
     },

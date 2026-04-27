@@ -1,37 +1,54 @@
 import "dotenv/config";
 import { buildContainer } from "./container";
-import { log, startLoop } from "./loop";
+import { log, startLoop, type JobDefinition } from "./loop";
 
 async function main(): Promise<void> {
   log("info", { event: "boot", message: "worker starting" });
 
   const container = buildContainer();
 
-  const handle = startLoop({
-    jobs: [
-      {
-        name: "sync",
-        intervalSec: Number(process.env.SYNC_INTERVAL_SECONDS ?? 7200),
-        run: async () => {
-          const sync = await container.syncArticles.execute();
-          const heal = await container.healArticles.execute();
-          return {
-            synced: sync.synced,
-            errors: sync.errors.length,
-            heal,
-          };
-        },
+  const jobs: JobDefinition[] = [
+    {
+      name: "sync",
+      intervalSec: Number(process.env.SYNC_INTERVAL_SECONDS ?? 7200),
+      run: async () => {
+        const sync = await container.syncArticles.execute();
+        const heal = await container.healArticles.execute();
+        return {
+          synced: sync.synced,
+          errors: sync.errors.length,
+          heal,
+        };
       },
-      {
-        name: "notifications",
-        intervalSec: Number(process.env.NOTIFICATIONS_INTERVAL_SECONDS ?? 86400),
-        run: async () => {
-          const result = await container.runNotificationsAllUsers();
-          return { processed: result.processed };
-        },
+    },
+    {
+      name: "notifications",
+      intervalSec: Number(process.env.NOTIFICATIONS_INTERVAL_SECONDS ?? 86400),
+      run: async () => {
+        const result = await container.runNotificationsAllUsers();
+        return { processed: result.processed };
       },
-    ],
-  });
+    },
+  ];
+
+  if (container.prefetchArticleTitles) {
+    const prefetch = container.prefetchArticleTitles;
+    jobs.push({
+      name: "prefetchTranslations",
+      intervalSec: Number(process.env.PREFETCH_TRANSLATIONS_INTERVAL_SECONDS ?? 600),
+      run: async () => {
+        const result = await prefetch.execute({ windowHours: 24, limit: 200 });
+        return {
+          scanned: result.scanned,
+          translated: result.translated,
+          skipped: result.skipped,
+          errors: result.errors.length,
+        };
+      },
+    });
+  }
+
+  const handle = startLoop({ jobs });
 
   let shuttingDown = false;
   for (const sig of ["SIGTERM", "SIGINT"] as const) {

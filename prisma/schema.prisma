@@ -30,6 +30,11 @@ enum SourceKind {
   RSS
 }
 
+enum Language {
+  ES
+  EN
+}
+
 // ─── User ────────────────────────────────────────────────
 
 model User {
@@ -37,6 +42,7 @@ model User {
   email        String   @unique
   passwordHash String
   role         Role     @default(USER)
+  language     Language @default(ES)
   createdAt    DateTime @default(now())
 
   categories          Category[]
@@ -56,6 +62,7 @@ model Source {
   baseUrl   String
   apiKey    String     @default("")
   kind      SourceKind @default(WORLDNEWS)
+  language  Language   @default(EN)
   active    Boolean    @default(true)
   createdAt DateTime   @default(now())
 
@@ -73,6 +80,7 @@ model Article {
   description    String?
   image          String?
   sourceId       String
+  language       Language @default(EN)
   publishedAt    DateTime
   savedAt        DateTime @default(now())
   embedding      Float[]  @default([])
@@ -86,11 +94,30 @@ model Article {
   storyArticles       StoryArticle[]
   storySources        Story[]              @relation("StorySource")
   newsEvent           NewsEvent?           @relation(fields: [newsEventId], references: [id], onDelete: SetNull)
+  translations        ArticleTranslation[]
 
   @@index([sourceId])
   @@index([publishedAt])
   @@index([newsEventId])
+  @@index([language, publishedAt])
   @@map("articles")
+}
+
+// ─── ArticleTranslation ──────────────────────────────────
+
+model ArticleTranslation {
+  articleId   String
+  targetLang  Language
+  title       String
+  description String?
+  provider    String
+  createdAt   DateTime @default(now())
+
+  article Article @relation(fields: [articleId], references: [id], onDelete: Cascade)
+
+  @@id([articleId, targetLang])
+  @@index([articleId])
+  @@map("article_translations")
 }
 
 // ─── Category ────────────────────────────────────────────

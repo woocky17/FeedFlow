@@ -19,7 +19,7 @@ export class NewsApiAdapter implements ArticleFetcher {
   constructor(private readonly apiKey: string) {}
 
   async fetchBySource(source: Source): Promise<Article[]> {
-    const url = `${NEWSAPI_BASE_URL}/everything?domains=${this.extractDomain(source.baseUrl)}&apiKey=${this.apiKey}&pageSize=20`;
+    const url = `${NEWSAPI_BASE_URL}/everything?domains=${this.extractDomain(source.baseUrl)}&language=${source.language}&apiKey=${this.apiKey}&pageSize=20`;
 
     const response = await this.fetchWithRetry(url);
 
@@ -31,7 +31,7 @@ export class NewsApiAdapter implements ArticleFetcher {
 
     return response.articles
       .filter((a) => a.title && a.url)
-      .map((a) => Article.create(mapNewsApiArticle(a, source.id)));
+      .map((a) => Article.create(mapNewsApiArticle(a, source.id, source.language)));
   }
 
   private async fetchWithRetry(

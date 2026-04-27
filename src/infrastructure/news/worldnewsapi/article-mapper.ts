@@ -1,4 +1,5 @@
 import { ArticleProps } from "@/domain/article";
+import type { Language } from "@/domain/shared";
 
 export interface WorldNewsArticle {
   id: number;
@@ -12,6 +13,7 @@ export interface WorldNewsArticle {
 export function mapWorldNewsArticle(
   raw: WorldNewsArticle,
   sourceId: string,
+  language: Language,
 ): ArticleProps {
   return {
     id: crypto.randomUUID(),
@@ -20,6 +22,7 @@ export function mapWorldNewsArticle(
     description: raw.summary ?? "",
     image: raw.image ?? "",
     sourceId,
+    language,
     publishedAt: new Date(raw.publish_date),
     savedAt: new Date(),
   };

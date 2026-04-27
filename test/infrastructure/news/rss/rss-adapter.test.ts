@@ -9,6 +9,7 @@ function makeSource(overrides: Partial<{ id: string; baseUrl: string }> = {}): S
     baseUrl: overrides.baseUrl ?? "https://example.com/feed.xml",
     apiKey: "",
     kind: "rss",
+    language: "es",
     active: true,
     createdAt: new Date("2026-01-01T00:00:00Z"),
   });

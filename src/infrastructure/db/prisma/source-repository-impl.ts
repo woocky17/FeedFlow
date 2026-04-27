@@ -1,5 +1,6 @@
 import { Source, SourceKind, SourceRepository } from "@/domain/source";
 import { prisma } from "./client";
+import { fromPrismaLanguage, toPrismaLanguage } from "./language-mapper";
 
 type PrismaSourceKind = "WORLDNEWS" | "RSS";
 
@@ -17,6 +18,7 @@ type SourceRow = {
   baseUrl: string;
   apiKey: string;
   kind: PrismaSourceKind;
+  language: "ES" | "EN";
   active: boolean;
   createdAt: Date;
 };
@@ -28,6 +30,7 @@ function toDomain(row: SourceRow): Source {
     baseUrl: row.baseUrl,
     apiKey: row.apiKey,
     kind: fromPrismaKind(row.kind),
+    language: fromPrismaLanguage(row.language),
     active: row.active,
     createdAt: row.createdAt,
   });
@@ -42,6 +45,7 @@ export class PrismaSourceRepository implements SourceRepository {
         baseUrl: source.baseUrl,
         apiKey: source.apiKey,
         kind: toPrismaKind(source.kind),
+        language: toPrismaLanguage(source.language),
         active: source.active,
         createdAt: source.createdAt,
       },
@@ -71,6 +75,7 @@ export class PrismaSourceRepository implements SourceRepository {
         baseUrl: source.baseUrl,
         apiKey: source.apiKey,
         kind: toPrismaKind(source.kind),
+        language: toPrismaLanguage(source.language),
         active: source.active,
       },
     });

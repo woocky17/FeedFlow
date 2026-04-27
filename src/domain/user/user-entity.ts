@@ -1,3 +1,5 @@
+import { isLanguage, type Language } from "@/domain/shared";
+
 export type UserRole = "user" | "admin";
 
 export interface UserProps {
@@ -5,6 +7,7 @@ export interface UserProps {
   email: string;
   passwordHash: string;
   role: UserRole;
+  language: Language;
   createdAt: Date;
 }
 
@@ -13,6 +16,7 @@ export class User {
   readonly email: string;
   readonly passwordHash: string;
   readonly role: UserRole;
+  readonly language: Language;
   readonly createdAt: Date;
 
   private constructor(props: UserProps) {
@@ -20,6 +24,7 @@ export class User {
     this.email = props.email;
     this.passwordHash = props.passwordHash;
     this.role = props.role;
+    this.language = props.language;
     this.createdAt = props.createdAt;
   }
 
@@ -34,6 +39,10 @@ export class User {
 
     if (props.role !== "user" && props.role !== "admin") {
       throw new Error("User role must be 'user' or 'admin'");
+    }
+
+    if (!isLanguage(props.language)) {
+      throw new Error("User language must be a supported language");
     }
 
     return new User(props);

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
+import { useTranslations } from "next-intl";
 import { AppLayout } from "@/components/templates/app-layout";
 import { Button } from "@/components/atoms/button";
 import { Input } from "@/components/atoms/input";
@@ -23,6 +24,8 @@ interface Category {
 export default function CategoriasPage() {
   const { data: session } = useSession();
   const isAdmin = (session?.user as { role?: string })?.role === "admin";
+  const t = useTranslations("categories");
+  const tc = useTranslations("common");
 
   const [categories, setCategories] = useState<Category[]>([]);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -32,6 +35,7 @@ export default function CategoriasPage() {
 
   useEffect(() => {
     loadCategories();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   async function loadCategories() {
@@ -40,7 +44,7 @@ export default function CategoriasPage() {
       const data = await res.json();
       setCategories(Array.isArray(data) ? data : []);
     } catch {
-      setError("Failed to load categories");
+      setError(t("loadFailed"));
     } finally {
       setLoading(false);
     }
@@ -65,7 +69,7 @@ export default function CategoriasPage() {
       setEditingId(null);
       loadCategories();
     } catch {
-      setError("Failed to update category");
+      setError(t("updateFailed"));
     }
   }
 
@@ -78,7 +82,7 @@ export default function CategoriasPage() {
       await fetch(url, { method: "DELETE" });
       loadCategories();
     } catch {
-      setError("Failed to delete category");
+      setError(t("deleteFailed"));
     }
   }
 
@@ -88,11 +92,11 @@ export default function CategoriasPage() {
   }
 
   return (
-    <AppLayout title="Categories">
+    <AppLayout title={t("title")}>
       <div className="mb-6">
         <CategoryForm
           endpoint={isAdmin ? "/api/admin/categories" : "/api/categories"}
-          placeholder={isAdmin ? "New default category..." : "New category name..."}
+          placeholder={isAdmin ? t("newDefaultPlaceholder") : t("newCustomPlaceholder")}
           onSuccess={loadCategories}
         />
       </div>
@@ -105,8 +109,8 @@ export default function CategoriasPage() {
         </div>
       ) : categories.length === 0 ? (
         <EmptyState
-          title="No categories yet"
-          description="Create your first category above."
+          title={t("noCategoriesTitle")}
+          description={t("noCategoriesDescription")}
         />
       ) : (
         <div className="space-y-2">
@@ -125,14 +129,14 @@ export default function CategoriasPage() {
                     variant="ghost-amber"
                     onClick={() => handleUpdate(cat.id, cat.type)}
                   >
-                    Save
+                    {tc("save")}
                   </Button>
                   <Button
                     size="sm"
                     variant="ghost"
                     onClick={() => setEditingId(null)}
                   >
-                    Cancel
+                    {tc("cancel")}
                   </Button>
                 </div>
               ) : (
@@ -149,7 +153,7 @@ export default function CategoriasPage() {
                         icon={<Icon name="edit" />}
                         appearance="subtle"
                         tone="neutral"
-                        label="Edit category"
+                        label={t("editLabel")}
                         onClick={() => {
                           setEditingId(cat.id);
                           setEditName(cat.name);
@@ -159,7 +163,7 @@ export default function CategoriasPage() {
                         icon={<Icon name="trash" />}
                         appearance="subtle"
                         tone="red"
-                        label="Delete category"
+                        label={t("deleteLabel")}
                         onClick={() => handleDelete(cat.id, cat.type)}
                       />
                     </div>
