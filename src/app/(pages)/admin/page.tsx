@@ -2,6 +2,14 @@
 
 import { useEffect, useState } from "react";
 import { AppLayout } from "@/components/templates/app-layout";
+import { Button } from "@/components/atoms/button";
+import { Input } from "@/components/atoms/input";
+import { Badge } from "@/components/atoms/badge";
+import { Icon } from "@/components/atoms/icon";
+import { IconButton } from "@/components/atoms/icon-button";
+import { LoadingSpinner } from "@/components/atoms/loading-spinner";
+import { Card } from "@/components/atoms/card";
+import { EmptyState } from "@/components/molecules/empty-state";
 
 type SourceKind = "worldnews" | "rss";
 
@@ -19,6 +27,9 @@ interface Category {
   name: string;
   type: string;
 }
+
+const SELECT_CLASS =
+  "rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-900 outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-400/20";
 
 export default function AdminPage() {
   const [sources, setSources] = useState<Source[]>([]);
@@ -187,74 +198,61 @@ export default function AdminPage() {
 
   return (
     <AppLayout title="Admin Panel">
-      {/* Add source form */}
-      <div className="mb-6 rounded-2xl border border-slate-200 bg-white p-5">
+      <Card padding="md" className="mb-6">
         <h2 className="mb-4 text-sm font-semibold uppercase tracking-wider text-slate-400">
           Add News Source
         </h2>
         <form onSubmit={handleCreate} className="flex flex-col gap-3">
           <div className="flex flex-col gap-3 sm:flex-row">
-            <input
+            <Input
               type="text"
               placeholder="Source name"
               value={newName}
               onChange={(e) => setNewName(e.target.value)}
               required
-              className="flex-1 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-900 outline-none placeholder:text-slate-300 focus:border-amber-400 focus:ring-2 focus:ring-amber-400/20"
             />
-            <input
+            <Input
               type="url"
               placeholder="https://example.com"
               value={newUrl}
               onChange={(e) => setNewUrl(e.target.value)}
               required
-              className="flex-1 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-900 outline-none placeholder:text-slate-300 focus:border-amber-400 focus:ring-2 focus:ring-amber-400/20"
             />
           </div>
           <div className="flex flex-col gap-3 sm:flex-row">
             <select
               value={newKind}
               onChange={(e) => setNewKind(e.target.value as SourceKind)}
-              className="rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-900 outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-400/20"
+              className={SELECT_CLASS}
             >
               <option value="worldnews">WorldNewsAPI</option>
               <option value="rss">RSS</option>
             </select>
             {newKind === "worldnews" && (
-              <input
+              <Input
                 type="text"
                 placeholder="API Key (WorldNewsAPI)"
                 value={newApiKey}
                 onChange={(e) => setNewApiKey(e.target.value)}
                 required
-                className="flex-1 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-900 outline-none placeholder:text-slate-300 focus:border-amber-400 focus:ring-2 focus:ring-amber-400/20"
               />
             )}
-            <button
-              type="submit"
-              className="rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:shadow-md hover:brightness-110 active:scale-[0.98]"
-            >
-              Add source
-            </button>
+            <Button type="submit">Add source</Button>
           </div>
         </form>
-      </div>
+      </Card>
 
       {error && <p className="mb-4 text-sm text-red-500">{error}</p>}
 
-      {/* Sources list */}
       {loading ? (
         <div className="flex justify-center py-20">
-          <svg className="h-8 w-8 animate-spin text-amber-500" viewBox="0 0 24 24" fill="none">
-            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-          </svg>
+          <LoadingSpinner />
         </div>
       ) : sources.length === 0 ? (
-        <div className="rounded-2xl border border-dashed border-slate-200 bg-white py-16 text-center">
-          <p className="text-slate-400">No sources yet</p>
-          <p className="mt-1 text-sm text-slate-300">Add your first news source above.</p>
-        </div>
+        <EmptyState
+          title="No sources yet"
+          description="Add your first news source above."
+        />
       ) : (
         <div className="space-y-2">
           {sources.map((source) => (
@@ -265,38 +263,35 @@ export default function AdminPage() {
               {editingId === source.id ? (
                 <div className="flex flex-1 flex-col gap-2">
                   <div className="flex items-center gap-3">
-                    <input
+                    <Input
                       type="text"
                       value={editName}
                       onChange={(e) => setEditName(e.target.value)}
                       placeholder="Name"
-                      className="flex-1 rounded-lg border border-slate-200 px-3 py-1.5 text-sm outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-400/20"
                       autoFocus
                     />
-                    <input
+                    <Input
                       type="url"
                       value={editUrl}
                       onChange={(e) => setEditUrl(e.target.value)}
                       placeholder="URL"
-                      className="flex-1 rounded-lg border border-slate-200 px-3 py-1.5 text-sm outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-400/20"
                     />
                   </div>
                   <div className="flex items-center gap-3">
                     <select
                       value={editKind}
                       onChange={(e) => setEditKind(e.target.value as SourceKind)}
-                      className="rounded-lg border border-slate-200 px-3 py-1.5 text-sm outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-400/20"
+                      className={SELECT_CLASS}
                     >
                       <option value="worldnews">WorldNewsAPI</option>
                       <option value="rss">RSS</option>
                     </select>
                     {editKind === "worldnews" && (
-                      <input
+                      <Input
                         type="text"
                         value={editApiKey}
                         onChange={(e) => setEditApiKey(e.target.value)}
                         placeholder="API Key"
-                        className="flex-1 rounded-lg border border-slate-200 px-3 py-1.5 text-sm outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-400/20"
                       />
                     )}
                     <button
@@ -316,14 +311,14 @@ export default function AdminPage() {
               ) : (
                 <>
                   <div>
-                    <p className="text-sm font-medium text-slate-700">
+                    <p className="flex items-center gap-2 text-sm font-medium text-slate-700">
                       {source.name}
-                      <span className="ml-2 rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-slate-500">
+                      <Badge variant="neutral" size="sm" className="uppercase tracking-wider">
                         {source.kind === "rss" ? "RSS" : "WorldNews"}
-                      </span>
+                      </Badge>
                     </p>
                     <p className="text-xs text-slate-400">{source.baseUrl}</p>
-                    <p className="text-xs text-slate-300 font-mono">
+                    <p className="font-mono text-xs text-slate-300">
                       {source.kind === "rss"
                         ? "No API key needed"
                         : source.apiKey
@@ -332,16 +327,14 @@ export default function AdminPage() {
                     </p>
                   </div>
                   <div className="flex items-center gap-2">
-                    <span
-                      className={`rounded-full px-2 py-0.5 text-xs ${
-                        source.active
-                          ? "bg-emerald-50 text-emerald-600"
-                          : "bg-slate-100 text-slate-400"
-                      }`}
-                    >
+                    <Badge variant={source.active ? "positive" : "neutral"} size="sm">
                       {source.active ? "Active" : "Inactive"}
-                    </span>
-                    <button
+                    </Badge>
+                    <IconButton
+                      icon={<Icon name="edit" />}
+                      appearance="subtle"
+                      tone="neutral"
+                      label="Edit source"
                       onClick={() => {
                         setEditingId(source.id);
                         setEditName(source.name);
@@ -349,22 +342,14 @@ export default function AdminPage() {
                         setEditApiKey(source.apiKey);
                         setEditKind(source.kind);
                       }}
-                      className="rounded-lg p-1.5 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600"
-                    >
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" />
-                        <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" />
-                      </svg>
-                    </button>
-                    <button
+                    />
+                    <IconButton
+                      icon={<Icon name="trash" />}
+                      appearance="subtle"
+                      tone="red"
+                      label="Delete source"
                       onClick={() => handleDelete(source.id)}
-                      className="rounded-lg p-1.5 text-slate-400 transition-colors hover:bg-red-50 hover:text-red-500"
-                    >
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <polyline points="3 6 5 6 21 6" />
-                        <path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2" />
-                      </svg>
-                    </button>
+                    />
                   </div>
                 </>
               )}
@@ -372,43 +357,34 @@ export default function AdminPage() {
           ))}
         </div>
       )}
-      {/* Default Categories Section */}
-      <div className="mt-10 mb-6 rounded-2xl border border-slate-200 bg-white p-5">
+
+      <Card padding="md" className="mt-10 mb-6">
         <h2 className="mb-4 text-sm font-semibold uppercase tracking-wider text-slate-400">
           Default Categories
         </h2>
         <form onSubmit={handleCreateCategory} className="flex gap-3">
-          <input
+          <Input
             type="text"
             placeholder="New category name..."
             value={newCatName}
             onChange={(e) => setNewCatName(e.target.value)}
             required
-            className="flex-1 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-900 outline-none placeholder:text-slate-300 focus:border-amber-400 focus:ring-2 focus:ring-amber-400/20"
           />
-          <button
-            type="submit"
-            className="rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:shadow-md hover:brightness-110 active:scale-[0.98]"
-          >
-            Add
-          </button>
+          <Button type="submit">Add</Button>
         </form>
-      </div>
+      </Card>
 
       {catError && <p className="mb-4 text-sm text-red-500">{catError}</p>}
 
       {catLoading ? (
         <div className="flex justify-center py-10">
-          <svg className="h-8 w-8 animate-spin text-amber-500" viewBox="0 0 24 24" fill="none">
-            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-          </svg>
+          <LoadingSpinner />
         </div>
       ) : categories.length === 0 ? (
-        <div className="rounded-2xl border border-dashed border-slate-200 bg-white py-12 text-center">
-          <p className="text-slate-400">No default categories</p>
-          <p className="mt-1 text-sm text-slate-300">Add your first default category above.</p>
-        </div>
+        <EmptyState
+          title="No default categories"
+          description="Add your first default category above."
+        />
       ) : (
         <div className="space-y-2">
           {categories.map((cat) => (
@@ -418,11 +394,10 @@ export default function AdminPage() {
             >
               {editingCatId === cat.id ? (
                 <div className="flex flex-1 items-center gap-3">
-                  <input
+                  <Input
                     type="text"
                     value={editCatName}
                     onChange={(e) => setEditCatName(e.target.value)}
-                    className="flex-1 rounded-lg border border-slate-200 px-3 py-1.5 text-sm outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-400/20"
                     autoFocus
                   />
                   <button
@@ -442,27 +417,23 @@ export default function AdminPage() {
                 <>
                   <span className="text-sm font-medium text-slate-700">{cat.name}</span>
                   <div className="flex items-center gap-2">
-                    <button
+                    <IconButton
+                      icon={<Icon name="edit" />}
+                      appearance="subtle"
+                      tone="neutral"
+                      label="Edit category"
                       onClick={() => {
                         setEditingCatId(cat.id);
                         setEditCatName(cat.name);
                       }}
-                      className="rounded-lg p-1.5 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600"
-                    >
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" />
-                        <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" />
-                      </svg>
-                    </button>
-                    <button
+                    />
+                    <IconButton
+                      icon={<Icon name="trash" />}
+                      appearance="subtle"
+                      tone="red"
+                      label="Delete category"
                       onClick={() => handleDeleteCategory(cat.id)}
-                      className="rounded-lg p-1.5 text-slate-400 transition-colors hover:bg-red-50 hover:text-red-500"
-                    >
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <polyline points="3 6 5 6 21 6" />
-                        <path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2" />
-                      </svg>
-                    </button>
+                    />
                   </div>
                 </>
               )}

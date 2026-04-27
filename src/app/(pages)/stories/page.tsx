@@ -5,6 +5,8 @@ import Link from "next/link";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { AppLayout } from "@/components/templates/app-layout";
+import { LoadingSpinner } from "@/components/atoms/loading-spinner";
+import { EmptyState } from "@/components/molecules/empty-state";
 
 interface StorySummary {
   id: string;
@@ -44,18 +46,13 @@ export default function StoriesPage() {
 
       {loading ? (
         <div className="flex justify-center py-20">
-          <svg className="h-8 w-8 animate-spin text-amber-500" viewBox="0 0 24 24" fill="none">
-            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-          </svg>
+          <LoadingSpinner />
         </div>
       ) : stories.length === 0 ? (
-        <div className="rounded-2xl border border-dashed border-slate-200 bg-white py-16 text-center">
-          <p className="text-slate-400">No stories followed yet</p>
-          <p className="mt-1 text-sm text-slate-300">
-            Head to the Feed and tap the book icon on any article to start following its story.
-          </p>
-        </div>
+        <EmptyState
+          title="No stories followed yet"
+          description="Head to the Feed and tap the book icon on any article to start following its story."
+        />
       ) : (
         <div className="grid gap-4 sm:grid-cols-2">
           {stories.map((story) => (

@@ -4,6 +4,9 @@ import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { AppLayout } from "@/components/templates/app-layout";
+import { Icon } from "@/components/atoms/icon";
+import { LoadingSpinner } from "@/components/atoms/loading-spinner";
+import { EmptyState } from "@/components/molecules/empty-state";
 
 interface Article {
   id: string;
@@ -165,7 +168,6 @@ export default function FeedPage() {
           {toast.text}
         </div>
       )}
-      {/* Category filters */}
       <div className="mb-6 flex flex-wrap gap-2">
         <button
           onClick={() => { handleCategoryFilter(null); setShowFavorites(false); }}
@@ -186,9 +188,7 @@ export default function FeedPage() {
                 : "bg-white text-slate-500 border border-slate-200 hover:border-red-300"
             }`}
           >
-            <svg width="14" height="14" viewBox="0 0 24 24" fill={showFavorites ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
-            </svg>
+            <Icon name="heart" size={14} filled={showFavorites} />
             Favorites
           </button>
         )}
@@ -207,23 +207,19 @@ export default function FeedPage() {
         ))}
       </div>
 
-      {/* Articles grid */}
       {loading ? (
         <div className="flex justify-center py-20">
-          <svg className="h-8 w-8 animate-spin text-amber-500" viewBox="0 0 24 24" fill="none">
-            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-          </svg>
+          <LoadingSpinner />
         </div>
       ) : displayedArticles.length === 0 ? (
-        <div className="rounded-2xl border border-dashed border-slate-200 bg-white py-16 text-center">
-          <p className="text-slate-400">{showFavorites ? "No favorites yet" : "No articles found"}</p>
-          <p className="mt-1 text-sm text-slate-300">
-            {showFavorites
+        <EmptyState
+          title={showFavorites ? "No favorites yet" : "No articles found"}
+          description={
+            showFavorites
               ? "Tap the heart on any article to save it here."
-              : "Articles will appear here once sources are synced."}
-          </p>
-        </div>
+              : "Articles will appear here once sources are synced."
+          }
+        />
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {displayedArticles.map((article) => (
@@ -243,44 +239,29 @@ export default function FeedPage() {
                     className="rounded-full bg-white/80 p-1.5 backdrop-blur-sm transition-all hover:bg-white hover:scale-110 disabled:cursor-default disabled:hover:scale-100"
                   >
                     {followLoadingId === article.id ? (
-                      <svg className="h-5 w-5 animate-spin text-amber-500" viewBox="0 0 24 24" fill="none">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-                      </svg>
+                      <LoadingSpinner size="sm" />
                     ) : (
-                      <svg
-                        width="20"
-                        height="20"
-                        viewBox="0 0 24 24"
-                        fill={followedSourceIds.has(article.id) ? "currentColor" : "none"}
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
+                      <Icon
+                        name="book"
+                        size={20}
+                        filled={followedSourceIds.has(article.id)}
                         className={`transition-all duration-300 ${
                           followedSourceIds.has(article.id)
                             ? "text-amber-500"
                             : "text-slate-400 hover:text-amber-500"
                         }`}
-                      >
-                        <path d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
-                      </svg>
+                      />
                     )}
                   </button>
                   <button
                     onClick={(e) => toggleFavorite(e, article.id)}
                     className="rounded-full bg-white/80 p-1.5 backdrop-blur-sm transition-all hover:bg-white hover:scale-110"
                   >
-                    <svg
-                      width="20"
-                      height="20"
-                      viewBox="0 0 24 24"
-                      fill={favoriteIds.has(article.id) ? "currentColor" : "none"}
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      className={`transition-all duration-300 ${
+                    <Icon
+                      name="heart"
+                      size={20}
+                      filled={favoriteIds.has(article.id)}
+                      className={`${
                         favoriteIds.has(article.id)
                           ? "text-red-500"
                           : "text-slate-400 hover:text-red-400"
@@ -288,9 +269,7 @@ export default function FeedPage() {
                       style={{
                         transition: "transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), color 0.3s, fill 0.3s",
                       }}
-                    >
-                      <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
-                    </svg>
+                    />
                   </button>
                 </div>
               )}
@@ -328,10 +307,7 @@ export default function FeedPage() {
                       className="flex items-center gap-1 rounded-full bg-indigo-50 px-2.5 py-1 text-xs font-medium text-indigo-700 transition-colors hover:bg-indigo-100"
                       title="Compare sources"
                     >
-                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                        <rect x="3" y="4" width="7" height="16" rx="1" />
-                        <rect x="14" y="4" width="7" height="16" rx="1" />
-                      </svg>
+                      <Icon name="compare" size={12} />
                       {article.eventMemberCount} sources
                     </button>
                   )}
