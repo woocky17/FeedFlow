@@ -29,26 +29,26 @@ services:
     depends_on:
       - db
 
-  cron:
-    image: alpine:latest
+  worker:
+    build:
+      context: .
+      target: worker
     restart: unless-stopped
     depends_on:
-      - app
+      - db
     environment:
-      CRON_SECRET: ${CRON_SECRET:-change-me}
-      # Default: every 2 hours. WorldNewsAPI free tier is 50 pts/day, each sync call = 1.2 pts.
-      # 2h = 12 calls/day ≈ 14.4 pts per source. Safe for up to 3 sources on free plan.
+      DATABASE_URL: postgresql://feedflow:feedflow@db:5432/feedflow
+      GROQ_API_KEY: ${GROQ_API_KEY:-}
+      RESEND_API_KEY: ${RESEND_API_KEY:-}
+      NEWS_EVENT_SIMILARITY_THRESHOLD: ${NEWS_EVENT_SIMILARITY_THRESHOLD:-0.72}
+      STORY_SIMILARITY_THRESHOLD: ${STORY_SIMILARITY_THRESHOLD:-0.55}
+      # Default sync: every 2h. WorldNewsAPI free = 50 pts/day, ~1.2 pts/call → safe for ≤3 worldnews sources.
       SYNC_INTERVAL_SECONDS: ${SYNC_INTERVAL_SECONDS:-7200}
-    command: >
-      sh -c "apk add --no-cache curl >/dev/null &&
-      echo \"[cron] SYNC_INTERVAL_SECONDS=$$SYNC_INTERVAL_SECONDS\" &&
-      sleep 20 &&
-      while true; do
-        echo \"[cron] sync at $$(date -Iseconds)\" &&
-        curl -sS -m 120 -H \"Authorization: Bearer $$CRON_SECRET\" http://app:3000/api/cron/sync || echo '[cron] request failed';
-        echo '';
-        sleep $$SYNC_INTERVAL_SECONDS;
-      done"
+      # Default notifications: once a day.
+      NOTIFICATIONS_INTERVAL_SECONDS: ${NOTIFICATIONS_INTERVAL_SECONDS:-86400}
+      BACKFILL_MAX_DAYS: ${BACKFILL_MAX_DAYS:-3}
+    volumes:
+      - xenova_cache:/app/node_modules/@xenova/transformers/.cache
 
 volumes:
   pgdata:

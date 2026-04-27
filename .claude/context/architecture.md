@@ -61,6 +61,16 @@ DTOs de entrada/salida se definen en el mismo archivo del caso de uso cuando son
 - `layout.tsx` raíz monta providers globales (theme, toast, auth).
 - `page.tsx` raíz es el feed principal (~14KB).
 
+**Nota**: las rutas `/api/cron/sync` y `/api/cron/notifications` se han eliminado. La ingestión periódica vive en `src/worker/` (proceso Node standalone). Sólo `/api/cron/backfill` se mantiene como endpoint HTTP por ser una acción interactiva del admin.
+
+## worker/
+
+`src/worker/` es un entry point Node independiente que se contenedoriza por separado (stage `worker` en `Dockerfile`, servicio `worker` en `docker-compose.yml`). No depende del runtime Next.js.
+
+- `container.ts` — `buildContainer()` factory que ensambla todos los repos+adapters+casos de uso. Reutilizada también por `/api/cron/backfill/route.ts` y los scripts `scripts/run-cron.ts` / `run-sync.ts`.
+- `loop.ts` — scheduler con `setTimeout` recursivo, concurrencia 1 por job, jitter inicial, logs JSON-line a stdout, shutdown limpio en `SIGTERM`/`SIGINT`.
+- `index.ts` — registra los jobs `sync` (intervalo `SYNC_INTERVAL_SECONDS`) y `notifications` (`NOTIFICATIONS_INTERVAL_SECONDS`).
+
 ## Flujo típico — leer artículos filtrados
 
 ```

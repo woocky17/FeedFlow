@@ -21,6 +21,7 @@ src/
 ├── domain/          TypeScript puro: entidades, VOs, puertos (repositorios/servicios)
 ├── application/     Casos de uso — orquestan el dominio vía puertos inyectados
 ├── infrastructure/  Adaptadores: db/prisma, ai (transformers + groq), news (worldnewsapi, rss, newsapi) + multi-source-fetcher router, mail/resend
+├── worker/          Proceso Node standalone (sync, heal, notifications) con loop propio + container DI
 ├── app/             Next.js App Router: api/** y (pages)/**
 ├── components/      Atomic Design: atoms, molecules, organisms, templates
 └── lib/             Utilidades: auth.ts (NextAuth config), similarity.ts (l2Normalize, cosine)

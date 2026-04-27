@@ -1,77 +1,110 @@
-# Cron — Sincronización de noticias + notificaciones
+# Worker — Sincronización de noticias + notificaciones
 
-FeedFlow ejecuta dos jobs periódicos. Ambos son rutas HTTP protegidas por `Authorization: Bearer $CRON_SECRET`.
+FeedFlow ejecuta los jobs periódicos en un **proceso Node standalone** (`src/worker/`), no como rutas HTTP. La app web (`apps/web`) ya no tiene endpoints de cron salvo `/api/cron/backfill`, que es disparo manual interactivo del admin.
 
-## Jobs
+## Fetchers: enrutado por `Source.kind`
 
-### `GET /api/cron/sync` — fetch + IA + cluster
+El sync y el backfill reciben un único `ArticleFetcher` que en realidad es un `MultiSourceArticleFetcher` (`src/infrastructure/news/multi-source-fetcher.ts`). Inspecciona `source.kind` y delega:
 
-Archivo: `src/app/api/cron/sync/route.ts`. Duración máx: 60s (`maxDuration = 60`).
+- `kind = "worldnews"` → `WorldNewsApiAdapter` (API REST con `x-api-key`, consume cuota, soporta `from/to/limit`).
+- `kind = "rss"` → `RssArticleFetcher` (feed HTTP público parseado con `fast-xml-parser`; soporta RSS 2.0 y Atom). Sin cuota, sin auth. El filtrado por `from/to` es client-side sobre `pubDate`/`updated` — sólo rinde lo que el feed exponga (típicamente últimos 20-50 items). Para backfill profundo, usar `kind=worldnews`.
 
-Ensambla y ejecuta, en este orden:
-1. **`SyncArticles.execute()`**
-   - Itera fuentes activas.
-   - `WorldNewsApiAdapter.fetchPorFuente()` → candidatos.
-   - Filtra los no duplicados (por `url @unique`).
-   - Para cada nuevo artículo:
-     - `GroqClassifier.classify()` → categorías default aplicables (stub vacío si no hay `GROQ_API_KEY`).
-     - `TransformersEmbedder.embed(title + description)` → guarda embedding.
-     - `MatchArticleToStories.execute()` → añade a stories del usuario cuyo umbral se cumpla.
-     - `ClusterArticle.execute()` → asigna `newsEventId` o crea `NewsEvent` (umbral `NEWS_EVENT_SIMILARITY_THRESHOLD`, default 0.72).
-     - `AnalyzeArticleSentiment.execute()` → `sentiment` + `framingSummary` vía Groq.
-2. **`HealArticles.execute()`** — recorre artículos con datos faltantes (sin categorías, sin cluster, sin sentiment) y completa. Útil para arrancar tras cambiar una dependencia.
+## Worker
 
-Respuesta: `{ sync, heal }` con contadores.
+Archivo entry point: `src/worker/index.ts`. Loop: `src/worker/loop.ts`. DI compartida: `src/worker/container.ts`.
 
-### `GET /api/cron/notifications` — notificaciones por categoría
+Dos jobs registrados, cada uno con su propio intervalo y concurrencia 1 (no se solapa consigo mismo):
 
-Archivo: `src/app/api/cron/notifications/route.ts`.
+### `sync`
+- `SyncArticles.execute()` → itera fuentes activas, fetch (worldnews o rss), `IngestArticle` por artículo (dedup + classify + cluster + story match + sentiment).
+- `HealArticles.execute()` → completa los huérfanos (sin categoría, sin cluster, sin sentiment) en ventana de 7 días.
+- Intervalo: `SYNC_INTERVAL_SECONDS` (default `7200` = 2h).
 
-Itera `prisma.user.findMany` y por cada usuario ejecuta `SendNotifications.execute(userId)`:
-- Detecta artículos nuevos que encajen con las categorías del usuario.
-- Crea `Notification` en BD.
-- Envía email vía `ResendEmailAdapter`.
+### `notifications`
+- Itera `prisma.user.findMany` y por cada usuario ejecuta `SendNotifications.execute(userId)` (detecta artículos nuevos relevantes a sus categorías, crea fila en `Notification`, envía email vía `ResendEmailAdapter`).
+- Intervalo: `NOTIFICATIONS_INTERVAL_SECONDS` (default `86400` = 24h).
 
-Respuesta: `{ processed, results: [{ userId, status }] }`.
+### Logs
 
-## Disparador — Docker cron sidecar
+Cada iteración imprime JSON line a stdout:
 
-Configurado en `docker-compose.yml` como servicio `cron` (alpine + curl):
-
-```yaml
-cron:
-  image: alpine:latest
-  environment:
-    CRON_SECRET: ${CRON_SECRET:-change-me}
-    SYNC_INTERVAL_SECONDS: ${SYNC_INTERVAL_SECONDS:-7200}  # 2h por defecto
-  command: while true; do curl -H "Authorization: Bearer $CRON_SECRET" http://app:3000/api/cron/sync; sleep $SYNC_INTERVAL_SECONDS; done
+```json
+{"level":"info","ts":"2026-04-27T10:30:00Z","job":"sync","event":"start"}
+{"level":"info","ts":"2026-04-27T10:30:42Z","job":"sync","event":"done","durationMs":42013,"result":{"synced":40,"errors":2,"heal":{"classified":0,"clustered":0}}}
 ```
 
-**Notas de rate limiting** (ya anotadas en docker-compose): WorldNewsAPI plan gratis = 50 pts/día, cada llamada ≈ 1.2 pts. A 2h → 12 calls/día → ~14.4 pts/fuente. Seguro hasta ~3 fuentes en free.
+Capturados por Docker — `docker compose logs -f worker`.
 
-Las notificaciones NO están planificadas por el sidecar actual — si se quieren diarias, añadir otro servicio cron o un segundo loop que llame `/api/cron/notifications` con su propia cadencia.
+### Shutdown
+
+`SIGTERM` / `SIGINT` → el worker espera a que terminen los jobs en vuelo, cierra Prisma y sale con código 0. `docker compose stop worker` debería tardar <10 s salvo que un sync esté en mitad de un fetch.
+
+## Disparador
+
+Servicio `worker` en `docker-compose.yml`:
+
+```yaml
+worker:
+  build: { context: ., target: worker }
+  depends_on: [db]
+  environment:
+    DATABASE_URL: postgresql://feedflow:feedflow@db:5432/feedflow
+    GROQ_API_KEY, RESEND_API_KEY, NEWS_EVENT_SIMILARITY_THRESHOLD, STORY_SIMILARITY_THRESHOLD,
+    SYNC_INTERVAL_SECONDS, NOTIFICATIONS_INTERVAL_SECONDS, BACKFILL_MAX_DAYS
+  volumes:
+    - xenova_cache:/app/node_modules/@xenova/transformers/.cache
+```
+
+No depende de `app` — si la web cae, la ingestión sigue. Comparte el volumen `xenova_cache` con `app` para no descargar el modelo MiniLM dos veces.
+
+**Notas de rate limiting**: WorldNewsAPI plan free = 50 pts/día, ~1.2 pts/call. A 2h → 12 calls/día → ~14.4 pts/fuente. Seguro hasta ~3 fuentes worldnews. Las RSS no consumen cuota.
+
+## `POST /api/cron/backfill` — bootstrap histórico (sigue como endpoint HTTP)
+
+Archivo: `src/app/api/cron/backfill/route.ts`. Duración máx: 60s. **No** lo dispara el worker — es manual, usa `buildContainer()` para reusar la misma DI.
+
+Body JSON opcional:
+
+```json
+{ "daysBack": 3, "sourceIds": ["<source-id>"] }
+```
+
+- `daysBack` — clampado a `[1, BACKFILL_MAX_DAYS]` (env, default `3`).
+- `sourceIds` — si se omite, backfillea todas las fuentes activas.
+
+Ejemplo:
+
+```bash
+curl -X POST \
+  -H "Authorization: Bearer $CRON_SECRET" \
+  -H "Content-Type: application/json" \
+  -d '{"daysBack":2}' \
+  http://localhost:3000/api/cron/backfill
+```
 
 ## Variables de entorno
 
 | Variable | Qué controla | Default |
 |----------|--------------|---------|
-| `CRON_SECRET` | auth del endpoint | (obligatorio) |
-| `SYNC_INTERVAL_SECONDS` | frecuencia del sidecar | `7200` (2h) |
+| `DATABASE_URL` | conexión Prisma | obligatorio |
+| `SYNC_INTERVAL_SECONDS` | cadencia job sync | `7200` (2h) |
+| `NOTIFICATIONS_INTERVAL_SECONDS` | cadencia job notifications | `86400` (24h) |
 | `NEWS_EVENT_SIMILARITY_THRESHOLD` | umbral clustering | `0.72` |
-| `STORY_SIMILARITY_THRESHOLD` | umbral stories (pasado al caso de uso al crearlo) | `0.55` |
+| `STORY_SIMILARITY_THRESHOLD` | umbral stories | `0.55` |
 | `GROQ_API_KEY` | clasificación + sentiment | opcional (stub si falta) |
-| `WORLDNEWSAPI_API_KEY` | fetch de noticias | obligatorio en prod |
-| `RESEND_API_KEY` | email | obligatorio para notifications |
+| `RESEND_API_KEY` | email para notifications | obligatorio para notifications |
+| `BACKFILL_MAX_DAYS` | tope de días en `/api/cron/backfill` | `3` |
+| `CRON_SECRET` | auth de `/api/cron/backfill` | obligatorio |
 
-## Ejecutar manualmente (debug)
+## Ejecutar manualmente (sin Docker)
 
 ```bash
-curl -H "Authorization: Bearer $CRON_SECRET" http://localhost:3000/api/cron/sync
-curl -H "Authorization: Bearer $CRON_SECRET" http://localhost:3000/api/cron/notifications
+npm run worker          # loop persistente
+npm run worker:once     # un solo sync + heal y sale
 ```
 
 ## Al añadir un job nuevo
 
-1. Crea `src/app/api/cron/<name>/route.ts` con el patrón (auth por `CRON_SECRET`, `runtime = "nodejs"`, `dynamic = "force-dynamic"`).
-2. Añade un servicio al `docker-compose.yml` (o extiende el sidecar existente) con su propio intervalo.
-3. Documenta aquí.
+1. Si es periódico → añadir un caso de uso (`application/<feature>/...`) y registrarlo en `src/worker/index.ts` dentro del array `jobs` con su `intervalSec`.
+2. Si es interactivo (un admin lo dispara con parámetros) → exponerlo como ruta `/api/cron/<name>/route.ts` que use `buildContainer()`.
+3. Documentar aquí.
