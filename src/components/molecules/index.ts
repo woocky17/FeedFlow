@@ -1,7 +1,9 @@
 export { FormField } from "./form-field";
 export { NavLink } from "./nav-link";
 export { EmptyState } from "./empty-state";
+export { EntityRow } from "./entity-row";
 export { FilterPill } from "./filter-pill";
+export { NotificationItem } from "./notification-item";
 export { SectionHeader } from "./section-header";
 export { Toast } from "./toast";
 export type { ToastType } from "./toast";

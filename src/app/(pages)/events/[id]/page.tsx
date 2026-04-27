@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Image from "next/image";
 import { useParams } from "next/navigation";
 import { AppLayout } from "@/components/templates/app-layout";
 import { Card } from "@/components/atoms/card";
@@ -123,8 +124,8 @@ export default function EventPage() {
               </div>
 
               {article.image && (
-                <div className="aspect-video overflow-hidden bg-slate-100">
-                  <img src={article.image} alt="" className="h-full w-full object-cover" />
+                <div className="relative aspect-video overflow-hidden bg-slate-100">
+                  <Image src={article.image} alt="" fill unoptimized className="object-cover" />
                 </div>
               )}
 

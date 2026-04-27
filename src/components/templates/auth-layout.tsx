@@ -1,3 +1,5 @@
+import { Logo } from "@/components/atoms/logo";
+
 interface AuthLayoutProps {
   title: string;
   subtitle?: string;
@@ -25,13 +27,7 @@ export function AuthLayout({ title, subtitle, children }: AuthLayoutProps) {
         {/* Logo & branding */}
         <div className="relative z-10">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center">
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M4 11a9 9 0 0 1 9 9" />
-                <path d="M4 4a16 16 0 0 1 16 16" />
-                <circle cx="5" cy="19" r="1" />
-              </svg>
-            </div>
+            <Logo size="lg" />
             <span className="text-2xl font-bold text-white tracking-tight">FeedFlow</span>
           </div>
         </div>
@@ -59,13 +55,7 @@ export function AuthLayout({ title, subtitle, children }: AuthLayoutProps) {
         <div className="mx-auto w-full max-w-sm">
           {/* Mobile logo */}
           <div className="mb-10 lg:hidden flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M4 11a9 9 0 0 1 9 9" />
-                <path d="M4 4a16 16 0 0 1 16 16" />
-                <circle cx="5" cy="19" r="1" />
-              </svg>
-            </div>
+            <Logo size="md" />
             <span className="text-xl font-bold text-slate-900 tracking-tight">FeedFlow</span>
           </div>
 

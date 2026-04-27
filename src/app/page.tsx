@@ -1,13 +1,16 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Image from "next/image";
 import { useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
 import { AppLayout } from "@/components/templates/app-layout";
 import { Icon } from "@/components/atoms/icon";
+import { IconButton } from "@/components/atoms/icon-button";
 import { LoadingSpinner } from "@/components/atoms/loading-spinner";
 import { cardClassName } from "@/components/atoms/card";
 import { EmptyState } from "@/components/molecules/empty-state";
+import { EventSourcesPill } from "@/components/molecules/event-sources-pill";
+import { FilterPill } from "@/components/molecules/filter-pill";
 import { useFavorites } from "@/lib/hooks/use-favorites";
 import { useFollowedStories } from "@/lib/hooks/use-followed-stories";
 
@@ -31,7 +34,6 @@ interface Category {
 
 export default function FeedPage() {
   const { data: session } = useSession();
-  const router = useRouter();
   const [articles, setArticles] = useState<Article[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
@@ -112,41 +114,30 @@ export default function FeedPage() {
         </div>
       )}
       <div className="mb-6 flex flex-wrap gap-2">
-        <button
+        <FilterPill
+          active={activeCategory === null && !showFavorites}
           onClick={() => { handleCategoryFilter(null); setShowFavorites(false); }}
-          className={`rounded-full px-4 py-1.5 text-sm font-medium transition-colors ${
-            activeCategory === null && !showFavorites
-              ? "bg-amber-500 text-white shadow-sm"
-              : "bg-white text-slate-500 border border-slate-200 hover:border-amber-300"
-          }`}
         >
           All
-        </button>
+        </FilterPill>
         {session && (
-          <button
+          <FilterPill
+            active={showFavorites}
+            color="red"
+            icon={<Icon name="heart" size={14} filled={showFavorites} />}
             onClick={() => setShowFavorites(!showFavorites)}
-            className={`flex items-center gap-1.5 rounded-full px-4 py-1.5 text-sm font-medium transition-colors ${
-              showFavorites
-                ? "bg-red-500 text-white shadow-sm"
-                : "bg-white text-slate-500 border border-slate-200 hover:border-red-300"
-            }`}
           >
-            <Icon name="heart" size={14} filled={showFavorites} />
             Favorites
-          </button>
+          </FilterPill>
         )}
         {categories.map((cat) => (
-          <button
+          <FilterPill
             key={cat.id}
+            active={activeCategory === cat.id}
             onClick={() => handleCategoryFilter(cat.id)}
-            className={`rounded-full px-4 py-1.5 text-sm font-medium transition-colors ${
-              activeCategory === cat.id
-                ? "bg-amber-500 text-white shadow-sm"
-                : "bg-white text-slate-500 border border-slate-200 hover:border-amber-300"
-            }`}
           >
             {cat.name}
-          </button>
+          </FilterPill>
         ))}
       </div>
 
@@ -179,15 +170,13 @@ export default function FeedPage() {
             >
               {session && (
                 <div className="absolute top-3 right-3 z-10 flex gap-1.5">
-                  <button
+                  <IconButton
+                    appearance="overlay"
                     onClick={(e) => handleFollow(e, article.id)}
                     disabled={followed.isFollowed(article.id) || followed.isLoading(article.id)}
-                    title={followed.isFollowed(article.id) ? "Already following" : "Follow this story"}
-                    className="rounded-full bg-white/80 p-1.5 backdrop-blur-sm transition-all hover:bg-white hover:scale-110 disabled:cursor-default disabled:hover:scale-100"
-                  >
-                    {followed.isLoading(article.id) ? (
-                      <LoadingSpinner size="sm" />
-                    ) : (
+                    isLoading={followed.isLoading(article.id)}
+                    label={followed.isFollowed(article.id) ? "Already following" : "Follow this story"}
+                    icon={
                       <Icon
                         name="book"
                         size={20}
@@ -198,34 +187,38 @@ export default function FeedPage() {
                             : "text-slate-400 hover:text-amber-500"
                         }`}
                       />
-                    )}
-                  </button>
-                  <button
+                    }
+                  />
+                  <IconButton
+                    appearance="overlay"
                     onClick={(e) => handleToggleFavorite(e, article.id)}
-                    className="rounded-full bg-white/80 p-1.5 backdrop-blur-sm transition-all hover:bg-white hover:scale-110"
-                  >
-                    <Icon
-                      name="heart"
-                      size={20}
-                      filled={favorites.isFavorite(article.id)}
-                      className={`${
-                        favorites.isFavorite(article.id)
-                          ? "text-red-500"
-                          : "text-slate-400 hover:text-red-400"
-                      } ${favorites.isAnimating(article.id) ? "scale-125" : ""}`}
-                      style={{
-                        transition: "transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), color 0.3s, fill 0.3s",
-                      }}
-                    />
-                  </button>
+                    label={favorites.isFavorite(article.id) ? "Remove from favorites" : "Add to favorites"}
+                    icon={
+                      <Icon
+                        name="heart"
+                        size={20}
+                        filled={favorites.isFavorite(article.id)}
+                        className={`${
+                          favorites.isFavorite(article.id)
+                            ? "text-red-500"
+                            : "text-slate-400 hover:text-red-400"
+                        } ${favorites.isAnimating(article.id) ? "scale-125" : ""}`}
+                        style={{
+                          transition: "transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), color 0.3s, fill 0.3s",
+                        }}
+                      />
+                    }
+                  />
                 </div>
               )}
               {article.image && (
-                <div className="aspect-video overflow-hidden bg-slate-100">
-                  <img
+                <div className="relative aspect-video overflow-hidden bg-slate-100">
+                  <Image
                     src={article.image}
                     alt=""
-                    className="h-full w-full object-cover transition-transform group-hover:scale-105"
+                    fill
+                    unoptimized
+                    className="object-cover transition-transform group-hover:scale-105"
                   />
                 </div>
               )}
@@ -245,18 +238,10 @@ export default function FeedPage() {
                     })}
                   </p>
                   {article.newsEventId && (article.eventMemberCount ?? 1) > 1 && (
-                    <button
-                      onClick={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        router.push(`/events/${article.newsEventId}`);
-                      }}
-                      className="flex items-center gap-1 rounded-full bg-indigo-50 px-2.5 py-1 text-xs font-medium text-indigo-700 transition-colors hover:bg-indigo-100"
-                      title="Compare sources"
-                    >
-                      <Icon name="compare" size={12} />
-                      {article.eventMemberCount} sources
-                    </button>
+                    <EventSourcesPill
+                      eventId={article.newsEventId}
+                      count={article.eventMemberCount ?? 0}
+                    />
                   )}
                 </div>
               </div>

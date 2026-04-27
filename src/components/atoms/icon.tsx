@@ -9,7 +9,11 @@ export type IconName =
   | "plus"
   | "check"
   | "compare"
-  | "external";
+  | "external"
+  | "feed"
+  | "categories"
+  | "sources"
+  | "bell";
 
 interface IconDef {
   viewBox?: string;
@@ -67,6 +71,34 @@ const ICONS: Record<IconName, IconDef> = {
   external: {
     strokeWidth: 2.5,
     paths: [{ d: "M7 17L17 7M17 7H8M17 7v9" }],
+  },
+  feed: {
+    paths: [
+      {
+        d: "M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2",
+      },
+    ],
+  },
+  categories: {
+    paths: [
+      {
+        d: "M7 7h.01M7 3h5a1.969 1.969 0 011.414.586l7 7a2 2 0 010 2.828l-7 7A2 2 0 0112 21H7a4 4 0 01-4-4V7a4 4 0 014-4z",
+      },
+    ],
+  },
+  sources: {
+    paths: [
+      {
+        d: "M4 11a9 9 0 019 9M4 4a16 16 0 0116 16M5 19a1 1 0 100-2 1 1 0 000 2z",
+      },
+    ],
+  },
+  bell: {
+    paths: [
+      {
+        d: "M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9",
+      },
+    ],
   },
 };
 

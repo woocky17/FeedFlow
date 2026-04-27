@@ -9,7 +9,10 @@ import { Badge } from "@/components/atoms/badge";
 import { Icon } from "@/components/atoms/icon";
 import { IconButton } from "@/components/atoms/icon-button";
 import { LoadingSpinner } from "@/components/atoms/loading-spinner";
+import { ErrorText } from "@/components/atoms/error-text";
 import { EmptyState } from "@/components/molecules/empty-state";
+import { EntityRow } from "@/components/molecules/entity-row";
+import { CategoryForm } from "@/components/organisms/category-form";
 
 interface Category {
   id: string;
@@ -22,7 +25,6 @@ export default function CategoriasPage() {
   const isAdmin = (session?.user as { role?: string })?.role === "admin";
 
   const [categories, setCategories] = useState<Category[]>([]);
-  const [newName, setNewName] = useState("");
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editName, setEditName] = useState("");
   const [loading, setLoading] = useState(true);
@@ -41,28 +43,6 @@ export default function CategoriasPage() {
       setError("Failed to load categories");
     } finally {
       setLoading(false);
-    }
-  }
-
-  async function handleCreate(e: React.FormEvent) {
-    e.preventDefault();
-    setError("");
-    try {
-      const url = isAdmin ? "/api/admin/categories" : "/api/categories";
-      const res = await fetch(url, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: newName }),
-      });
-      if (!res.ok) {
-        const data = await res.json();
-        setError(data.error);
-        return;
-      }
-      setNewName("");
-      loadCategories();
-    } catch {
-      setError("Failed to create category");
     }
   }
 
@@ -109,18 +89,15 @@ export default function CategoriasPage() {
 
   return (
     <AppLayout title="Categories">
-      <form onSubmit={handleCreate} className="mb-6 flex gap-3">
-        <Input
-          type="text"
+      <div className="mb-6">
+        <CategoryForm
+          endpoint={isAdmin ? "/api/admin/categories" : "/api/categories"}
           placeholder={isAdmin ? "New default category..." : "New category name..."}
-          value={newName}
-          onChange={(e) => setNewName(e.target.value)}
-          required
+          onSuccess={loadCategories}
         />
-        <Button type="submit">Add</Button>
-      </form>
+      </div>
 
-      {error && <p className="mb-4 text-sm text-red-500">{error}</p>}
+      <ErrorText message={error} className="mb-4" />
 
       {loading ? (
         <div className="flex justify-center py-20">
@@ -134,10 +111,7 @@ export default function CategoriasPage() {
       ) : (
         <div className="space-y-2">
           {categories.map((cat) => (
-            <div
-              key={cat.id}
-              className="flex items-center justify-between rounded-xl border border-slate-200 bg-white px-4 py-3 transition-colors hover:border-amber-200"
-            >
+            <EntityRow key={cat.id}>
               {editingId === cat.id ? (
                 <div className="flex flex-1 items-center gap-3">
                   <Input
@@ -146,18 +120,20 @@ export default function CategoriasPage() {
                     onChange={(e) => setEditName(e.target.value)}
                     autoFocus
                   />
-                  <button
+                  <Button
+                    size="sm"
+                    variant="ghost-amber"
                     onClick={() => handleUpdate(cat.id, cat.type)}
-                    className="text-sm font-medium text-amber-600 hover:text-amber-700"
                   >
                     Save
-                  </button>
-                  <button
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="ghost"
                     onClick={() => setEditingId(null)}
-                    className="text-sm text-slate-400 hover:text-slate-600"
                   >
                     Cancel
-                  </button>
+                  </Button>
                 </div>
               ) : (
                 <>
@@ -190,7 +166,7 @@ export default function CategoriasPage() {
                   )}
                 </>
               )}
-            </div>
+            </EntityRow>
           ))}
         </div>
       )}

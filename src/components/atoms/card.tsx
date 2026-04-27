@@ -2,17 +2,41 @@ import { HTMLAttributes } from "react";
 
 export type CardVariant = "default" | "dashed" | "interactive" | "link";
 export type CardPadding = "none" | "sm" | "md" | "lg";
+export type CardTone = "slate" | "amber" | "red" | "indigo";
+export type CardRadius = "lg" | "xl" | "2xl";
 
 interface CardProps extends HTMLAttributes<HTMLDivElement> {
   variant?: CardVariant;
   padding?: CardPadding;
+  tone?: CardTone;
+  radius?: CardRadius;
 }
 
-const VARIANTS: Record<CardVariant, string> = {
-  default: "border border-slate-200",
-  dashed: "border border-dashed border-slate-200",
-  interactive: "border border-slate-200 transition-colors hover:border-amber-200",
-  link: "border border-slate-200 transition-all hover:border-amber-300 hover:shadow-lg hover:shadow-slate-200/50",
+const TONE_BG: Record<CardTone, string> = {
+  slate: "bg-white",
+  amber: "bg-amber-50/50",
+  red: "bg-red-50/50",
+  indigo: "bg-indigo-50/50",
+};
+
+const TONE_BORDER: Record<CardTone, string> = {
+  slate: "border-slate-200",
+  amber: "border-amber-200",
+  red: "border-red-200",
+  indigo: "border-indigo-200",
+};
+
+const VARIANT_EXTRA: Record<CardVariant, string> = {
+  default: "",
+  dashed: "border-dashed",
+  interactive: "transition-colors hover:border-amber-200",
+  link: "transition-all hover:border-amber-300 hover:shadow-lg hover:shadow-slate-200/50",
+};
+
+const RADIUS: Record<CardRadius, string> = {
+  lg: "rounded-lg",
+  xl: "rounded-xl",
+  "2xl": "rounded-2xl",
 };
 
 const PADDINGS: Record<CardPadding, string> = {
@@ -25,16 +49,30 @@ const PADDINGS: Record<CardPadding, string> = {
 export function cardClassName({
   variant = "default",
   padding = "md",
+  tone = "slate",
+  radius = "2xl",
   extra = "",
-}: { variant?: CardVariant; padding?: CardPadding; extra?: string } = {}): string {
-  return `rounded-2xl bg-white ${VARIANTS[variant]} ${PADDINGS[padding]} ${extra}`.trim();
+}: {
+  variant?: CardVariant;
+  padding?: CardPadding;
+  tone?: CardTone;
+  radius?: CardRadius;
+  extra?: string;
+} = {}): string {
+  return `${RADIUS[radius]} ${TONE_BG[tone]} border ${TONE_BORDER[tone]} ${VARIANT_EXTRA[variant]} ${PADDINGS[padding]} ${extra}`
+    .replace(/\s+/g, " ")
+    .trim();
 }
 
 export function Card({
   variant = "default",
   padding = "md",
+  tone = "slate",
+  radius = "2xl",
   className = "",
   ...rest
 }: CardProps) {
-  return <div className={cardClassName({ variant, padding, extra: className })} {...rest} />;
+  return (
+    <div className={cardClassName({ variant, padding, tone, radius, extra: className })} {...rest} />
+  );
 }

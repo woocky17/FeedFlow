@@ -4,12 +4,17 @@ import { useEffect, useState } from "react";
 import { AppLayout } from "@/components/templates/app-layout";
 import { Button } from "@/components/atoms/button";
 import { Input } from "@/components/atoms/input";
+import { Select } from "@/components/atoms/select";
 import { Badge } from "@/components/atoms/badge";
 import { Icon } from "@/components/atoms/icon";
 import { IconButton } from "@/components/atoms/icon-button";
 import { LoadingSpinner } from "@/components/atoms/loading-spinner";
 import { Card } from "@/components/atoms/card";
+import { ErrorText } from "@/components/atoms/error-text";
 import { EmptyState } from "@/components/molecules/empty-state";
+import { EntityRow } from "@/components/molecules/entity-row";
+import { CategoryForm } from "@/components/organisms/category-form";
+import { SourceForm } from "@/components/organisms/source-form";
 
 type SourceKind = "worldnews" | "rss";
 
@@ -28,15 +33,8 @@ interface Category {
   type: string;
 }
 
-const SELECT_CLASS =
-  "rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-900 outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-400/20";
-
 export default function AdminPage() {
   const [sources, setSources] = useState<Source[]>([]);
-  const [newName, setNewName] = useState("");
-  const [newUrl, setNewUrl] = useState("");
-  const [newApiKey, setNewApiKey] = useState("");
-  const [newKind, setNewKind] = useState<SourceKind>("worldnews");
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editName, setEditName] = useState("");
   const [editUrl, setEditUrl] = useState("");
@@ -46,7 +44,6 @@ export default function AdminPage() {
   const [error, setError] = useState("");
 
   const [categories, setCategories] = useState<Category[]>([]);
-  const [newCatName, setNewCatName] = useState("");
   const [editingCatId, setEditingCatId] = useState<string | null>(null);
   const [editCatName, setEditCatName] = useState("");
   const [catLoading, setCatLoading] = useState(true);
@@ -66,35 +63,6 @@ export default function AdminPage() {
       // silently fail
     } finally {
       setLoading(false);
-    }
-  }
-
-  async function handleCreate(e: React.FormEvent) {
-    e.preventDefault();
-    setError("");
-    try {
-      const res = await fetch("/api/admin/sources", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: newName,
-          baseUrl: newUrl,
-          apiKey: newKind === "rss" ? "" : newApiKey,
-          kind: newKind,
-        }),
-      });
-      if (!res.ok) {
-        const data = await res.json();
-        setError(data.error);
-        return;
-      }
-      setNewName("");
-      setNewUrl("");
-      setNewApiKey("");
-      setNewKind("worldnews");
-      loadSources();
-    } catch {
-      setError("Failed to add source");
     }
   }
 
@@ -145,27 +113,6 @@ export default function AdminPage() {
     }
   }
 
-  async function handleCreateCategory(e: React.FormEvent) {
-    e.preventDefault();
-    setCatError("");
-    try {
-      const res = await fetch("/api/admin/categories", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: newCatName }),
-      });
-      if (!res.ok) {
-        const data = await res.json();
-        setCatError(data.error);
-        return;
-      }
-      setNewCatName("");
-      loadCategories();
-    } catch {
-      setCatError("Failed to create category");
-    }
-  }
-
   async function handleUpdateCategory(id: string) {
     setCatError("");
     try {
@@ -202,47 +149,10 @@ export default function AdminPage() {
         <h2 className="mb-4 text-sm font-semibold uppercase tracking-wider text-slate-400">
           Add News Source
         </h2>
-        <form onSubmit={handleCreate} className="flex flex-col gap-3">
-          <div className="flex flex-col gap-3 sm:flex-row">
-            <Input
-              type="text"
-              placeholder="Source name"
-              value={newName}
-              onChange={(e) => setNewName(e.target.value)}
-              required
-            />
-            <Input
-              type="url"
-              placeholder="https://example.com"
-              value={newUrl}
-              onChange={(e) => setNewUrl(e.target.value)}
-              required
-            />
-          </div>
-          <div className="flex flex-col gap-3 sm:flex-row">
-            <select
-              value={newKind}
-              onChange={(e) => setNewKind(e.target.value as SourceKind)}
-              className={SELECT_CLASS}
-            >
-              <option value="worldnews">WorldNewsAPI</option>
-              <option value="rss">RSS</option>
-            </select>
-            {newKind === "worldnews" && (
-              <Input
-                type="text"
-                placeholder="API Key (WorldNewsAPI)"
-                value={newApiKey}
-                onChange={(e) => setNewApiKey(e.target.value)}
-                required
-              />
-            )}
-            <Button type="submit">Add source</Button>
-          </div>
-        </form>
+        <SourceForm submitLabel="Add source" onSuccess={loadSources} />
       </Card>
 
-      {error && <p className="mb-4 text-sm text-red-500">{error}</p>}
+      <ErrorText message={error} className="mb-4" />
 
       {loading ? (
         <div className="flex justify-center py-20">
@@ -256,10 +166,7 @@ export default function AdminPage() {
       ) : (
         <div className="space-y-2">
           {sources.map((source) => (
-            <div
-              key={source.id}
-              className="flex items-center justify-between rounded-xl border border-slate-200 bg-white px-4 py-3 transition-colors hover:border-amber-200"
-            >
+            <EntityRow key={source.id}>
               {editingId === source.id ? (
                 <div className="flex flex-1 flex-col gap-2">
                   <div className="flex items-center gap-3">
@@ -278,14 +185,13 @@ export default function AdminPage() {
                     />
                   </div>
                   <div className="flex items-center gap-3">
-                    <select
+                    <Select
                       value={editKind}
                       onChange={(e) => setEditKind(e.target.value as SourceKind)}
-                      className={SELECT_CLASS}
                     >
                       <option value="worldnews">WorldNewsAPI</option>
                       <option value="rss">RSS</option>
-                    </select>
+                    </Select>
                     {editKind === "worldnews" && (
                       <Input
                         type="text"
@@ -294,18 +200,20 @@ export default function AdminPage() {
                         placeholder="API Key"
                       />
                     )}
-                    <button
+                    <Button
+                      size="sm"
+                      variant="ghost-amber"
                       onClick={() => handleUpdate(source.id)}
-                      className="text-sm font-medium text-amber-600 hover:text-amber-700"
                     >
                       Save
-                    </button>
-                    <button
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="ghost"
                       onClick={() => setEditingId(null)}
-                      className="text-sm text-slate-400 hover:text-slate-600"
                     >
                       Cancel
-                    </button>
+                    </Button>
                   </div>
                 </div>
               ) : (
@@ -353,7 +261,7 @@ export default function AdminPage() {
                   </div>
                 </>
               )}
-            </div>
+            </EntityRow>
           ))}
         </div>
       )}
@@ -362,19 +270,13 @@ export default function AdminPage() {
         <h2 className="mb-4 text-sm font-semibold uppercase tracking-wider text-slate-400">
           Default Categories
         </h2>
-        <form onSubmit={handleCreateCategory} className="flex gap-3">
-          <Input
-            type="text"
-            placeholder="New category name..."
-            value={newCatName}
-            onChange={(e) => setNewCatName(e.target.value)}
-            required
-          />
-          <Button type="submit">Add</Button>
-        </form>
+        <CategoryForm
+          endpoint="/api/admin/categories"
+          onSuccess={loadCategories}
+        />
       </Card>
 
-      {catError && <p className="mb-4 text-sm text-red-500">{catError}</p>}
+      <ErrorText message={catError} className="mb-4" />
 
       {catLoading ? (
         <div className="flex justify-center py-10">
@@ -388,10 +290,7 @@ export default function AdminPage() {
       ) : (
         <div className="space-y-2">
           {categories.map((cat) => (
-            <div
-              key={cat.id}
-              className="flex items-center justify-between rounded-xl border border-slate-200 bg-white px-4 py-3 transition-colors hover:border-amber-200"
-            >
+            <EntityRow key={cat.id}>
               {editingCatId === cat.id ? (
                 <div className="flex flex-1 items-center gap-3">
                   <Input
@@ -400,18 +299,20 @@ export default function AdminPage() {
                     onChange={(e) => setEditCatName(e.target.value)}
                     autoFocus
                   />
-                  <button
+                  <Button
+                    size="sm"
+                    variant="ghost-amber"
                     onClick={() => handleUpdateCategory(cat.id)}
-                    className="text-sm font-medium text-amber-600 hover:text-amber-700"
                   >
                     Save
-                  </button>
-                  <button
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="ghost"
                     onClick={() => setEditingCatId(null)}
-                    className="text-sm text-slate-400 hover:text-slate-600"
                   >
                     Cancel
-                  </button>
+                  </Button>
                 </div>
               ) : (
                 <>
@@ -437,7 +338,7 @@ export default function AdminPage() {
                   </div>
                 </>
               )}
-            </div>
+            </EntityRow>
           ))}
         </div>
       )}

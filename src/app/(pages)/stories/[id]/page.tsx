@@ -1,9 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Image from "next/image";
 import { useParams, useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { AppLayout } from "@/components/templates/app-layout";
+import { Button } from "@/components/atoms/button";
 import { Card, cardClassName } from "@/components/atoms/card";
 import { Badge } from "@/components/atoms/badge";
 import { LoadingSpinner } from "@/components/atoms/loading-spinner";
@@ -128,13 +130,16 @@ export default function StoryTimelinePage() {
     <AppLayout
       title={data.story.name}
       actions={
-        <button
+        <Button
+          size="sm"
+          variant="secondary"
           onClick={handleUnfollow}
           disabled={unfollowing}
-          className="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm font-medium text-slate-500 transition-colors hover:border-red-200 hover:text-red-600 disabled:opacity-50"
+          isLoading={unfollowing}
+          className="border border-slate-200 bg-white text-slate-500 hover:bg-white hover:text-red-600"
         >
-          {unfollowing ? "Removing..." : "Unfollow"}
-        </button>
+          Unfollow
+        </Button>
       }
     >
       <Card padding="md" className="mb-8">
@@ -171,8 +176,14 @@ export default function StoryTimelinePage() {
                     })}
                   >
                     {article.image && (
-                      <div className="h-20 w-28 flex-shrink-0 overflow-hidden rounded-lg bg-slate-100">
-                        <img src={article.image} alt="" className="h-full w-full object-cover transition-transform group-hover:scale-105" />
+                      <div className="relative h-20 w-28 flex-shrink-0 overflow-hidden rounded-lg bg-slate-100">
+                        <Image
+                          src={article.image}
+                          alt=""
+                          fill
+                          unoptimized
+                          className="object-cover transition-transform group-hover:scale-105"
+                        />
                       </div>
                     )}
                     <div className="flex flex-1 flex-col">
