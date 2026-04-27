@@ -8,7 +8,7 @@ const meta: Meta<typeof Icon> = {
   argTypes: {
     name: {
       control: "select",
-      options: ["edit", "trash", "heart", "book", "x", "plus", "check", "compare"] satisfies IconName[],
+      options: ["edit", "trash", "heart", "book", "x", "plus", "check", "compare", "external"] satisfies IconName[],
     },
     size: { control: { type: "number", min: 12, max: 48, step: 2 } },
     filled: { control: "boolean" },
@@ -34,7 +34,7 @@ export const Colored: Story = {
   args: { name: "book", filled: true, className: "text-amber-500" },
 };
 
-const ALL: IconName[] = ["edit", "trash", "heart", "book", "x", "plus", "check", "compare"];
+const ALL: IconName[] = ["edit", "trash", "heart", "book", "x", "plus", "check", "compare", "external"];
 
 export const Gallery: Story = {
   render: () => (

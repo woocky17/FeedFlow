@@ -8,7 +8,8 @@ export type IconName =
   | "x"
   | "plus"
   | "check"
-  | "compare";
+  | "compare"
+  | "external";
 
 interface IconDef {
   viewBox?: string;
@@ -62,6 +63,10 @@ const ICONS: Record<IconName, IconDef> = {
       { rect: { x: 3, y: 4, width: 7, height: 16, rx: 1 } },
       { rect: { x: 14, y: 4, width: 7, height: 16, rx: 1 } },
     ],
+  },
+  external: {
+    strokeWidth: 2.5,
+    paths: [{ d: "M7 17L17 7M17 7H8M17 7v9" }],
   },
 };
 

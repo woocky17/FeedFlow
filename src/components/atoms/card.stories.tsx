@@ -6,7 +6,7 @@ const meta: Meta<typeof Card> = {
   component: Card,
   tags: ["autodocs"],
   argTypes: {
-    variant: { control: "select", options: ["default", "dashed", "interactive"] },
+    variant: { control: "select", options: ["default", "dashed", "interactive", "link"] },
     padding: { control: "select", options: ["none", "sm", "md", "lg"] },
   },
   decorators: [
@@ -64,6 +64,28 @@ export const Interactive: Story = {
     ),
   },
   name: "Interactive (list row)",
+};
+
+export const Link: Story = {
+  args: {
+    variant: "link",
+    padding: "md",
+    children: (
+      <>
+        <div className="flex items-start justify-between gap-3">
+          <h3 className="font-semibold text-slate-900">Crisis en Oriente Medio</h3>
+          <span className="rounded-full bg-amber-50 px-2 py-0.5 text-xs font-medium text-amber-700">
+            12 articles
+          </span>
+        </div>
+        <p className="mt-2 text-sm text-slate-500 line-clamp-3">
+          Following the latest developments and how different sources are framing the conflict.
+        </p>
+        <p className="mt-4 text-xs text-slate-300">Latest 24 abr</p>
+      </>
+    ),
+  },
+  name: "Link (hover lift + shadow)",
 };
 
 export const NoPadding: Story = {
