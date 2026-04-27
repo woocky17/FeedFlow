@@ -1,39 +1,16 @@
 {
   "permissions": {
     "allow": [
-      "Bash(gh label:*)",
-      "Bash(command -v gh)",
-      "Bash(echo \"PATH=$PATH\")",
-      "Bash(where.exe gh:*)",
-      "Bash(python3 create_issues.py)",
-      "Bash(python3 create_issues_remaining.py)",
-      "Bash(python3 update_issues.py)",
-      "Bash(python3 fix_fields.py)",
-      "Bash(npm -v)",
-      "Bash(npx create-next-app@latest . --typescript --tailwind --eslint --app --src-dir --import-alias \"@/*\" --use-npm --no-turbopack)",
-      "Bash(npx create-next-app@latest temp-next --typescript --tailwind --eslint --app --src-dir --import-alias \"@/*\" --use-npm --no-turbopack)",
-      "Bash(npm init:*)",
-      "Bash(sed -i 's/\"\"name\"\": \"\"FeedFlow\"\"/\"\"name\"\": \"\"feedflow\"\"/' package.json)",
-      "Bash(npm install:*)",
-      "Bash(npx next:*)",
-      "Bash(npx prisma:*)",
-      "Bash(docker compose:*)",
-      "Bash(npm uninstall:*)",
-      "Bash(BASE=\"/c/Users/dortet/OneDrive - Contecnow, S.L/Escritorio/Personal/FeedFlow/src\")",
-      "Bash(mv \"$BASE/application/source/add-source.use-case.ts\" \"$BASE/application/source/add-source-use-case.ts\")",
       "Bash(npm:*)",
+      "Bash(npx:*)",
+      "Bash(gh:*)",
+      "Bash(docker compose:*)",
       "Bash(sqlite3:*)",
-      "mcp__playwright__browser_snapshot",
-      "mcp__playwright__browser_click",
-      "Bash(gh issue:*)",
+      "Bash(python3:*)",
       "WebFetch(domain:github.com)",
-      "Bash(where gh:*)",
-      "Bash(\"/c/Program Files/GitHub CLI/gh.exe\" issue view 11 --json title,body -q '.title + \"\"\\\\n\"\" + .body')",
-      "Bash(\"/c/Program Files/GitHub CLI/gh.exe\" issue view 12 --json title,body -q '.title + \"\"\\\\n\"\" + .body')",
-      "Bash(\"/c/Program Files/GitHub CLI/gh.exe\" issue view 13 --json title,body -q '.title + \"\"\\\\n\"\" + .body')",
-      "Bash(\"/c/Program Files/GitHub CLI/gh.exe\" issue view 14 --json title,body -q '.title + \"\"\\\\n\"\" + .body')",
-      "Bash(\"/c/Program Files/GitHub CLI/gh.exe\" issue view 15 --json title,body -q '.title + \"\"\\\\n\"\" + .body')",
-      "WebFetch(domain:localhost)"
+      "WebFetch(domain:localhost)",
+      "mcp__playwright__browser_snapshot",
+      "mcp__playwright__browser_click"
     ]
   }
 }
