@@ -1,5 +1,37 @@
-import { Source, SourceRepository } from "@/domain/source";
+import { Source, SourceKind, SourceRepository } from "@/domain/source";
 import { prisma } from "./client";
+
+type PrismaSourceKind = "WORLDNEWS" | "RSS";
+
+function toPrismaKind(kind: SourceKind): PrismaSourceKind {
+  return kind === "rss" ? "RSS" : "WORLDNEWS";
+}
+
+function fromPrismaKind(kind: PrismaSourceKind): SourceKind {
+  return kind === "RSS" ? "rss" : "worldnews";
+}
+
+type SourceRow = {
+  id: string;
+  name: string;
+  baseUrl: string;
+  apiKey: string;
+  kind: PrismaSourceKind;
+  active: boolean;
+  createdAt: Date;
+};
+
+function toDomain(row: SourceRow): Source {
+  return Source.create({
+    id: row.id,
+    name: row.name,
+    baseUrl: row.baseUrl,
+    apiKey: row.apiKey,
+    kind: fromPrismaKind(row.kind),
+    active: row.active,
+    createdAt: row.createdAt,
+  });
+}
 
 export class PrismaSourceRepository implements SourceRepository {
   async save(source: Source): Promise<void> {
@@ -9,6 +41,7 @@ export class PrismaSourceRepository implements SourceRepository {
         name: source.name,
         baseUrl: source.baseUrl,
         apiKey: source.apiKey,
+        kind: toPrismaKind(source.kind),
         active: source.active,
         createdAt: source.createdAt,
       },
@@ -17,47 +50,17 @@ export class PrismaSourceRepository implements SourceRepository {
 
   async findById(id: string): Promise<Source | null> {
     const row = await prisma.source.findUnique({ where: { id } });
-
-    if (!row) return null;
-
-    return Source.create({
-      id: row.id,
-      name: row.name,
-      baseUrl: row.baseUrl,
-      apiKey: row.apiKey,
-      active: row.active,
-      createdAt: row.createdAt,
-    });
+    return row ? toDomain(row) : null;
   }
 
   async findAll(): Promise<Source[]> {
     const rows = await prisma.source.findMany();
-
-    return rows.map((row) =>
-      Source.create({
-        id: row.id,
-        name: row.name,
-        baseUrl: row.baseUrl,
-        apiKey: row.apiKey,
-        active: row.active,
-        createdAt: row.createdAt,
-      }),
-    );
+    return rows.map(toDomain);
   }
 
   async findActive(): Promise<Source[]> {
     const rows = await prisma.source.findMany({ where: { active: true } });
-
-    return rows.map((row) =>
-      Source.create({
-        id: row.id,
-        name: row.name,
-        baseUrl: row.baseUrl,
-        apiKey: row.apiKey,
-        active: row.active,
-        createdAt: row.createdAt,
-      }),
-    );
+    return rows.map(toDomain);
   }
 
   async update(source: Source): Promise<void> {
@@ -67,6 +70,7 @@ export class PrismaSourceRepository implements SourceRepository {
         name: source.name,
         baseUrl: source.baseUrl,
         apiKey: source.apiKey,
+        kind: toPrismaKind(source.kind),
         active: source.active,
       },
     });

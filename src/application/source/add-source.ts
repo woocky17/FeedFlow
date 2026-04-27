@@ -1,10 +1,11 @@
-import { Source, SourceRepository } from "@/domain/source";
+import { Source, SourceKind, SourceRepository } from "@/domain/source";
 
 interface AddSourceInput {
   id: string;
   name: string;
   baseUrl: string;
   apiKey: string;
+  kind?: SourceKind;
 }
 
 export class AddSource {
@@ -16,6 +17,7 @@ export class AddSource {
       name: input.name,
       baseUrl: input.baseUrl,
       apiKey: input.apiKey,
+      kind: input.kind ?? "worldnews",
       active: true,
       createdAt: new Date(),
     });

@@ -35,6 +35,7 @@ export async function PUT(
       name: body.name,
       baseUrl: body.baseUrl,
       apiKey: body.apiKey,
+      kind: body.kind === "rss" || body.kind === "worldnews" ? body.kind : undefined,
     });
 
     return NextResponse.json(source);

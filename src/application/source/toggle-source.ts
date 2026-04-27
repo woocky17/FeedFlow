@@ -19,6 +19,7 @@ export class ToggleSource {
       name: source.name,
       baseUrl: source.baseUrl,
       apiKey: source.apiKey,
+      kind: source.kind,
       active: input.active,
       createdAt: source.createdAt,
     });

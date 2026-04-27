@@ -29,17 +29,24 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
-    const { name, baseUrl, apiKey } = await request.json();
+    const { name, baseUrl, apiKey, kind } = await request.json();
 
-    if (!name || !baseUrl || !apiKey) {
-      return NextResponse.json({ error: "name, baseUrl and apiKey are required" }, { status: 400 });
+    if (!name || !baseUrl) {
+      return NextResponse.json({ error: "name and baseUrl are required" }, { status: 400 });
+    }
+
+    const resolvedKind = kind === "rss" ? "rss" : "worldnews";
+
+    if (resolvedKind === "worldnews" && !apiKey) {
+      return NextResponse.json({ error: "apiKey is required for WorldNewsAPI sources" }, { status: 400 });
     }
 
     const source = await addSource.execute({
       id: randomUUID(),
       name,
       baseUrl,
-      apiKey,
+      apiKey: apiKey ?? "",
+      kind: resolvedKind,
     });
 
     return NextResponse.json(source, { status: 201 });

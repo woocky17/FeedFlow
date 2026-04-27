@@ -1,10 +1,11 @@
-import { Source, SourceRepository } from "@/domain/source";
+import { Source, SourceKind, SourceRepository } from "@/domain/source";
 
 interface EditSourceInput {
   sourceId: string;
   name?: string;
   baseUrl?: string;
   apiKey?: string;
+  kind?: SourceKind;
 }
 
 export class EditSource {
@@ -21,6 +22,7 @@ export class EditSource {
       name: input.name ?? source.name,
       baseUrl: input.baseUrl ?? source.baseUrl,
       apiKey: input.apiKey ?? source.apiKey,
+      kind: input.kind ?? source.kind,
       active: source.active,
       createdAt: source.createdAt,
     });

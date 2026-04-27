@@ -51,7 +51,7 @@ DTOs de entrada/salida se definen en el mismo archivo del caso de uso cuando son
 
 - `db/prisma/` — un `*-repository-impl.ts` por entidad que implementa el puerto de `domain`. `client.ts` instancia el singleton. `seed.ts` para categorías default.
 - `ai/` — `transformers-embedder.ts` (MiniLM local, 384 dims, normalizado L2), `groq-classifier.ts` (categorías), `groq-sentiment-analyzer.ts`, `groq-topic-generator.ts`, `groq-fetch.ts` (cliente bajo nivel).
-- `news/` — `worldnewsapi/worldnewsapi-adapter.ts` (activo en cron/sync) y `newsapi/newsapi-adapter.ts` (alternativa). Cada adapter tiene su `article-mapper.ts`.
+- `news/` — adaptadores del puerto `ArticleFetcher`: `worldnewsapi/worldnewsapi-adapter.ts` (API con cuota), `rss/rss-adapter.ts` (feeds públicos vía `fast-xml-parser`, cuota ilimitada) y `newsapi/newsapi-adapter.ts` (alternativa no usada). `multi-source-fetcher.ts` es el router que, dado un `Source`, despacha al adapter correcto según `source.kind` (`"worldnews" | "rss"`). El cron inyecta el router, no los adapters sueltos.
 - `mail/resend/` — `resend-email-adapter.ts` + `templates.ts`.
 
 ## app/

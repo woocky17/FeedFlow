@@ -16,6 +16,21 @@ const defaultCategories = [
   "World",
 ];
 
+const demoRssSources = [
+  {
+    name: "El País",
+    baseUrl: "https://feeds.elpais.com/mrss-s/pages/ep/site/elpais.com/portada",
+  },
+  {
+    name: "20 Minutos",
+    baseUrl: "https://www.20minutos.es/rss/",
+  },
+  {
+    name: "Google News (España)",
+    baseUrl: "https://news.google.com/rss?hl=es&gl=ES&ceid=ES:es",
+  },
+];
+
 async function main() {
   for (const name of defaultCategories) {
     const exists = await prisma.category.findFirst({
@@ -30,6 +45,20 @@ async function main() {
   }
 
   console.log(`Seeded ${defaultCategories.length} default categories`);
+
+  let createdSources = 0;
+  for (const { name, baseUrl } of demoRssSources) {
+    const exists = await prisma.source.findFirst({ where: { name } });
+    if (exists) continue;
+    await prisma.source.create({
+      data: { name, baseUrl, apiKey: "", kind: "RSS", active: true },
+    });
+    createdSources++;
+  }
+
+  if (createdSources > 0) {
+    console.log(`Seeded ${createdSources} demo RSS sources`);
+  }
 }
 
 main()

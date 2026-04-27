@@ -1,5 +1,7 @@
 # Pipeline de IA — Embeddings, Clustering, Sentiment, Topics
 
+Todo artículo nuevo entra por el caso de uso único `IngestArticle` (`src/application/article/ingest-article.ts`), que orquesta dedup → save → classify → cluster → story match → sentiment. Lo invocan tanto `SyncArticles` (cron periódico) como `BackfillArticles` (bootstrap histórico), de modo que el pipeline descrito abajo es idéntico para ambos flujos.
+
 Tres tipos de IA en juego:
 
 1. **Embeddings locales** con `@xenova/transformers` (no hace llamadas de red en runtime — modelo descargado).

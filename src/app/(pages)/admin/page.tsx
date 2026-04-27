@@ -3,11 +3,14 @@
 import { useEffect, useState } from "react";
 import { AppLayout } from "@/components/templates/app-layout";
 
+type SourceKind = "worldnews" | "rss";
+
 interface Source {
   id: string;
   name: string;
   baseUrl: string;
   apiKey: string;
+  kind: SourceKind;
   active: boolean;
 }
 
@@ -22,10 +25,12 @@ export default function AdminPage() {
   const [newName, setNewName] = useState("");
   const [newUrl, setNewUrl] = useState("");
   const [newApiKey, setNewApiKey] = useState("");
+  const [newKind, setNewKind] = useState<SourceKind>("worldnews");
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editName, setEditName] = useState("");
   const [editUrl, setEditUrl] = useState("");
   const [editApiKey, setEditApiKey] = useState("");
+  const [editKind, setEditKind] = useState<SourceKind>("worldnews");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -60,7 +65,12 @@ export default function AdminPage() {
       const res = await fetch("/api/admin/sources", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: newName, baseUrl: newUrl, apiKey: newApiKey }),
+        body: JSON.stringify({
+          name: newName,
+          baseUrl: newUrl,
+          apiKey: newKind === "rss" ? "" : newApiKey,
+          kind: newKind,
+        }),
       });
       if (!res.ok) {
         const data = await res.json();
@@ -70,6 +80,7 @@ export default function AdminPage() {
       setNewName("");
       setNewUrl("");
       setNewApiKey("");
+      setNewKind("worldnews");
       loadSources();
     } catch {
       setError("Failed to add source");
@@ -82,7 +93,12 @@ export default function AdminPage() {
       const res = await fetch(`/api/admin/sources/${id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: editName, baseUrl: editUrl, apiKey: editApiKey }),
+        body: JSON.stringify({
+          name: editName,
+          baseUrl: editUrl,
+          apiKey: editKind === "rss" ? "" : editApiKey,
+          kind: editKind,
+        }),
       });
       if (!res.ok) {
         const data = await res.json();
@@ -196,14 +212,24 @@ export default function AdminPage() {
             />
           </div>
           <div className="flex flex-col gap-3 sm:flex-row">
-            <input
-              type="text"
-              placeholder="API Key (WorldNewsAPI)"
-              value={newApiKey}
-              onChange={(e) => setNewApiKey(e.target.value)}
-              required
-              className="flex-1 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-900 outline-none placeholder:text-slate-300 focus:border-amber-400 focus:ring-2 focus:ring-amber-400/20"
-            />
+            <select
+              value={newKind}
+              onChange={(e) => setNewKind(e.target.value as SourceKind)}
+              className="rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-900 outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-400/20"
+            >
+              <option value="worldnews">WorldNewsAPI</option>
+              <option value="rss">RSS</option>
+            </select>
+            {newKind === "worldnews" && (
+              <input
+                type="text"
+                placeholder="API Key (WorldNewsAPI)"
+                value={newApiKey}
+                onChange={(e) => setNewApiKey(e.target.value)}
+                required
+                className="flex-1 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-900 outline-none placeholder:text-slate-300 focus:border-amber-400 focus:ring-2 focus:ring-amber-400/20"
+              />
+            )}
             <button
               type="submit"
               className="rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:shadow-md hover:brightness-110 active:scale-[0.98]"
@@ -256,13 +282,23 @@ export default function AdminPage() {
                     />
                   </div>
                   <div className="flex items-center gap-3">
-                    <input
-                      type="text"
-                      value={editApiKey}
-                      onChange={(e) => setEditApiKey(e.target.value)}
-                      placeholder="API Key"
-                      className="flex-1 rounded-lg border border-slate-200 px-3 py-1.5 text-sm outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-400/20"
-                    />
+                    <select
+                      value={editKind}
+                      onChange={(e) => setEditKind(e.target.value as SourceKind)}
+                      className="rounded-lg border border-slate-200 px-3 py-1.5 text-sm outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-400/20"
+                    >
+                      <option value="worldnews">WorldNewsAPI</option>
+                      <option value="rss">RSS</option>
+                    </select>
+                    {editKind === "worldnews" && (
+                      <input
+                        type="text"
+                        value={editApiKey}
+                        onChange={(e) => setEditApiKey(e.target.value)}
+                        placeholder="API Key"
+                        className="flex-1 rounded-lg border border-slate-200 px-3 py-1.5 text-sm outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-400/20"
+                      />
+                    )}
                     <button
                       onClick={() => handleUpdate(source.id)}
                       className="text-sm font-medium text-amber-600 hover:text-amber-700"
@@ -280,10 +316,19 @@ export default function AdminPage() {
               ) : (
                 <>
                   <div>
-                    <p className="text-sm font-medium text-slate-700">{source.name}</p>
+                    <p className="text-sm font-medium text-slate-700">
+                      {source.name}
+                      <span className="ml-2 rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-slate-500">
+                        {source.kind === "rss" ? "RSS" : "WorldNews"}
+                      </span>
+                    </p>
                     <p className="text-xs text-slate-400">{source.baseUrl}</p>
                     <p className="text-xs text-slate-300 font-mono">
-                      {source.apiKey ? `${source.apiKey.slice(0, 8)}...` : "No API key"}
+                      {source.kind === "rss"
+                        ? "No API key needed"
+                        : source.apiKey
+                          ? `${source.apiKey.slice(0, 8)}...`
+                          : "No API key"}
                     </p>
                   </div>
                   <div className="flex items-center gap-2">
@@ -302,6 +347,7 @@ export default function AdminPage() {
                         setEditName(source.name);
                         setEditUrl(source.baseUrl);
                         setEditApiKey(source.apiKey);
+                        setEditKind(source.kind);
                       }}
                       className="rounded-lg p-1.5 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600"
                     >

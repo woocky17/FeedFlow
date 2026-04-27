@@ -3,10 +3,13 @@
 import { useEffect, useState } from "react";
 import { AppLayout } from "@/components/templates/app-layout";
 
+type SourceKind = "worldnews" | "rss";
+
 interface Source {
   id: string;
   name: string;
   baseUrl: string;
+  kind: SourceKind;
   active: boolean;
 }
 
@@ -18,6 +21,7 @@ export default function SourcesPage() {
   const [name, setName] = useState("");
   const [baseUrl, setBaseUrl] = useState("");
   const [apiKey, setApiKey] = useState("");
+  const [kind, setKind] = useState<SourceKind>("worldnews");
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
@@ -59,7 +63,12 @@ export default function SourcesPage() {
       const res = await fetch("/api/admin/sources", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, baseUrl, apiKey }),
+        body: JSON.stringify({
+          name,
+          baseUrl,
+          apiKey: kind === "rss" ? "" : apiKey,
+          kind,
+        }),
       });
       if (!res.ok) {
         const data = await res.json();
@@ -69,6 +78,7 @@ export default function SourcesPage() {
       setName("");
       setBaseUrl("");
       setApiKey("");
+      setKind("worldnews");
       setShowForm(false);
       loadSources();
     } catch {
@@ -124,14 +134,24 @@ export default function SourcesPage() {
             required
             className="w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-900 outline-none transition-all placeholder:text-slate-300 focus:border-amber-400 focus:ring-2 focus:ring-amber-400/20"
           />
-          <input
-            type="text"
-            placeholder="API Key"
-            value={apiKey}
-            onChange={(e) => setApiKey(e.target.value)}
-            required
-            className="w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-900 outline-none transition-all placeholder:text-slate-300 focus:border-amber-400 focus:ring-2 focus:ring-amber-400/20"
-          />
+          <select
+            value={kind}
+            onChange={(e) => setKind(e.target.value as SourceKind)}
+            className="w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-900 outline-none transition-all focus:border-amber-400 focus:ring-2 focus:ring-amber-400/20"
+          >
+            <option value="worldnews">WorldNewsAPI</option>
+            <option value="rss">RSS / Atom feed</option>
+          </select>
+          {kind === "worldnews" && (
+            <input
+              type="text"
+              placeholder="API Key"
+              value={apiKey}
+              onChange={(e) => setApiKey(e.target.value)}
+              required
+              className="w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-900 outline-none transition-all placeholder:text-slate-300 focus:border-amber-400 focus:ring-2 focus:ring-amber-400/20"
+            />
+          )}
           <div className="flex items-center gap-3 pt-1">
             <button
               type="submit"
@@ -173,7 +193,12 @@ export default function SourcesPage() {
               className="flex items-center justify-between rounded-xl border border-slate-200 bg-white px-4 py-3 transition-colors hover:border-amber-200"
             >
               <div className="min-w-0 flex-1">
-                <p className="text-sm font-medium text-slate-700">{source.name}</p>
+                <p className="text-sm font-medium text-slate-700">
+                  {source.name}
+                  <span className="ml-2 rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-slate-500">
+                    {source.kind === "rss" ? "RSS" : "WorldNews"}
+                  </span>
+                </p>
                 <p className="truncate text-xs text-slate-400">{source.baseUrl}</p>
               </div>
               <div className="flex items-center gap-3 ml-4">

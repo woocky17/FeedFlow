@@ -10,6 +10,7 @@ FeedFlow es un **agregador de noticias personalizado** (Next.js 16 full-stack) c
 - **TailwindCSS 4** + **Radix UI** (@radix-ui/themes, @radix-ui/react-icons)
 - **@xenova/transformers** (`Xenova/all-MiniLM-L6-v2`, 384 dims, local) para embeddings
 - **Groq API** para clasificación de categorías, análisis de sentimiento y generación de topics
+- **fast-xml-parser** para adaptador RSS/Atom (`RssArticleFetcher`)
 - **Storybook 10**, **Vitest 4**, **Playwright 1.59**
 - Docker (multi-stage) + cron job Docker para sync periódico
 
@@ -19,7 +20,7 @@ FeedFlow es un **agregador de noticias personalizado** (Next.js 16 full-stack) c
 src/
 ├── domain/          TypeScript puro: entidades, VOs, puertos (repositorios/servicios)
 ├── application/     Casos de uso — orquestan el dominio vía puertos inyectados
-├── infrastructure/  Adaptadores: db/prisma, ai (transformers + groq), news (worldnewsapi, newsapi), mail/resend
+├── infrastructure/  Adaptadores: db/prisma, ai (transformers + groq), news (worldnewsapi, rss, newsapi) + multi-source-fetcher router, mail/resend
 ├── app/             Next.js App Router: api/** y (pages)/**
 ├── components/      Atomic Design: atoms, molecules, organisms, templates
 └── lib/             Utilidades: auth.ts (NextAuth config), similarity.ts (l2Normalize, cosine)

@@ -8,6 +8,8 @@ import { PrismaCategoryAssignmentRepository } from "@/infrastructure/db/prisma/c
 import { PrismaStoryRepository } from "@/infrastructure/db/prisma/story-repository-impl";
 import { PrismaArticleEmbeddingRepository } from "@/infrastructure/db/prisma/article-embedding-repository-impl";
 import { WorldNewsApiAdapter } from "@/infrastructure/news/worldnewsapi/worldnewsapi-adapter";
+import { RssArticleFetcher } from "@/infrastructure/news/rss/rss-adapter";
+import { MultiSourceArticleFetcher } from "@/infrastructure/news/multi-source-fetcher";
 import { GroqClassifier } from "@/infrastructure/ai/groq-classifier";
 import { TransformersEmbedder } from "@/infrastructure/ai/transformers-embedder";
 
@@ -18,7 +20,10 @@ async function main() {
   const assignmentRepository = new PrismaCategoryAssignmentRepository();
   const storyRepository = new PrismaStoryRepository();
   const articleEmbeddingRepository = new PrismaArticleEmbeddingRepository();
-  const articlesFetcher = new WorldNewsApiAdapter();
+  const articlesFetcher = new MultiSourceArticleFetcher(
+    new WorldNewsApiAdapter(),
+    new RssArticleFetcher(),
+  );
   const embedder = new TransformersEmbedder();
 
   const categoryClassifier = process.env.GROQ_API_KEY

@@ -1,8 +1,11 @@
+export type SourceKind = "worldnews" | "rss";
+
 export interface SourceProps {
   id: string;
   name: string;
   baseUrl: string;
   apiKey: string;
+  kind: SourceKind;
   active: boolean;
   createdAt: Date;
 }
@@ -12,6 +15,7 @@ export class Source {
   readonly name: string;
   readonly baseUrl: string;
   readonly apiKey: string;
+  readonly kind: SourceKind;
   readonly active: boolean;
   readonly createdAt: Date;
 
@@ -20,6 +24,7 @@ export class Source {
     this.name = props.name;
     this.baseUrl = props.baseUrl;
     this.apiKey = props.apiKey;
+    this.kind = props.kind;
     this.active = props.active;
     this.createdAt = props.createdAt;
   }
@@ -31,6 +36,10 @@ export class Source {
 
     if (!Source.isValidUrl(props.baseUrl)) {
       throw new Error("Source baseUrl must be a valid URL");
+    }
+
+    if (props.kind === "worldnews" && (!props.apiKey || props.apiKey.trim().length === 0)) {
+      throw new Error("WorldNews sources require an API key");
     }
 
     return new Source(props);

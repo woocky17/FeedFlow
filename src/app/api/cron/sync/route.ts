@@ -14,6 +14,8 @@ import { PrismaStoryRepository } from "@/infrastructure/db/prisma/story-reposito
 import { PrismaArticleEmbeddingRepository } from "@/infrastructure/db/prisma/article-embedding-repository-impl";
 import { PrismaNewsEventRepository } from "@/infrastructure/db/prisma/news-event-repository-impl";
 import { WorldNewsApiAdapter } from "@/infrastructure/news/worldnewsapi/worldnewsapi-adapter";
+import { RssArticleFetcher } from "@/infrastructure/news/rss/rss-adapter";
+import { MultiSourceArticleFetcher } from "@/infrastructure/news/multi-source-fetcher";
 import { GroqClassifier } from "@/infrastructure/ai/groq-classifier";
 import { GroqSentimentAnalyzer } from "@/infrastructure/ai/groq-sentiment-analyzer";
 import { TransformersEmbedder } from "@/infrastructure/ai/transformers-embedder";
@@ -25,7 +27,10 @@ const assignmentRepository = new PrismaCategoryAssignmentRepository();
 const storyRepository = new PrismaStoryRepository();
 const articleEmbeddingRepository = new PrismaArticleEmbeddingRepository();
 const newsEventRepository = new PrismaNewsEventRepository();
-const articlesFetcher = new WorldNewsApiAdapter();
+const articlesFetcher = new MultiSourceArticleFetcher(
+  new WorldNewsApiAdapter(),
+  new RssArticleFetcher(),
+);
 const embedder = new TransformersEmbedder();
 const sentimentAnalyzer = new GroqSentimentAnalyzer(process.env.GROQ_API_KEY ?? "");
 

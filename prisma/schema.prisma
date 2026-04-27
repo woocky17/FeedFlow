@@ -25,6 +25,11 @@ enum AssignmentOrigin {
   MANUAL
 }
 
+enum SourceKind {
+  WORLDNEWS
+  RSS
+}
+
 // ─── User ────────────────────────────────────────────────
 
 model User {
@@ -46,12 +51,13 @@ model User {
 // ─── Source ──────────────────────────────────────────────
 
 model Source {
-  id        String   @id @default(cuid())
+  id        String     @id @default(cuid())
   name      String
   baseUrl   String
-  apiKey    String   @default("")
-  active    Boolean  @default(true)
-  createdAt DateTime @default(now())
+  apiKey    String     @default("")
+  kind      SourceKind @default(WORLDNEWS)
+  active    Boolean    @default(true)
+  createdAt DateTime   @default(now())
 
   articles Article[]
 
