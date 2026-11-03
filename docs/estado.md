@@ -2,7 +2,7 @@
 
 - **Actualizado**: 2026-11-03
 - **Versión**: 1.0.0 (`package.json`)
-- **Commit**: `7e170fa` · rama `main`
+- **Commit**: `35b9f41` · rama `main` (sin push)
 - **Probado**: no
 
 ## Dónde estamos
@@ -13,12 +13,12 @@ Dependencias reparadas con `npm ci && npm run db:generate` (2026-11-03):
 - `npm test`: verde (12 ficheros, 64 tests).
 - `npm run lint`: verde, 1 aviso (de antes de reparar).
 - `npx tsc --noEmit`: verde.
+- `npm run build`: verde (Next 16.2.0 Turbopack, 31 rutas + proxy).
 - `npm ls` marca como extraneous `@emnapi/*`, `@napi-rs/wasm-runtime` y `@tybys/wasm-util`: restos que `npm ci` no pudo borrar (EPERM en Windows). Inofensivos; desaparecen en el próximo `npm ci` sin procesos abiertos.
 
 ## Siguiente paso (pendiente)
 
-1. `npm run build`.
-2. Arrancar `mkdir -p logs && npm run dev 2>&1 | tee logs/dev.log` y buscar `✓ Ready in`.
+1. Arrancar `mkdir -p logs && npm run dev 2>&1 | tee logs/dev.log` y buscar `✓ Ready in`.
 
 Agente: ninguno, lo hace el usuario. Si algo falla, `ff-debugger`.
 
