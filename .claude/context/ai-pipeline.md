@@ -77,7 +77,7 @@ Genera un `summary` corto para una `Story` al seguir un artículo.
 - `NEWS_EVENT_SIMILARITY_THRESHOLD` — umbral de clustering (default 0.72).
 - `CRON_SECRET` — auth del cron.
 - `DATABASE_URL` — PostgreSQL (Prisma).
-- `WORLDNEWSAPI_API_KEY` / `NEWSAPI_API_KEY` — ver adaptadores.
+- Claves de WorldNewsAPI: por fuente en `Source.apiKey` (no en el entorno).
 - `RESEND_API_KEY` — email.
 
 ## Al tocar el pipeline

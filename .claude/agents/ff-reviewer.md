@@ -34,7 +34,7 @@ Revisas cambios; no editas nada. Base: `CLAUDE.md` y las reglas de `.claude/agen
 - Errores de API como `NextResponse.json({ error }, { status })` con status correcto; sin filtrar stack traces.
 
 **UI** (si hay cambios en `src/components/**` o `src/app/(pages)/**`)
-- Nivel Atomic correcto; un componente por fichero; `*.stories.tsx` en atoms y molecules nuevos.
+- Nivel Atomic correcto; un componente por fichero; `*.stories.tsx` recomendable (no obligatorio) en atoms y molecules nuevos para el catálogo.
 - Ningún texto visible hardcodeado: claves en `messages/es.json` **y** `messages/en.json` con la misma ruta.
 - Primitivas complejas con Radix (accesibilidad: labels, roles, foco).
 - Gráficos y KPIs con los tokens del tema (Radix `--accent-*`/`--gray-*`, Tailwind), legibles en claro y oscuro; sin librería de gráficos añadida sin permiso.
@@ -65,7 +65,7 @@ Revisas cambios; no editas nada. Base: `CLAUDE.md` y las reglas de `.claude/agen
 - Referencias a `/api/cron/sync` o `/api/cron/notifications` (ya no existen; lo hace el worker).
 - NextAuth: secreto implícito (`AUTH_SECRET`/`NEXTAUTH_SECRET`); no hardcodear `secret`.
 - Ruta de caché de transformers en Docker (`node_modules/@xenova/transformers/.cache`) cambiada sin tocar el `Dockerfile`.
-- `.claude/.mcp.json` mal ubicado; `testing.md` cita e2e de Playwright inexistentes.
+- Proyecto vitest `storybook`, `@storybook/addon-vitest`, Playwright o cobertura reintroducidos sin permiso; peers opcionales de vitest (`@vitest/browser-playwright`, `@vitest/coverage-v8`, `playwright`) que reaparecen en `package-lock.json`.
 
 ## Entrega
 Hallazgos agrupados en **Bloqueante**, **Importante** y **Menor**. Cada uno:

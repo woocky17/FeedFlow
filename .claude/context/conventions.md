@@ -46,7 +46,7 @@ Punto y coma sí, comillas dobles, 2 espacios, trailing commas sí, ancho 100. `
 
 ## ESLint
 
-`eslint-config-next` + `eslint-plugin-storybook`. `npm run lint` = `next lint`. Sigue las reglas por defecto de Next 16.
+`eslint-config-next` + `eslint-plugin-storybook`. `npm run lint` = `eslint .` (flat config en `eslint.config.mjs`). Sigue las reglas por defecto de Next 16.
 
 ## Commits
 

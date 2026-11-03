@@ -1,6 +1,6 @@
 # Worker — Sincronización de noticias + notificaciones
 
-FeedFlow ejecuta los jobs periódicos en un **proceso Node standalone** (`src/worker/`), no como rutas HTTP. La app web (`apps/web`) ya no tiene endpoints de cron salvo `/api/cron/backfill`, que es disparo manual interactivo del admin.
+FeedFlow ejecuta los jobs periódicos en un **proceso Node standalone** (`src/worker/`), no como rutas HTTP. La app web (`src/app`) ya no tiene endpoints de cron salvo `/api/cron/backfill`, que es disparo manual interactivo del admin.
 
 ## Fetchers: enrutado por `Source.kind`
 
@@ -13,7 +13,7 @@ El sync y el backfill reciben un único `ArticleFetcher` que en realidad es un `
 
 Archivo entry point: `src/worker/index.ts`. Loop: `src/worker/loop.ts`. DI compartida: `src/worker/container.ts`.
 
-Dos jobs registrados, cada uno con su propio intervalo y concurrencia 1 (no se solapa consigo mismo):
+Hasta tres jobs registrados, cada uno con su propio intervalo y concurrencia 1 (no se solapa consigo mismo). `sync` y `notifications` siempre; `prefetchTranslations` solo si hay `GROQ_API_KEY`:
 
 ### `sync`
 - `SyncArticles.execute()` → itera fuentes activas, fetch (worldnews o rss), `IngestArticle` por artículo (dedup + classify + cluster + story match + sentiment).
@@ -23,6 +23,12 @@ Dos jobs registrados, cada uno con su propio intervalo y concurrencia 1 (no se s
 ### `notifications`
 - Itera `prisma.user.findMany` y por cada usuario ejecuta `SendNotifications.execute(userId)` (detecta artículos nuevos relevantes a sus categorías, crea fila en `Notification`, envía email vía `ResendEmailAdapter`).
 - Intervalo: `NOTIFICATIONS_INTERVAL_SECONDS` (default `86400` = 24h).
+
+### `prefetchTranslations`
+- Solo se registra si `GROQ_API_KEY` está definida (sin ella, `container.prefetchArticleTitles` es `null`).
+- `PrefetchArticleTitles.execute({ windowHours: 24, limit: 200 })` (`src/application/article-translation/prefetch-article-titles.ts`) → toma hasta 200 artículos de las últimas 24h y, para cada idioma de `SUPPORTED_LANGUAGES` distinto del original, traduce el título con `GroqTranslationService` y lo guarda en `ArticleTranslation`. Si ya existe la traducción, la salta.
+- Resultado en el log: `scanned`, `translated`, `skipped`, `errors`.
+- Intervalo: `PREFETCH_TRANSLATIONS_INTERVAL_SECONDS` (default `600` = 10 min).
 
 ### Logs
 
@@ -89,6 +95,7 @@ curl -X POST \
 | `DATABASE_URL` | conexión Prisma | obligatorio |
 | `SYNC_INTERVAL_SECONDS` | cadencia job sync | `7200` (2h) |
 | `NOTIFICATIONS_INTERVAL_SECONDS` | cadencia job notifications | `86400` (24h) |
+| `PREFETCH_TRANSLATIONS_INTERVAL_SECONDS` | cadencia job prefetchTranslations | `600` (10 min) |
 | `NEWS_EVENT_SIMILARITY_THRESHOLD` | umbral clustering | `0.72` |
 | `STORY_SIMILARITY_THRESHOLD` | umbral stories | `0.55` |
 | `GROQ_API_KEY` | clasificación + sentiment | opcional (stub si falta) |

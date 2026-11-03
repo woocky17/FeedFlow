@@ -41,8 +41,8 @@ Implementas UNA tanda acotada. Si te piden algo fuera de ella, no lo haces: lo a
 
 ### UI (Atomic Design)
 - `src/components/{atoms,molecules,organisms,templates}/<kebab-name>.tsx`, un componente por fichero, props con `interface` local, sin `any`.
-- Todo atom y molecule lleva su `*.stories.tsx` coubicado (`@storybook/nextjs-vite`, ver `.claude/context/components.md`).
-- Radix (`@radix-ui/themes`, `@radix-ui/react-icons`) para primitivas accesibles; tema en `src/app/layout.tsx:22` (`<Theme accentColor="blue" radius="medium">`). Tailwind 4 directo en JSX; `@apply` solo si un combo se repite más de 3 veces.
+- Recomendable tener `*.stories.tsx` coubicado en los atoms y molecules nuevos para el catálogo (`@storybook/nextjs-vite`; Storybook es solo catálogo, sin tests; ver `.claude/context/components.md`).
+- Radix (`@radix-ui/themes`) para primitivas accesibles; tema en `src/app/layout.tsx:22` (`<Theme accentColor="blue" radius="medium">`). Tailwind 4 directo en JSX; `@apply` solo si un combo se repite más de 3 veces.
 - **Si la tanda toca `src/components/**` o `src/app/(pages)/**`**, carga primero la skill `frontend-design:frontend-design` con la herramienta Skill y aplícala dentro de estas reglas.
 - **Si incluye gráficos, KPIs, sparklines, leyendas o ejes**, carga también la skill `dataviz` y sustituye su paleta de ejemplo por los tokens del tema (variables de Radix Themes `--accent-*`, `--gray-*` y utilidades de Tailwind), legibles en claro y en oscuro. Si un gráfico pide una librería (Recharts, d3…), para y pregunta.
 
@@ -88,9 +88,9 @@ No haces commits salvo que te lo pidan. Si te lo piden: formato `vX.Y.Z: <resume
 - `node_modules/@prisma/client` y `node_modules/pg` aparecen vacíos (instalación interrumpida en Windows): `tsc` da ~37 errores `TS7006`/`TS2339` porque los delegados de Prisma salen `any`. Arreglo: `npm ci && npm run db:generate`, solo con permiso.
 - `generated/prisma` está en `.gitignore`: hay que regenerarlo tras cada `npm ci` o cambio de schema.
 - Next 16 usa `src/proxy.ts` (`export { auth as proxy }`), no `middleware.ts`.
-- `next lint` ya no existe: el lint es `eslint .` (`npm run lint`). `.claude/context/conventions.md` puede decir lo contrario.
-- Ya no hay rutas `/api/cron/sync` ni `/api/cron/notifications`: el sync y las notificaciones los hace el worker (`src/worker/index.ts`). Solo queda `POST /api/cron/backfill`. Docs antiguas (`.claude/context/api-routes.md`) aún las citan.
+- `next lint` ya no existe: el lint es `eslint .` (`npm run lint`).
+- Ya no hay rutas `/api/cron/sync` ni `/api/cron/notifications`: el sync y las notificaciones los hace el worker (`src/worker/index.ts`). Solo queda `POST /api/cron/backfill`.
 - NextAuth v5 toma el secreto implícitamente de `AUTH_SECRET`/`NEXTAUTH_SECRET`; `src/lib/auth.ts` no pasa `secret` ni `trustHost`.
 - La caché del modelo de transformers en Docker vive en `node_modules/@xenova/transformers/.cache` (volumen `xenova_cache`, contenedor sin root): no cambiar esa ruta sin revisar el `Dockerfile`.
-- `.claude/.mcp.json` (Playwright) está mal ubicado y probablemente no se carga; el de proyecto va en la raíz.
-- `.claude/context/testing.md` cita `npx playwright test` y e2e que no existen.
+- Vitest solo tiene el proyecto `unit`; no hay Playwright, e2e, cobertura ni tests de stories. No reintroducir el proyecto `storybook` ni `@storybook/addon-vitest` sin preguntar.
+- npm conserva en el lockfile los peers opcionales de vitest (`@vitest/browser-playwright`, `@vitest/coverage-v8`, `playwright`) aunque se desinstalen: hay que quitar sus entradas de `package-lock.json` y volver a `npm install`.

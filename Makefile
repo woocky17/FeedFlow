@@ -1,9 +1,15 @@
-.PHONY: dev build start lint format docker-up docker-down docker-db docker-build docker-logs clean
+.PHONY: dev build start lint format test worker db-generate db-migrate db-push db-studio db-seed docker-up docker-down docker-db docker-build docker-logs clean
 
 # --- Development ---
 
 dev:
 	npm run dev
+
+worker:
+	npm run worker
+
+test:
+	npm test
 
 build:
 	npm run build

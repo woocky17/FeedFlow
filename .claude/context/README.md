@@ -13,17 +13,16 @@ Archivos `.md` temáticos que Claude Code carga **bajo demanda** (no automática
 | Archivo | Qué contiene |
 |---------|--------------|
 | `stack.md` | Versiones resueltas del stack, runtime, Docker y comandos npm/make |
-| `architecture.md` | Las 4 capas hexagonales, sus dependencias, flujos de una request y del cron |
+| `architecture.md` | Las 4 capas hexagonales, sus dependencias, flujos de una request y del worker |
 | `domain.md` | Entidades por feature (`user`, `article`, `category`, `favorite`, `source`, `notification`, `story`, `news-event`), invariantes, puertos |
-| `application.md` *(opcional futuro)* | Casos de uso agrupados por feature — de momento se describe en `architecture.md` |
 | `api-routes.md` | Mapa de endpoints `src/app/api/**` con verbo, path, caso de uso que invoca, auth |
 | `pages.md` | Rutas de UI en `src/app/(pages)/**` y `src/app/page.tsx` |
 | `database.md` | Resumen interpretado del `schema.prisma`: modelos, relaciones, índices, enums, migraciones |
 | `components.md` | Atomic Design aquí, convenciones Radix + Tailwind v4, Storybook |
-| `testing.md` | Vitest (unit/integration), Playwright (e2e), mocks, factories |
+| `testing.md` | Vitest (unit/integration), mocks, factories |
 | `ai-pipeline.md` | Embeddings (MiniLM), clustering News Bias Radar, similitud Stories, Groq (clasificación/sentiment/topic) |
 | `auth.md` | NextAuth v5 beta, Credentials provider, middleware, session shape |
-| `cron.md` | Jobs `/api/cron/sync` y `/api/cron/notifications`, auth por `CRON_SECRET`, Docker cron |
+| `cron.md` | Worker `src/worker` (jobs `sync`, `notifications`, `prefetchTranslations`), `POST /api/cron/backfill` manual con `CRON_SECRET`, servicio Docker `worker` |
 | `conventions.md` | Naming, alias de imports, ESLint, Prettier, mensajes de commit |
 
 ## Regla al editarlos

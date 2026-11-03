@@ -30,7 +30,7 @@ src/
 ├── infrastructure/  adaptadores: prisma, ai (transformers + groq), news, mail (CLAUDE.md propio)
 ├── worker/          proceso Node standalone: index.ts, loop.ts, container.ts
 ├── app/             App Router: (pages)/, api/, actions/
-├── components/      Atomic Design + stories (CLAUDE.md propio)
+├── components/      Atomic Design; stories recomendables, solo como catálogo (CLAUDE.md propio)
 ├── i18n/            configuración de next-intl
 ├── lib/             auth.ts (NextAuth), similarity.ts
 ├── types/           tipos globales
@@ -38,7 +38,7 @@ src/
 messages/            traducciones es/en
 prisma/              schema.prisma, migrations/, seed.ts
 generated/prisma/    cliente Prisma generado (gitignored)
-scripts/             backfill, diagnóstico, run-cron, capturas visuales
+scripts/             run-cron.ts, run-sync.ts
 test/                Vitest unit: domain/, application/, infrastructure/
 docs/                estado.md (nota de traspaso) y planes temporales
 logs/                salida de `npm run dev` (gitignored)

@@ -6,11 +6,11 @@
 
 ```
 infrastructure/
-├── db/prisma/        ← repositorios Prisma (*-repository-impl.ts) + client.ts + seed.ts
+├── db/prisma/        ← repositorios Prisma (*-repository-impl.ts) + client.ts
 ├── ai/               ← transformers-embedder, groq-classifier, groq-sentiment-analyzer, groq-topic-generator, groq-fetch
 ├── news/
-│   ├── worldnewsapi/ ← worldnewsapi-adapter + article-mapper (activo en cron/sync)
-│   └── newsapi/      ← newsapi-adapter + article-mapper (alternativa)
+│   ├── worldnewsapi/ ← worldnewsapi-adapter + article-mapper
+│   └── rss/          ← rss-adapter + article-mapper
 └── mail/resend/      ← resend-email-adapter + templates
 ```
 
@@ -35,4 +35,4 @@ infrastructure/
 3. Mappings de formato externo → dominio en `article-mapper.ts` o helper dedicado.
 4. Mockealo en tests de casos de uso (no uses el adapter real salvo en integration tests).
 
-> Para el flujo detallado del cron/sync y el pipeline de IA, lee `.claude/context/architecture.md` y `.claude/context/ai-pipeline.md`.
+> Para el flujo detallado del worker (sync) y el pipeline de IA, lee `.claude/context/cron.md` y `.claude/context/ai-pipeline.md`.

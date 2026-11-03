@@ -37,7 +37,6 @@ PowerShell: `docker compose logs --no-color --tail 300 worker | Select-String '"
 **Navegador** (errores de UI, hidratación, peticiones fallidas): no tienes herramientas de navegador. Si el fallo es de UI y los logs del servidor no lo explican, devuelve al agente principal qué mirar con la skill `claude-in-chrome`: URL, mensajes de consola a filtrar (p. ej. `Hydration|Error|Warning`) y qué petición de red revisar (ruta `/api/...`, status y body esperado). Solo si el usuario lo ha pedido o el fallo es claramente de cliente.
 
 ## Ruido de terceros (no es la causa salvo prueba)
-- Storybook en Vitest: `No story files found for the specified pattern: src\**\*.mdx`.
 - Avisos de `onnxruntime-node` / `@xenova/transformers` al cargar el modelo (warnings de ejecución, descarga a caché).
 - Fast Refresh / HMR (`Fast Refresh had to perform a full reload`).
 - Deprecations y avisos experimentales de NextAuth v5 beta.

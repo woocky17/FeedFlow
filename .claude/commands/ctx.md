@@ -14,7 +14,7 @@ Instrucciones:
    - `pages` / `ui-routes` → `.claude/context/pages.md` (rutas de UI)
    - `database` / `db` / `prisma` → `.claude/context/database.md` (modelos Prisma, relaciones, migraciones)
    - `components` / `ui` → `.claude/context/components.md` (Atomic Design, Radix, Tailwind, Storybook)
-   - `testing` / `tests` → `.claude/context/testing.md` (Vitest, Playwright)
+   - `testing` / `tests` → `.claude/context/testing.md` (Vitest)
    - `ai` / `ai-pipeline` / `embeddings` → `.claude/context/ai-pipeline.md` (Transformers, Groq, clustering, sentiment)
    - `auth` / `nextauth` → `.claude/context/auth.md`
    - `cron` / `sync` → `.claude/context/cron.md`

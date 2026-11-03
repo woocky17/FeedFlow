@@ -23,13 +23,15 @@ Versiones resueltas en `node_modules` / `package-lock.json` (2026-11-03). Si cam
 | tailwindcss | 4.2.2 | estilos (PostCSS) |
 | @radix-ui/themes | 3.3.0 | componentes base |
 | tsx | 4.21.0 | worker y scripts |
-| vitest | 4.1.4 | tests (proyectos `unit` y `storybook`) |
-| storybook | 10.3.5 | `@storybook/nextjs-vite` |
-| playwright | 1.59.1 | navegador del proyecto vitest `storybook` y `scripts/visual` (no hay e2e) |
-| eslint | 9.39.4 | flat config + `eslint-config-next` |
-| vite | 8.0.9 | Storybook / Vitest |
+| dotenv | 17.3.1 | `import "dotenv/config"` en worker, scripts y `prisma.config.ts` (dependencia de runtime) |
+| vitest | 4.1.4 | tests (solo proyecto `unit`) |
+| storybook | 10.3.5 | catálogo de componentes: `@storybook/nextjs-vite`, `addon-a11y`, `addon-docs` |
+| eslint | 9.39.4 | flat config + `eslint-config-next` + `eslint-plugin-storybook` |
+| vite | 8.0.9 | peer de `@storybook/nextjs-vite` |
 
-Integraciones externas por `fetch` directo, sin SDK: Groq, WorldNewsAPI, NewsAPI, Resend.
+Sin Playwright ni e2e, sin cobertura y sin librería de iconos.
+
+Integraciones externas por `fetch` directo, sin SDK: Groq, WorldNewsAPI, feeds RSS, Resend.
 
 ## Docker
 

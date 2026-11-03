@@ -25,9 +25,6 @@ const preview: Preview = {
         { name: "white", value: "#ffffff" },
       ],
     },
-    a11y: {
-      test: "todo",
-    },
   },
   globalTypes: {
     locale: {

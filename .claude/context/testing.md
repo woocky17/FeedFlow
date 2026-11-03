@@ -1,18 +1,16 @@
-# Testing — Vitest + Playwright + Storybook
+# Testing — Vitest
 
 ## Stack
 
-- **Vitest 4** para unit e integration. `@vitest/coverage-v8` para cobertura.
-- **Playwright 1.59** para e2e. `@vitest/browser-playwright` para component tests en navegador real.
-- **Storybook 10** con `@storybook/addon-vitest` permite ejecutar stories como tests (visual + interaction).
+- **Vitest 4** para unit e integration. Un único proyecto, `unit` (`vitest.config.ts`), entorno `node`. Sin cobertura configurada.
+- **Storybook 10** solo como catálogo visual de componentes: las stories no se ejecutan como tests y no hay tests en navegador.
+- No hay e2e ni Playwright instalado.
 - **Prisma 7** trae `@prisma/adapter-pg` — los tests de integración pueden apuntar a una BD real de test o a una en memoria con `postgres-js`/Testcontainers (aún no establecido).
 
 ## Dónde viven los tests
 
 - **Unit + integration tests**: en `test/` en la raíz, espejando el árbol de `src/`. Ejemplo: `src/application/article/sync-articles.ts` → `test/application/article/sync-articles.test.ts`. Sufijo `.integration.test.ts` si quieres separarlos del unit.
 - Imports dentro del test usan los aliases `@/...` (mismo `tsconfig.paths` que el código), nunca rutas relativas a `src/`.
-- **E2E**: `test/e2e/**` (decidirlo al añadir los primeros).
-- **Stories como tests**: el propio `*.stories.tsx` coubicado con el componente — viven en `src/components/**`, no en `test/`.
 
 ## Qué testear y cómo
 
@@ -37,13 +35,8 @@
 - Requieren BD real. Usa una `DATABASE_URL` de test y resetea entre tests.
 - Considera `prisma migrate reset --skip-seed` antes del run o un `beforeEach` que trunque tablas.
 
-### Componentes (Storybook + `addon-vitest`)
-- Los `*.stories.tsx` ya cubren variantes visuales.
-- Para interacción, usar `play` function de Storybook.
-
-### E2E (Playwright)
-- Flujos críticos: registro + login, añadir favorito, crear categoría custom, ver feed filtrado.
-- No testees todas las rutas — prioriza valor por flow.
+### Componentes
+- Sin tests automáticos. Los `*.stories.tsx` sirven para revisar variantes a mano en Storybook (con el panel de accesibilidad de `addon-a11y`).
 
 ## Convenciones
 
@@ -57,9 +50,7 @@
 ```bash
 npx vitest              # unit/integration watch
 npx vitest run          # one-shot
-npx vitest --coverage   # con cobertura
-npx playwright test     # e2e
-npm run storybook       # Storybook interactivo
+npm run storybook       # catálogo de componentes en :6006
 ```
 
 Atajos del proyecto (ya en `package.json`):

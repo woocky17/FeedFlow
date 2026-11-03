@@ -20,14 +20,14 @@ Convenciones generales:
 ### Articles
 | Método | Path | Caso de uso |
 |--------|------|-------------|
-| GET | `/api/articles` | `ReadArticles` (con filtros por categoría/búsqueda) |
+| GET | `/api/articles` | sin caso de uso: consulta Prisma directa en el handler (con filtros por categoría/búsqueda) |
 
 ### Categories
 | Método | Path | Caso de uso | Auth |
 |--------|------|-------------|------|
 | GET/POST | `/api/categories` | lectura / `CreateCustomCategory` | user |
 | PUT/DELETE | `/api/categories/[id]` | `EditCustomCategory` / `DeleteCustomCategory` | user |
-| GET/POST | `/api/admin/categories` | `ManageDefaultCategories` | admin |
+| GET/POST | `/api/admin/categories` | sin caso de uso: `PrismaCategoryRepository` directo | admin |
 | PUT/DELETE | `/api/admin/categories/[id]` | admin | admin |
 
 ### Sources (admin)
@@ -40,7 +40,7 @@ Convenciones generales:
 | Método | Path | Caso de uso |
 |--------|------|-------------|
 | GET/POST | `/api/favorites` | `GetFavorites` / `AddFavorite` |
-| DELETE | `/api/favorites/[id]` | `DeleteFavorite` |
+| DELETE | `/api/favorites/[id]` | sin caso de uso: `PrismaFavoriteRepository.deleteByArticle` directo |
 
 ### Notifications
 | Método | Path | Caso de uso |
@@ -61,8 +61,9 @@ Convenciones generales:
 ### Cron (service-to-service)
 | Método | Path | Qué hace |
 |--------|------|----------|
-| GET | `/api/cron/sync` | `SyncArticles` + `HealArticles` (fetch + dedup + categorize + embed + cluster + sentiment) |
-| GET | `/api/cron/notifications` | `SendNotifications` (detecta nuevas por categoría + email) |
+| POST | `/api/cron/backfill` | `BackfillArticles` vía `buildContainer()` (disparo manual, `Bearer $CRON_SECRET`; ver `cron.md`) |
+
+El sync y las notificaciones periódicas no tienen ruta HTTP: los ejecuta el worker (`src/worker`, ver `cron.md`).
 
 ## Patrón de handler protegido
 

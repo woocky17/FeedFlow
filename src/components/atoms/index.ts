@@ -3,7 +3,6 @@ export type { ButtonVariant, ButtonSize } from "./button";
 export { LinkButton } from "./link-button";
 export { Input } from "./input";
 export { Select } from "./select";
-export { Label } from "./label";
 export { ErrorText } from "./error-text";
 export { Badge } from "./badge";
 export { LoadingSpinner } from "./loading-spinner";
