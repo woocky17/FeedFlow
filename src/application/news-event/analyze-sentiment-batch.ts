@@ -1,11 +1,12 @@
+import { ArticleRepository } from "@/domain/article";
 import { SentimentAnalyzer, SentimentInput } from "@/domain/news-event";
-import { prisma } from "@/infrastructure/db/prisma/client";
 
 const DEFAULT_BATCH_SIZE = 8;
 
 export class AnalyzeSentimentBatch {
   constructor(
     private readonly analyzer: SentimentAnalyzer,
+    private readonly articleRepository: ArticleRepository,
     private readonly batchSize: number = DEFAULT_BATCH_SIZE,
   ) {}
 
@@ -24,13 +25,7 @@ export class AnalyzeSentimentBatch {
           skipped++;
           continue;
         }
-        await prisma.article.update({
-          where: { id: item.id },
-          data: {
-            sentiment: result.sentiment,
-            framingSummary: result.framing,
-          },
-        });
+        await this.articleRepository.updateSentiment(item.id, result);
         analyzed++;
       }
     }

@@ -1,13 +1,13 @@
 import { randomUUID } from "crypto";
 import {
   ArticleEmbeddingRepository,
+  buildEmbeddingText,
   EmbeddingService,
   Story,
   StoryArticle,
   StoryRepository,
   TopicGenerator,
 } from "@/domain/story";
-import { buildEmbeddingText } from "@/infrastructure/ai/transformers-embedder";
 import { BackfillStory } from "./backfill-story";
 
 interface FollowArticleInput {

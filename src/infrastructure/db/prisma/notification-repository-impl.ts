@@ -38,8 +38,4 @@ export class PrismaNotificationRepository implements NotificationRepository {
       data: { read: true },
     });
   }
-
-  async delete(id: string): Promise<void> {
-    await prisma.notification.delete({ where: { id } });
-  }
 }

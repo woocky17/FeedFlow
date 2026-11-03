@@ -29,12 +29,13 @@ function makeDeps() {
     existsByUrl: vi.fn().mockResolvedValue(false),
     findAll: vi.fn(),
     findByCategory: vi.fn(),
-    findBySource: vi.fn(),
+    findUncategorizedSince: vi.fn(),
+    findUnclusteredSince: vi.fn(),
+    findWithoutSentimentSince: vi.fn(),
+    updateSentiment: vi.fn(),
   };
   const assignmentRepository: CategoryAssignmentRepository = {
     create: vi.fn().mockResolvedValue(undefined),
-    findByArticle: vi.fn().mockResolvedValue([]),
-    updateOrigin: vi.fn().mockResolvedValue(undefined),
   };
   const categoryClassifier: CategoryClassifier = {
     classify: vi.fn().mockResolvedValue([]),

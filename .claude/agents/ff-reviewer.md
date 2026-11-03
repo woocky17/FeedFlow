@@ -65,6 +65,8 @@ Revisas cambios; no editas nada. Base: `CLAUDE.md` y las reglas de `.claude/agen
 - Referencias a `/api/cron/sync` o `/api/cron/notifications` (ya no existen; lo hace el worker).
 - NextAuth: secreto implícito (`AUTH_SECRET`/`NEXTAUTH_SECRET`); no hardcodear `secret`.
 - Ruta de caché de transformers en Docker (`node_modules/@xenova/transformers/.cache`) cambiada sin tocar el `Dockerfile`.
+- `src/application/**` importando de `@/infrastructure/**` (también helpers puros como `buildEmbeddingText`), `prisma` o `generated/prisma`.
+- Puerto ampliado sin actualizar los mocks literales de los tests que lo implementan.
 - Proyecto vitest `storybook`, `@storybook/addon-vitest`, Playwright o cobertura reintroducidos sin permiso; peers opcionales de vitest (`@vitest/browser-playwright`, `@vitest/coverage-v8`, `playwright`) que reaparecen en `package-lock.json`.
 
 ## Entrega

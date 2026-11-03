@@ -1,5 +1,6 @@
 import { Article } from "@/domain/article";
-import { ArticleRepository } from "@/domain/article";
+import { ArticleRepository, ArticleSummary } from "@/domain/article";
+import type { SentimentResult } from "@/domain/news-event";
 import { prisma } from "./client";
 import { fromPrismaLanguage, toPrismaLanguage } from "./language-mapper";
 
@@ -65,17 +66,52 @@ export class PrismaArticleRepository implements ArticleRepository {
     return rows.map(toDomain);
   }
 
-  async findBySource(sourceId: string): Promise<Article[]> {
-    const rows = await prisma.article.findMany({
-      where: { sourceId },
-      orderBy: { publishedAt: "desc" },
-    });
-
-    return rows.map(toDomain);
-  }
-
   async existsByUrl(url: string): Promise<boolean> {
     const count = await prisma.article.count({ where: { url } });
     return count > 0;
+  }
+
+  async findUncategorizedSince(since: Date, limit: number): Promise<ArticleSummary[]> {
+    return prisma.article.findMany({
+      where: {
+        savedAt: { gte: since },
+        categoryAssignments: { none: {} },
+      },
+      select: { id: true, title: true, description: true },
+      take: limit,
+    });
+  }
+
+  async findUnclusteredSince(since: Date, limit: number): Promise<ArticleSummary[]> {
+    return prisma.article.findMany({
+      where: {
+        savedAt: { gte: since },
+        newsEventId: null,
+      },
+      select: { id: true, title: true, description: true },
+      orderBy: { publishedAt: "asc" },
+      take: limit,
+    });
+  }
+
+  async findWithoutSentimentSince(since: Date, limit: number): Promise<ArticleSummary[]> {
+    return prisma.article.findMany({
+      where: {
+        savedAt: { gte: since },
+        sentiment: null,
+      },
+      select: { id: true, title: true, description: true },
+      take: limit,
+    });
+  }
+
+  async updateSentiment(articleId: string, result: SentimentResult): Promise<void> {
+    await prisma.article.update({
+      where: { id: articleId },
+      data: {
+        sentiment: result.sentiment,
+        framingSummary: result.framing,
+      },
+    });
   }
 }

@@ -86,6 +86,6 @@ Los jobs periódicos los ejecuta `src/worker/index.ts` con el DI de `src/worker/
 
 - `sync`:
   1. `SyncArticles.execute()` itera las fuentes activas, pide artículos a `MultiSourceArticleFetcher` (WorldNewsAPI o RSS según `source.kind`) y pasa cada uno por `IngestArticle`: dedup por `url` → `GroqClassifier` (si hay `GROQ_API_KEY`) → `ClusterArticle` (embedding MiniLM, `NewsEvent` con umbral `NEWS_EVENT_SIMILARITY_THRESHOLD`, default 0.72) → `MatchArticleToStories` → `AnalyzeArticleSentiment` vía Groq.
-  2. `HealArticles.execute()` completa los artículos que quedaron sin categoría, cluster o sentiment.
+  2. `HealArticles.execute()` completa los artículos que quedaron sin categoría, cluster o sentiment. Los pide a `ArticleRepository` (`findUncategorizedSince`, `findUnclusteredSince`, `findWithoutSentimentSince`), con ventana de 7 días y un máximo de 50, 100 y 40.
 - `notifications`: `runNotificationsAllUsers()` ejecuta `SendNotifications` por usuario (crea `Notification` y envía email por `ResendEmailAdapter`).
 - `prefetchTranslations` (solo con `GROQ_API_KEY`): `PrefetchArticleTitles` traduce los títulos recientes.

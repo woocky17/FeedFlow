@@ -48,17 +48,6 @@ export class PrismaUserRepository implements UserRepository {
     return row ? toDomain(row) : null;
   }
 
-  async delete(id: string): Promise<void> {
-    await prisma.user.delete({ where: { id } });
-  }
-
-  async updatePassword(id: string, passwordHash: string): Promise<void> {
-    await prisma.user.update({
-      where: { id },
-      data: { passwordHash },
-    });
-  }
-
   async updateLanguage(id: string, language: Language): Promise<void> {
     await prisma.user.update({
       where: { id },

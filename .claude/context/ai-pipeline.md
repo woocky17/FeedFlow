@@ -16,7 +16,7 @@ Archivo: `src/infrastructure/ai/transformers-embedder.ts`.
 - Pool: mean · Normalize: true · Post-proceso: `l2Normalize` (por seguridad).
 - Singleton lazy: `getEmbedder()` carga el pipeline una vez por proceso.
 - Batch: `embedMany` trocea en batches de 32.
-- Texto a embedar: `buildEmbeddingText(title, description)` concatena `title\ndescription` (si hay descripción).
+- Texto a embedar: `buildEmbeddingText(title, description)` (función pura en `src/domain/story/embedding-service.ts`) concatena `title\ndescription` (si hay descripción).
 
 Consumidores (dominio): interfaz `EmbeddingService` en `src/domain/story/embedding-service.ts`.
 
@@ -54,7 +54,7 @@ Archivo: `src/infrastructure/ai/groq-sentiment-analyzer.ts`. Puerto: `src/domain
 
 - Input: título + descripción del artículo.
 - Output: `sentiment` (positivo/negativo/neutro o escala — inspeccionar la impl si dudas) y `framingSummary`.
-- Aplicado en `AnalyzeArticleSentiment` (por artículo) y `AnalyzeSentimentBatch` (lote, para heal).
+- Aplicado en `AnalyzeArticleSentiment` (por artículo) y `AnalyzeSentimentBatch` (lote, para heal). Ambos guardan el resultado con `ArticleRepository.updateSentiment`.
 
 ## Category Classification
 

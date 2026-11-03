@@ -80,8 +80,8 @@ export function buildContainer(): Container {
     Number(process.env.NEWS_EVENT_SIMILARITY_THRESHOLD ?? 0.72),
   );
 
-  const analyzeArticleSentiment = new AnalyzeArticleSentiment(sentimentAnalyzer);
-  const analyzeSentimentBatch = new AnalyzeSentimentBatch(sentimentAnalyzer);
+  const analyzeArticleSentiment = new AnalyzeArticleSentiment(sentimentAnalyzer, articleRepository);
+  const analyzeSentimentBatch = new AnalyzeSentimentBatch(sentimentAnalyzer, articleRepository);
 
   const ingestArticle = new IngestArticle(
     articleRepository,
@@ -99,6 +99,7 @@ export function buildContainer(): Container {
   );
 
   const healArticles = new HealArticles(
+    articleRepository,
     categoryClassifier,
     assignmentRepository,
     clusterArticle,

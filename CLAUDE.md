@@ -77,6 +77,7 @@ Ciclo de una feature: `ff-researcher` → `ff-api-explorer` → decidir el enfoq
 - **Tandas pequeñas**: cada agente recibe una sola tanda acotada de tareas relacionadas. Lo que pida el usuario mientras trabaja va a la siguiente tanda, con un agente nuevo; nunca se le envía al que está en curso. Entre tandas se pasan los tests.
 - Agentes que no tocan los mismos ficheros se lanzan en paralelo.
 - Al cerrar un bloque de trabajo, actualizar `docs/estado.md`. `/estado` lo lee al empezar sesión.
+- Los pendientes de `docs/estado.md` se deciden y se despachan con `/pendientes` (skill global): menú de opciones y tandas de agentes con lo elegido.
 - Respuestas breves; lo decidido y lo pendiente va a `docs/`, no se queda en el chat.
 
 ## Commits y versiones

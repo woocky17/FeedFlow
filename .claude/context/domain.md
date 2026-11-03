@@ -25,7 +25,7 @@ Ejemplos fieles: `src/domain/story/story.ts`, `src/domain/news-event/news-event.
 
 ### `user/` — Usuario
 - `user-entity.ts` → `User` (id, email, passwordHash, role, createdAt). Role: `USER | ADMIN`.
-- Puerto: `usuario-repository.ts` (nombre legacy en español) — `findByEmail`, `findById`, `save`, `delete`, `updatePassword`.
+- Puerto: `usuario-repository.ts` (nombre legacy en español) — `findByEmail`, `findById`, `save`, `updateLanguage`.
 
 ### `source/` — Fuente de noticias
 - `source-entity.ts` → `Source` (id, name, baseUrl, apiKey, active, createdAt).
@@ -34,6 +34,7 @@ Ejemplos fieles: `src/domain/story/story.ts`, `src/domain/news-event/news-event.
 ### `article/` — Artículo de noticia
 - `noticia-entity.ts` → `Noticia` (id, title, url, description, image, sourceId, publishedAt, savedAt, embedding, newsEventId, sentiment, framingSummary).
 - Puertos: `noticia-repository.ts`, `noticias-fetcher.ts` (fetchPorFuente).
+- `ArticleRepository`: `save`, `findAll`, `findByCategory`, `existsByUrl`; para el heal, `findUncategorizedSince`, `findUnclusteredSince` (más antiguos por `publishedAt` primero) y `findWithoutSentimentSince`, que reciben `(since, limit)` y devuelven `ArticleSummary` (`id`, `title`, `description`); `updateSentiment(articleId, SentimentResult)` guarda `sentiment` y `framingSummary`.
 - Invariante clave: `url` es única globalmente (`@unique` en Prisma). Si ya existe, no se guarda de nuevo.
 
 ### `category/` — Categoría + Asignación
@@ -53,7 +54,7 @@ Ejemplos fieles: `src/domain/story/story.ts`, `src/domain/news-event/news-event.
 ### `story/` — Story Timeline (seguimiento de un tema)
 - `story.ts` → `Story` (id, userId, name, summary, embedding, sourceArticleId, threshold=0.55, active, createdAt). Invariantes: name no vacío, userId y sourceArticleId requeridos, `threshold ∈ [0,1]`.
 - `story-article.ts` → `StoryArticle` (storyId, articleId, similarity, addedAt).
-- Puertos: `story-repository.ts`, `article-embedding-repository.ts`, `embedding-service.ts` (`embed(text)`, `embedMany(texts)`), `topic-generator.ts`.
+- Puertos: `story-repository.ts`, `article-embedding-repository.ts`, `embedding-service.ts` (`embed(text)`, `embedMany(texts)` y la función pura `buildEmbeddingText`), `topic-generator.ts`.
 
 ### `news-event/` — News Bias Radar (clustering cross-fuente)
 - `news-event.ts` → `NewsEvent` (id, title, embedding, firstSeenAt, lastSeenAt, createdAt). Invariante: title no vacío.

@@ -55,8 +55,3 @@ export class TransformersEmbedder implements EmbeddingService {
     return results;
   }
 }
-
-export function buildEmbeddingText(title: string, description: string | null | undefined): string {
-  const desc = description?.trim() ?? "";
-  return desc ? `${title}\n${desc}` : title;
-}

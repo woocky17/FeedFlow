@@ -46,6 +46,7 @@ services:
       SYNC_INTERVAL_SECONDS: ${SYNC_INTERVAL_SECONDS:-7200}
       # Default notifications: once a day.
       NOTIFICATIONS_INTERVAL_SECONDS: ${NOTIFICATIONS_INTERVAL_SECONDS:-86400}
+      PREFETCH_TRANSLATIONS_INTERVAL_SECONDS: ${PREFETCH_TRANSLATIONS_INTERVAL_SECONDS:-600}
       BACKFILL_MAX_DAYS: ${BACKFILL_MAX_DAYS:-3}
     volumes:
       - xenova_cache:/app/node_modules/@xenova/transformers/.cache

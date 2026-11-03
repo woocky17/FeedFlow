@@ -27,8 +27,11 @@ function makeArticleRepository(article: Article): ArticleRepository {
     save: vi.fn(),
     findAll: vi.fn().mockResolvedValue([article]),
     findByCategory: vi.fn(),
-    findBySource: vi.fn(),
     existsByUrl: vi.fn(),
+    findUncategorizedSince: vi.fn(),
+    findUnclusteredSince: vi.fn(),
+    findWithoutSentimentSince: vi.fn(),
+    updateSentiment: vi.fn(),
   };
 }
 

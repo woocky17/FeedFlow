@@ -1,10 +1,7 @@
+import { ArticleRepository } from "@/domain/article";
 import { CategoryAssignment, CategoryAssignmentRepository } from "@/domain/category";
-import { prisma } from "@/infrastructure/db/prisma/client";
-import {
-  ArticleClusterer,
-  CategoryClassifier,
-} from "./sync-articles";
-import { AnalyzeSentimentBatch } from "../news-event/analyze-sentiment-batch";
+import { AnalyzeSentimentBatch } from "@/application/news-event";
+import { ArticleClusterer, CategoryClassifier } from "./sync-articles";
 
 interface HealReport {
   classified: number;
@@ -14,9 +11,13 @@ interface HealReport {
 }
 
 const HEAL_WINDOW_DAYS = 7;
+const MAX_UNCATEGORIZED = 50;
+const MAX_UNCLUSTERED = 100;
+const MAX_WITHOUT_SENTIMENT = 40;
 
 export class HealArticles {
   constructor(
+    private readonly articleRepository: ArticleRepository,
     private readonly categoryClassifier: CategoryClassifier,
     private readonly assignmentRepository: CategoryAssignmentRepository,
     private readonly articleClusterer: ArticleClusterer,
@@ -34,20 +35,13 @@ export class HealArticles {
       sentimentSkipped: 0,
     };
 
-    const missingCategories = await prisma.article.findMany({
-      where: {
-        savedAt: { gte: since },
-        categoryAssignments: { none: {} },
-      },
-      select: { id: true, title: true, description: true },
-      take: 50,
-    });
+    const missingCategories = await this.articleRepository.findUncategorizedSince(
+      since,
+      MAX_UNCATEGORIZED,
+    );
 
     for (const a of missingCategories) {
-      const categoryIds = await this.categoryClassifier.classify(
-        a.title,
-        a.description ?? "",
-      );
+      const categoryIds = await this.categoryClassifier.classify(a.title, a.description ?? "");
       if (categoryIds.length === 0) continue;
       for (const categoryId of categoryIds) {
         try {
@@ -67,15 +61,10 @@ export class HealArticles {
       report.classified++;
     }
 
-    const missingCluster = await prisma.article.findMany({
-      where: {
-        savedAt: { gte: since },
-        newsEventId: null,
-      },
-      select: { id: true, title: true, description: true },
-      orderBy: { publishedAt: "asc" },
-      take: 100,
-    });
+    const missingCluster = await this.articleRepository.findUnclusteredSince(
+      since,
+      MAX_UNCLUSTERED,
+    );
 
     for (const a of missingCluster) {
       try {
@@ -90,14 +79,10 @@ export class HealArticles {
       }
     }
 
-    const missingSentiment = await prisma.article.findMany({
-      where: {
-        savedAt: { gte: since },
-        sentiment: null,
-      },
-      select: { id: true, title: true, description: true },
-      take: 40,
-    });
+    const missingSentiment = await this.articleRepository.findWithoutSentimentSince(
+      since,
+      MAX_WITHOUT_SENTIMENT,
+    );
 
     if (missingSentiment.length > 0) {
       const outcome = await this.analyzeSentimentBatch.execute(

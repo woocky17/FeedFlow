@@ -1,11 +1,11 @@
 import { randomUUID } from "crypto";
 import {
   ArticleEmbeddingRepository,
+  buildEmbeddingText,
   EmbeddingService,
   StoryArticle,
   StoryRepository,
 } from "@/domain/story";
-import { buildEmbeddingText } from "@/infrastructure/ai/transformers-embedder";
 import { cosineSimilarity, meanVector } from "@/lib/similarity";
 
 interface MatchInput {

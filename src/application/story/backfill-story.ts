@@ -1,12 +1,12 @@
 import { randomUUID } from "crypto";
 import {
   ArticleEmbeddingRepository,
+  buildEmbeddingText,
   EmbeddingService,
   Story,
   StoryArticle,
   StoryRepository,
 } from "@/domain/story";
-import { buildEmbeddingText } from "@/infrastructure/ai/transformers-embedder";
 import { cosineSimilarity } from "@/lib/similarity";
 
 interface BackfillInput {

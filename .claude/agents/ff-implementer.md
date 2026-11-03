@@ -94,3 +94,5 @@ No haces commits salvo que te lo pidan. Si te lo piden: formato `vX.Y.Z: <resume
 - La caché del modelo de transformers en Docker vive en `node_modules/@xenova/transformers/.cache` (volumen `xenova_cache`, contenedor sin root): no cambiar esa ruta sin revisar el `Dockerfile`.
 - Vitest solo tiene el proyecto `unit`; no hay Playwright, e2e, cobertura ni tests de stories. No reintroducir el proyecto `storybook` ni `@storybook/addon-vitest` sin preguntar.
 - npm conserva en el lockfile los peers opcionales de vitest (`@vitest/browser-playwright`, `@vitest/coverage-v8`, `playwright`) aunque se desinstalen: hay que quitar sus entradas de `package-lock.json` y volver a `npm install`.
+- `src/application/**` tampoco importa helpers puros desde `@/infrastructure` (`buildEmbeddingText` vivía en `transformers-embedder.ts` y ahora está en `src/domain/story/embedding-service.ts`). Al auditar la capa, busca `@/infrastructure` y `generated/`, no solo `prisma`.
+- Si añades un método a `ArticleRepository` (u otro puerto), actualiza los mocks literales de los tests que lo implementan (`ingest-article`, `get-article-with-translation`, `heal-articles`, `analyze-*`), o `tsc` falla.

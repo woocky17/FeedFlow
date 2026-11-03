@@ -1,10 +1,10 @@
 import { randomUUID } from "crypto";
 import {
   ArticleEmbeddingRepository,
+  buildEmbeddingText,
   EmbeddingService,
 } from "@/domain/story";
 import { NewsEvent, NewsEventRepository } from "@/domain/news-event";
-import { buildEmbeddingText } from "@/infrastructure/ai/transformers-embedder";
 import { cosineSimilarity, meanVector } from "@/lib/similarity";
 
 interface ClusterInput {
