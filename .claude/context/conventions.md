@@ -50,9 +50,10 @@ Punto y coma sí, comillas dobles, 2 espacios, trailing commas sí, ancho 100. `
 
 ## Commits
 
-- Convención existente en el repo (ver `git log`): prefijos tipo `feat(<scope>):`, `chore:`, `fix(<scope>):`. Úsalo.
+- Formato `vX.Y.Z: <resumen>` para cambios de código y `Docs: <resumen>` para solo documentación. Hasta `7e170fa` se usó Conventional Commits.
+- Semver en `package.json` → `version`: se sube en el mismo commit.
 - **NO incluir `Co-Authored-By`** (preferencia explícita del autor).
-- Mensajes en inglés, body opcional con bullets cuando el cambio tiene varias partes.
+- Body opcional con bullets cuando el cambio tiene varias partes.
 
 ## Orden de imports
 

@@ -12,6 +12,7 @@ Archivos `.md` temáticos que Claude Code carga **bajo demanda** (no automática
 
 | Archivo | Qué contiene |
 |---------|--------------|
+| `stack.md` | Versiones resueltas del stack, runtime, Docker y comandos npm/make |
 | `architecture.md` | Las 4 capas hexagonales, sus dependencias, flujos de una request y del cron |
 | `domain.md` | Entidades por feature (`user`, `article`, `category`, `favorite`, `source`, `notification`, `story`, `news-event`), invariantes, puertos |
 | `application.md` *(opcional futuro)* | Casos de uso agrupados por feature — de momento se describe en `architecture.md` |

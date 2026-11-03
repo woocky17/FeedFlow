@@ -1,90 +1,115 @@
-# FeedFlow — Guía para Claude Code
+# FeedFlow
 
-FeedFlow es un **agregador de noticias personalizado** (Next.js 16 full-stack) con deduplicación por embeddings, clustering de noticias para análisis de sesgo (News Bias Radar), timelines de historias (Story Timeline) y categorías por usuario. Arquitectura hexagonal estricta.
+Agregador de noticias personalizado (Next.js 16 full-stack): deduplicación por embeddings, clustering para análisis de sesgo (News Bias Radar), timelines de historias (Story Timeline), categorías por usuario y traducción con Groq.
 
-## Stack
+- **Runtime**: Node 22 (Docker `node:22-slim`). Mínimo `^20.19 || ^22.12 || >=24` (lo impone Prisma 7). No soportados: Node 18, 21, 23 ni 20/22 por debajo de esos mínimos.
+- **Repo**: https://github.com/woocky17/FeedFlow (rama `main`).
+- **Versión**: `package.json` → `version`. Stack y versiones resueltas en `.claude/context/stack.md`.
 
-- **Next.js 16.2** · **React 19.2** · **TypeScript 5.9** · App Router
-- **Prisma 7.5** + **PostgreSQL** (cliente generado en `generated/prisma`)
-- **NextAuth v5 beta** (Credentials provider + bcryptjs + JWT)
-- **TailwindCSS 4** + **Radix UI** (@radix-ui/themes, @radix-ui/react-icons)
-- **@xenova/transformers** (`Xenova/all-MiniLM-L6-v2`, 384 dims, local) para embeddings
-- **Groq API** para clasificación de categorías, análisis de sentimiento y generación de topics
-- **fast-xml-parser** para adaptador RSS/Atom (`RssArticleFetcher`)
-- **Storybook 10**, **Vitest 4**, **Playwright 1.59**
-- Docker (multi-stage) + cron job Docker para sync periódico
+## Identificadores fijos
 
-## Mapa de carpetas
+- Cliente Prisma generado en `generated/prisma` (gitignored): tras `npm ci` o cambiar el schema, `npm run db:generate`.
+- Auth por `src/proxy.ts` (convención de Next 16), no `middleware.ts`.
+- Alias `@/*` → `src/*` (más `@/domain/*`, `@/application/*`, `@/infrastructure/*`).
+- Nombres legacy en español que se mantienen: `Noticia`, `Categoria`, `Usuario`.
+- Textos de UI con `next-intl`: `messages/es.json` y `messages/en.json`.
+
+## Decisiones que no se discuten
+
+- **Hexagonal estricto**: `domain/` es TypeScript puro; nada de Prisma, Next, React ni fetch. Así el dominio se testea sin infraestructura y los adaptadores se cambian sin tocarlo.
+- **Casos de uso con puertos por constructor** (DI manual): sin contenedor ni magia, cada dependencia es explícita.
+- **Worker standalone** (`src/worker`) para sync, heal, notificaciones y prefetch de traducciones, en lugar de rutas cron de Next: bucle propio, sin timeouts de request y con su propio contenedor Docker. Solo queda `/api/cron/backfill` como disparo manual.
+- **Embeddings locales** (`Xenova/all-MiniLM-L6-v2`, 384 dims): sin coste por llamada ni dependencia de red para deduplicar y agrupar.
+
+## Estructura
 
 ```
 src/
-├── domain/          TypeScript puro: entidades, VOs, puertos (repositorios/servicios)
-├── application/     Casos de uso — orquestan el dominio vía puertos inyectados
-├── infrastructure/  Adaptadores: db/prisma, ai (transformers + groq), news (worldnewsapi, rss, newsapi) + multi-source-fetcher router, mail/resend
-├── worker/          Proceso Node standalone (sync, heal, notifications) con loop propio + container DI
-├── app/             Next.js App Router: api/** y (pages)/**
-├── components/      Atomic Design: atoms, molecules, organisms, templates
-└── lib/             Utilidades: auth.ts (NextAuth config), similarity.ts (l2Normalize, cosine)
-prisma/              schema.prisma + migrations + seed.ts
-.claude/context/     Documentación operativa detallada (cargar bajo demanda)
+├── domain/          entidades, VOs y puertos (TS puro; CLAUDE.md propio)
+├── application/     casos de uso por feature (CLAUDE.md propio)
+├── infrastructure/  adaptadores: prisma, ai (transformers + groq), news, mail (CLAUDE.md propio)
+├── worker/          proceso Node standalone: index.ts, loop.ts, container.ts
+├── app/             App Router: (pages)/, api/, actions/
+├── components/      Atomic Design + stories (CLAUDE.md propio)
+├── i18n/            configuración de next-intl
+├── lib/             auth.ts (NextAuth), similarity.ts
+├── types/           tipos globales
+└── proxy.ts         protección de rutas (auth)
+messages/            traducciones es/en
+prisma/              schema.prisma, migrations/, seed.ts
+generated/prisma/    cliente Prisma generado (gitignored)
+scripts/             backfill, diagnóstico, run-cron, capturas visuales
+test/                Vitest unit: domain/, application/, infrastructure/
+docs/                estado.md (nota de traspaso) y planes temporales
+logs/                salida de `npm run dev` (gitignored)
+.claude/context/     docs operativas por área (carga bajo demanda)
+.claude/commands/    /ctx
+.claude/agents/      ff-researcher, ff-api-explorer, ff-implementer, ff-reviewer, ff-debugger
+.claude/skills/      /estado
+.claude/hooks/       session-banner.mjs (SessionStart)
 ```
 
-## Reglas de oro
-
-- **Hexagonal estricto**: nunca importes Prisma, React, axios ni nada externo desde `src/domain/**`. Si aparece `prisma`/`next`/`react` dentro de `domain/`, está mal.
-- **Casos de uso en `application/`** reciben puertos por el constructor (DI manual). No tocan infraestructura directamente.
-- **Adaptadores** en `infrastructure/` implementan puertos declarados en `domain/*/…-repository.ts` o `application/*/ports.ts`.
-- **Atomic Design** en `components/`: atoms (primitivas), molecules (combinaciones), organisms (con lógica), templates (layouts). Todo atom/molecule debería tener un `*.stories.tsx`.
-- **Español** en docs y mensajes al usuario; nombres técnicos (entidades, clases, tipos) en inglés cuando sea idiomático (excepto los que ya están en español por histórico: `Noticia`, `Categoria`…).
-- **Commits**: no incluir `Co-Authored-By` (preferencia del autor).
-- **Sin dependencias innecesarias**: no añadir libs si se puede resolver con TS puro o lo ya instalado.
-
-## Comandos útiles
-
-```bash
-npm run dev              # servidor Next.js
-npm run build            # build de producción
-npm run lint             # ESLint
-npm run format           # Prettier
-
-npm run db:generate      # regenerar cliente Prisma tras cambiar schema
-npm run db:migrate       # crear+aplicar migración (dev)
-npm run db:push          # aplicar schema sin migración (sandbox)
-npm run db:studio        # GUI Prisma
-npm run db:seed          # prisma/seed.ts
-
-npm run storybook        # Storybook en :6006
-```
-
-Cron authenticado con `Authorization: Bearer $CRON_SECRET`.
-
-## Índice de carga selectiva
-
-Para la mayoría de tareas **solo necesitas este archivo**. Si la tarea requiere detalle, carga el `.md` relevante vía `/ctx <area>` o leyéndolo directamente:
+## Referencias
 
 | Tarea | Lee |
 |-------|-----|
-| Cambiar arquitectura, entender flujos end-to-end | `.claude/context/architecture.md` |
-| Añadir/modificar entidad, invariante, VO | `.claude/context/domain.md` |
-| Crear/modificar endpoint API | `.claude/context/api-routes.md` |
-| Cambiar schema Prisma, migración, relaciones | `.claude/context/database.md` |
-| Crear/cambiar página, ruta UI | `.claude/context/pages.md` |
-| Crear/cambiar componente UI, story | `.claude/context/components.md` |
-| Escribir tests (unit, integration, e2e) | `.claude/context/testing.md` |
-| Tocar embeddings, clustering, sentiment, Groq | `.claude/context/ai-pipeline.md` |
-| Tocar login, sesión, middleware, NextAuth | `.claude/context/auth.md` |
-| Tocar cron, sync, notificaciones programadas | `.claude/context/cron.md` |
-| Dudas sobre naming, imports, estilo, lint | `.claude/context/conventions.md` |
+| Stack, versiones y comandos | `.claude/context/stack.md` |
+| Arquitectura y flujos (diseño) | `.claude/context/architecture.md` |
+| Entidades, invariantes, VOs | `.claude/context/domain.md` |
+| Endpoints API | `.claude/context/api-routes.md` |
+| Schema, migraciones | `.claude/context/database.md` |
+| Páginas y rutas UI | `.claude/context/pages.md` |
+| Componentes y stories | `.claude/context/components.md` |
+| Tests | `.claude/context/testing.md` |
+| Embeddings, clustering, Groq | `.claude/context/ai-pipeline.md` |
+| Login, sesión, proxy | `.claude/context/auth.md` |
+| Worker, sync, notificaciones | `.claude/context/cron.md` |
+| Naming, imports, estilo, commits | `.claude/context/conventions.md` |
 
-Para tareas cross-layer, lee varios (`/ctx domain api-routes database`).
+Carga selectiva con `/ctx <area>`. Además: CLAUDE.md por capa en `src/domain`, `src/application`, `src/infrastructure` y `src/components`; roadmap en `FUTURE_FEATURES.md`. Las reglas detalladas de código están en `.claude/agents/ff-implementer.md`.
+
+Logs: no hay ficheros de log propios. App → `logs/dev.log` (ver Probar). Worker → JSON por stdout (`src/worker/loop.ts`), en Docker `docker compose logs -f worker`.
+
+## Flujo de trabajo con agentes
+
+Ciclo de una feature: `ff-researcher` → `ff-api-explorer` → decidir el enfoque con el usuario → `ff-implementer` (por tandas) → `ff-reviewer` → prueba el usuario → `ff-debugger` si falla → arreglo → commit.
+
+- **Tandas pequeñas**: cada agente recibe una sola tanda acotada de tareas relacionadas. Lo que pida el usuario mientras trabaja va a la siguiente tanda, con un agente nuevo; nunca se le envía al que está en curso. Entre tandas se pasan los tests.
+- Agentes que no tocan los mismos ficheros se lanzan en paralelo.
+- Al cerrar un bloque de trabajo, actualizar `docs/estado.md`. `/estado` lo lee al empezar sesión.
+- Respuestas breves; lo decidido y lo pendiente va a `docs/`, no se queda en el chat.
+
+## Commits y versiones
+
+- Semver en `package.json`. Formato `vX.Y.Z: <resumen>` para código y `Docs: <resumen>` para solo documentación.
+- Solo cuando los pida el usuario. Sin `Co-Authored-By` ni otra atribución a Claude.
+- Releases como prerelease hasta probarlas en real (`gh` está autenticado).
+
+## Probar
+
+Fuera del entorno real (sin BD ni APIs):
+
+```bash
+npm test               # Vitest unit (64 tests, mockean fetch, sin BD)
+npm run lint           # ESLint, ~60 s
+npx tsc --noEmit       # typecheck (no hay script); requiere generated/prisma al día
+npm run build          # next build
+```
+
+Si `tsc` falla con `implicitly has an 'any' type` en repositorios Prisma: `npm ci && npm run db:generate`.
+
+En real (Git Bash):
+
+```bash
+mkdir -p logs && npm run dev 2>&1 | tee logs/dev.log   # arranque correcto: "✓ Ready in"
+npm run worker                                         # o: docker compose logs -f worker
+```
+
+El worker arranca bien si imprime `{"level":"info","ts":"…","event":"boot","message":"worker starting"}` y después `start`/`done` por job.
 
 ## Política de mantenimiento
 
-- Al añadir/renombrar una feature de dominio, ruta API, convención o dependencia del stack → actualiza el `.md` relevante de `.claude/context/` **en el mismo commit** del código.
-- Cambios estructurales (capa nueva, regla nueva del proyecto) → actualiza también este `CLAUDE.md` raíz.
-- Si este archivo supera 150 líneas, mueve una sección a `.claude/context/` y deja solo el puntero.
-
-## Referencias externas al código
-
-- `FUTURE_FEATURES.md` — ideas diferenciadoras planeadas (Story Timeline, News Bias Radar, News Diet, Smart Briefing, Source Trust Score…). Solo si se discute roadmap.
-- `.claude/agregador-noticias-tareas.md` — checklist legacy de la especificación inicial. Referencia histórica, no operativa.
+- Al añadir o renombrar una feature, ruta API, convención o dependencia → actualizar el `.md` de `.claude/context/` en el mismo commit.
+- Cambios estructurales (capa nueva, regla nueva) → actualizar también este CLAUDE.md.
+- Cada trampa nueva → reglas de `ff-implementer` **y** checklist de `ff-reviewer`.
+- Este fichero no pasa de 150 líneas; si crece, mover una sección a `.claude/context/` y dejar el puntero.
