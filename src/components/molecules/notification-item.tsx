@@ -1,5 +1,6 @@
 "use client";
 
+import { useLocale, useTranslations } from "next-intl";
 import { Card } from "@/components/atoms/card";
 import { Button } from "@/components/atoms/button";
 
@@ -10,8 +11,8 @@ interface NotificationItemProps {
   onMarkRead?: () => void;
 }
 
-function formatNotificationDate(iso: string): string {
-  return new Date(iso).toLocaleDateString("es-ES", {
+function formatNotificationDate(iso: string, locale: string): string {
+  return new Date(iso).toLocaleDateString(locale === "es" ? "es-ES" : "en-US", {
     day: "numeric",
     month: "short",
     hour: "2-digit",
@@ -20,11 +21,13 @@ function formatNotificationDate(iso: string): string {
 }
 
 export function NotificationItem({ message, createdAt, read, onMarkRead }: NotificationItemProps) {
+  const t = useTranslations("notifications");
+  const locale = useLocale();
   if (read) {
     return (
       <Card radius="xl" padding="none" className="px-4 py-3">
         <p className="text-sm text-slate-500">{message}</p>
-        <p className="mt-1 text-xs text-slate-300">{formatNotificationDate(createdAt)}</p>
+        <p className="mt-1 text-xs text-slate-300">{formatNotificationDate(createdAt, locale)}</p>
       </Card>
     );
   }
@@ -40,7 +43,7 @@ export function NotificationItem({ message, createdAt, read, onMarkRead }: Notif
         <div className="mt-1 h-2 w-2 flex-shrink-0 rounded-full bg-amber-500" />
         <div>
           <p className="text-sm text-slate-700">{message}</p>
-          <p className="mt-1 text-xs text-slate-400">{formatNotificationDate(createdAt)}</p>
+          <p className="mt-1 text-xs text-slate-400">{formatNotificationDate(createdAt, locale)}</p>
         </div>
       </div>
       {onMarkRead && (
@@ -50,7 +53,7 @@ export function NotificationItem({ message, createdAt, read, onMarkRead }: Notif
           onClick={onMarkRead}
           className="flex-shrink-0 text-amber-600 hover:bg-amber-100 hover:text-amber-700"
         >
-          Mark read
+          {t("markRead")}
         </Button>
       )}
     </Card>

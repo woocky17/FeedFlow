@@ -25,7 +25,8 @@ function makeArticle() {
 function makeArticleRepository(article: Article): ArticleRepository {
   return {
     save: vi.fn(),
-    findAll: vi.fn().mockResolvedValue([article]),
+    findAll: vi.fn(),
+    findById: vi.fn(async (id: string) => (id === article.id ? article : null)),
     findByCategory: vi.fn(),
     existsByUrl: vi.fn(),
     findUncategorizedSince: vi.fn(),
@@ -67,6 +68,20 @@ describe("GetArticleWithTranslation", () => {
     expect(result.displayed).toEqual(result.original);
     expect(result.displayedLanguage).toBe("en");
     expect(service.translateTitle).not.toHaveBeenCalled();
+    expect(articles.findById).toHaveBeenCalledWith(article.id);
+    expect(articles.findAll).not.toHaveBeenCalled();
+  });
+
+  it("throws when the article does not exist", async () => {
+    const articles = makeArticleRepository(makeArticle());
+    const repo = makeRepo();
+    const service = makeService();
+    const useCase = new GetArticleWithTranslation(articles, repo, service);
+
+    await expect(useCase.execute({ articleId: "missing", targetLang: "es" })).rejects.toThrow(
+      "Article missing not found",
+    );
+    expect(repo.findOne).not.toHaveBeenCalled();
   });
 
   it("uses cached translation when available with description", async () => {

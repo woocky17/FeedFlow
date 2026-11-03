@@ -87,6 +87,7 @@ No haces commits salvo que te lo pidan. Si te lo piden: formato `vX.Y.Z: <resume
 ## Trampas conocidas (regla viva: añade aquí cada trampa nueva y también al checklist de ff-reviewer)
 - `node_modules/@prisma/client` y `node_modules/pg` aparecen vacíos (instalación interrumpida en Windows): `tsc` da ~37 errores `TS7006`/`TS2339` porque los delegados de Prisma salen `any`. Arreglo: `npm ci && npm run db:generate`, solo con permiso.
 - `generated/prisma` está en `.gitignore`: hay que regenerarlo tras cada `npm ci` o cambio de schema.
+- `npm run dev` puede caer con `TurbopackInternalError: failed to create junction point` (`.next\dev\node_modules\pg-…`, acceso denegado) por caché vieja: sin otro `next dev` vivo, borrar `.next/dev`.
 - Next 16 usa `src/proxy.ts` (`export { auth as proxy }`), no `middleware.ts`.
 - `next lint` ya no existe: el lint es `eslint .` (`npm run lint`).
 - Ya no hay rutas `/api/cron/sync` ni `/api/cron/notifications`: el sync y las notificaciones los hace el worker (`src/worker/index.ts`). Solo queda `POST /api/cron/backfill`.

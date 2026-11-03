@@ -34,7 +34,7 @@ Ejemplos fieles: `src/domain/story/story.ts`, `src/domain/news-event/news-event.
 ### `article/` — Artículo de noticia
 - `noticia-entity.ts` → `Noticia` (id, title, url, description, image, sourceId, publishedAt, savedAt, embedding, newsEventId, sentiment, framingSummary).
 - Puertos: `noticia-repository.ts`, `noticias-fetcher.ts` (fetchPorFuente).
-- `ArticleRepository`: `save`, `findAll`, `findByCategory`, `existsByUrl`; para el heal, `findUncategorizedSince`, `findUnclusteredSince` (más antiguos por `publishedAt` primero) y `findWithoutSentimentSince`, que reciben `(since, limit)` y devuelven `ArticleSummary` (`id`, `title`, `description`); `updateSentiment(articleId, SentimentResult)` guarda `sentiment` y `framingSummary`.
+- `ArticleRepository`: `save`, `findAll`, `findById` (`Article | null`), `findByCategory`, `existsByUrl`; para el heal, `findUncategorizedSince`, `findUnclusteredSince` (más antiguos por `publishedAt` primero) y `findWithoutSentimentSince`, que reciben `(since, limit)` y devuelven `ArticleSummary` (`id`, `title`, `description`); `updateSentiment(articleId, SentimentResult)` guarda `sentiment` y `framingSummary`.
 - Invariante clave: `url` es única globalmente (`@unique` en Prisma). Si ya existe, no se guarda de nuevo.
 
 ### `category/` — Categoría + Asignación
@@ -49,7 +49,7 @@ Ejemplos fieles: `src/domain/story/story.ts`, `src/domain/news-event/news-event.
 
 ### `notification/` — Notificaciones in-app + email
 - `notificacion-entity.ts` → `Notificacion` (id, userId, message, read, createdAt).
-- Puertos: `notificacion-repository.ts`, `email-sender.ts` (`send(to, subject, body)`).
+- Puertos: `notificacion-repository.ts` (`NotificationRepository`: `add`, `findByUser`, `findRecentByUser(userId, limit)` ordenado por `createdAt` desc con tope, `markAsRead`), `email-sender.ts` (`send(to, subject, body)`).
 
 ### `story/` — Story Timeline (seguimiento de un tema)
 - `story.ts` → `Story` (id, userId, name, summary, embedding, sourceArticleId, threshold=0.55, active, createdAt). Invariantes: name no vacío, userId y sourceArticleId requeridos, `threshold ∈ [0,1]`.

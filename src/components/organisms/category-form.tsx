@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/atoms/button";
 import { Input } from "@/components/atoms/input";
 import { ErrorText } from "@/components/atoms/error-text";
@@ -13,9 +14,11 @@ interface CategoryFormProps {
 
 export function CategoryForm({
   endpoint,
-  placeholder = "New category name...",
+  placeholder,
   onSuccess,
 }: CategoryFormProps) {
+  const t = useTranslations("categories");
+  const tc = useTranslations("common");
   const [name, setName] = useState("");
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -32,13 +35,13 @@ export function CategoryForm({
       });
       if (!res.ok) {
         const data = await res.json();
-        setError(data.error || "Failed to create category");
+        setError(data.error || t("createFailed"));
         return;
       }
       setName("");
       onSuccess?.();
     } catch {
-      setError("Failed to create category");
+      setError(t("createFailed"));
     } finally {
       setSubmitting(false);
     }
@@ -49,13 +52,13 @@ export function CategoryForm({
       <form onSubmit={handleSubmit} className="flex gap-3">
         <Input
           type="text"
-          placeholder={placeholder}
+          placeholder={placeholder ?? t("newCustomPlaceholder")}
           value={name}
           onChange={(e) => setName(e.target.value)}
           required
         />
         <Button type="submit" isLoading={submitting}>
-          Add
+          {tc("add")}
         </Button>
       </form>
       <ErrorText message={error} className="mt-2" />

@@ -33,7 +33,7 @@ Un caso de uso por archivo, agrupado por feature:
 - `category/` → `create-custom-category.ts`, `edit-custom-category.ts`, `delete-custom-category.ts`
 - `favorite/` → `add-favorite.ts`, `get-favorites.ts`
 - `source/` → `add-source.ts`, `edit-source.ts`, `delete-source.ts`, `toggle-source.ts`
-- `notification/` → `send-notifications.ts`, `mark-notification-read.ts`
+- `notification/` → `send-notifications.ts`, `mark-notification-read.ts`, `list-user-notifications.ts`
 - `story/` → `follow-article.ts`, `backfill-story.ts`, `match-article-to-stories.ts`, `list-user-stories.ts`, `get-story-timeline.ts`, `unfollow-story.ts`
 - `news-event/` → `cluster-article.ts`, `analyze-article-sentiment.ts`, `analyze-sentiment-batch.ts`, `get-news-event.ts`
 

@@ -28,6 +28,8 @@ export const Primary: StoryObj<typeof Button> = { args: { children: "Primary", v
 
 Addons disponibles: `@storybook/addon-a11y` (panel de accesibilidad) y `@storybook/addon-docs`. La toolbar tiene un selector de locale (`es`/`en`) en `.storybook/preview.tsx`.
 
+Los atoms/molecules/organisms con texto propio (`Button` con `isLoading`, `NotificationItem`, `EventSourcesPill`, `SourceForm`, `CategoryForm`, entre otros) usan `useTranslations` y necesitan un `NextIntlClientProvider` por encima (lo ponen el layout raíz y `.storybook/preview.tsx`); si se renderizan fuera de él (p. ej. en `global-error.tsx` o en tests de render), hay que envolverlos.
+
 ## Tailwind v4
 
 - Config en `postcss.config` + `@tailwindcss/postcss`.

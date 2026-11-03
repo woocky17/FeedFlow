@@ -42,6 +42,10 @@ PowerShell: `docker compose logs --no-color --tail 300 worker | Select-String '"
 - Deprecations y avisos experimentales de NextAuth v5 beta.
 - Errores `TS7006 implicitly has an 'any' type` en `src/infrastructure/db/prisma/*-repository-impl.ts` y `scripts/*.ts`: vienen de `node_modules/@prisma/client` y `pg` vacíos (arreglo `npm ci && npm run db:generate`), no del cambio en curso.
 
+## Fallos conocidos de entorno
+- `npm run dev` cae con `FATAL ... TurbopackInternalError: failed to create junction point at ".next\dev\node_modules\pg-…"` / `Acceso denegado (os error 5)`: caché vieja en `.next/dev` con carpetas normales donde Turbopack espera junctions. Comprobar que no hay otro `next dev` vivo y borrar `.next/dev` (se regenera).
+- Git Bash falla de forma intermitente con `fatal error - add_item … msys-2.0.dll … errno 1`: no es del proyecto; repetir el comando con PowerShell.
+
 ## Proceso
 1. Fecha del log frente al último commit: si el log es anterior al cambio, pide reproducir.
 2. Busca el **primer** error (no el último): las cascadas posteriores suelen ser consecuencia.

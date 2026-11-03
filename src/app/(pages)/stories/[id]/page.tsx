@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import { useParams, useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
+import { useLocale, useTranslations } from "next-intl";
 import { AppLayout } from "@/components/templates/app-layout";
 import { Button } from "@/components/atoms/button";
 import { Card, cardClassName } from "@/components/atoms/card";
@@ -48,22 +49,30 @@ function groupByDay(articles: TimelineArticle[]) {
     .map(([key, items]) => ({ date: new Date(key), items }));
 }
 
-function formatDayLabel(date: Date): string {
+function formatDayLabel(
+  date: Date,
+  dateLocale: string,
+  labels: { today: string; yesterday: string },
+): string {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   const yesterday = new Date(today);
   yesterday.setDate(yesterday.getDate() - 1);
   const d = new Date(date);
   d.setHours(0, 0, 0, 0);
-  if (d.getTime() === today.getTime()) return "Today";
-  if (d.getTime() === yesterday.getTime()) return "Yesterday";
-  return date.toLocaleDateString("es-ES", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
+  if (d.getTime() === today.getTime()) return labels.today;
+  if (d.getTime() === yesterday.getTime()) return labels.yesterday;
+  return date.toLocaleDateString(dateLocale, { weekday: "long", day: "numeric", month: "long", year: "numeric" });
 }
 
 export default function StoryTimelinePage() {
   const params = useParams<{ id: string }>();
   const router = useRouter();
   const { data: session, status } = useSession();
+  const t = useTranslations("stories");
+  const tc = useTranslations("common");
+  const locale = useLocale();
+  const dateLocale = locale === "es" ? "es-ES" : "en-US";
   const [data, setData] = useState<StoryTimelineResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -79,7 +88,7 @@ export default function StoryTimelinePage() {
       .then(async (res) => {
         if (!res.ok) {
           const body = await res.json().catch(() => ({}));
-          throw new Error(body?.error || "Failed to load story");
+          throw new Error(body?.error || t("timeline.loadFailed"));
         }
         return res.json();
       })
@@ -88,13 +97,13 @@ export default function StoryTimelinePage() {
         setLoading(false);
       })
       .catch((err) => {
-        setError(err instanceof Error ? err.message : "Failed to load");
+        setError(err instanceof Error ? err.message : t("timeline.loadFailed"));
         setLoading(false);
       });
-  }, [params.id, session, status, router]);
+  }, [params.id, session, status, router, t]);
 
   async function handleUnfollow() {
-    if (!confirm("Stop following this story? All timeline entries will be removed.")) return;
+    if (!confirm(t("timeline.unfollowConfirm"))) return;
     setUnfollowing(true);
     const res = await fetch(`/api/stories/${params.id}`, { method: "DELETE" });
     if (res.ok) {
@@ -106,7 +115,7 @@ export default function StoryTimelinePage() {
 
   if (loading) {
     return (
-      <AppLayout title="Loading...">
+      <AppLayout title={tc("loading")}>
         <div className="flex justify-center py-20">
           <LoadingSpinner />
         </div>
@@ -116,9 +125,9 @@ export default function StoryTimelinePage() {
 
   if (error || !data) {
     return (
-      <AppLayout title="Story">
+      <AppLayout title={t("timeline.fallbackTitle")}>
         <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-6 text-red-700">
-          {error ?? "Not found"}
+          {error ?? tc("notFound")}
         </div>
       </AppLayout>
     );
@@ -138,29 +147,38 @@ export default function StoryTimelinePage() {
           isLoading={unfollowing}
           className="border border-slate-200 bg-white text-slate-500 hover:bg-white hover:text-red-600"
         >
-          Unfollow
+          {t("timeline.unfollow")}
         </Button>
       }
     >
       <Card padding="md" className="mb-8">
         <p className="text-slate-600">{data.story.summary}</p>
         <p className="mt-3 text-xs text-slate-400">
-          {data.articles.length} {data.articles.length === 1 ? "article" : "articles"} ·
-          {" "}started {new Date(data.story.createdAt).toLocaleDateString("es-ES", { day: "numeric", month: "short", year: "numeric" })}
+          {t("articleCount", { count: data.articles.length })} ·{" "}
+          {t("started", {
+            date: new Date(data.story.createdAt).toLocaleDateString(dateLocale, {
+              day: "numeric",
+              month: "short",
+              year: "numeric",
+            }),
+          })}
         </p>
       </Card>
 
       {groups.length === 0 ? (
         <EmptyState
-          title="No articles in this timeline yet"
-          description="New matching articles will appear here as they're synced."
+          title={t("timeline.noArticlesTitle")}
+          description={t("timeline.noArticlesDescription")}
         />
       ) : (
         <div className="space-y-8">
           {groups.map(({ date, items }) => (
             <section key={date.toISOString()}>
               <h2 className="mb-3 text-sm font-semibold uppercase tracking-wider text-slate-400">
-                {formatDayLabel(date)}
+                {formatDayLabel(date, dateLocale, {
+                  today: t("timeline.today"),
+                  yesterday: t("timeline.yesterday"),
+                })}
               </h2>
               <div className="space-y-3">
                 {items.map((article) => (
@@ -195,10 +213,10 @@ export default function StoryTimelinePage() {
                       )}
                       <div className="mt-auto flex items-center gap-3 pt-2 text-xs text-slate-300">
                         <span>
-                          {new Date(article.publishedAt).toLocaleTimeString("es-ES", { hour: "2-digit", minute: "2-digit" })}
+                          {new Date(article.publishedAt).toLocaleTimeString(dateLocale, { hour: "2-digit", minute: "2-digit" })}
                         </span>
                         <Badge variant="neutral" size="sm">
-                          match {(article.similarity * 100).toFixed(0)}%
+                          {t("timeline.match", { percent: (article.similarity * 100).toFixed(0) })}
                         </Badge>
                       </div>
                     </div>

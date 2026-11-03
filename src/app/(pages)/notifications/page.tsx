@@ -19,6 +19,7 @@ export default function NotificacionesPage() {
   const t = useTranslations("notifications");
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadFailed, setLoadFailed] = useState(false);
 
   useEffect(() => {
     loadNotifications();
@@ -27,10 +28,14 @@ export default function NotificacionesPage() {
   async function loadNotifications() {
     try {
       const res = await fetch("/api/notifications");
+      if (!res.ok) {
+        setLoadFailed(true);
+        return;
+      }
       const data = await res.json();
       setNotifications(Array.isArray(data) ? data : []);
     } catch {
-      // silently fail
+      setLoadFailed(true);
     } finally {
       setLoading(false);
     }
@@ -56,6 +61,8 @@ export default function NotificacionesPage() {
         <div className="flex justify-center py-20">
           <LoadingSpinner size="md" color="amber" />
         </div>
+      ) : loadFailed ? (
+        <EmptyState title={t("loadError")} />
       ) : notifications.length === 0 ? (
         <EmptyState
           title={t("noNotificationsTitle")}

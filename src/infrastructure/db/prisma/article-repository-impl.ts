@@ -55,6 +55,11 @@ export class PrismaArticleRepository implements ArticleRepository {
     return rows.map(toDomain);
   }
 
+  async findById(id: string): Promise<Article | null> {
+    const row = await prisma.article.findUnique({ where: { id } });
+    return row ? toDomain(row) : null;
+  }
+
   async findByCategory(categoryId: string): Promise<Article[]> {
     const rows = await prisma.article.findMany({
       where: {

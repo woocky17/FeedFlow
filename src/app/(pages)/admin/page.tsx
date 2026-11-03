@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 import { AppLayout } from "@/components/templates/app-layout";
 import { Button } from "@/components/atoms/button";
 import { Input } from "@/components/atoms/input";
@@ -34,6 +35,10 @@ interface Category {
 }
 
 export default function AdminPage() {
+  const t = useTranslations("admin");
+  const ts = useTranslations("sources");
+  const tcat = useTranslations("categories");
+  const tc = useTranslations("common");
   const [sources, setSources] = useState<Source[]>([]);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editName, setEditName] = useState("");
@@ -87,7 +92,7 @@ export default function AdminPage() {
       setEditingId(null);
       loadSources();
     } catch {
-      setError("Failed to update source");
+      setError(t("updateSourceFailed"));
     }
   }
 
@@ -97,7 +102,7 @@ export default function AdminPage() {
       await fetch(`/api/admin/sources/${id}`, { method: "DELETE" });
       loadSources();
     } catch {
-      setError("Failed to delete source");
+      setError(t("deleteSourceFailed"));
     }
   }
 
@@ -129,7 +134,7 @@ export default function AdminPage() {
       setEditingCatId(null);
       loadCategories();
     } catch {
-      setCatError("Failed to update category");
+      setCatError(tcat("updateFailed"));
     }
   }
 
@@ -139,17 +144,17 @@ export default function AdminPage() {
       await fetch(`/api/admin/categories/${id}`, { method: "DELETE" });
       loadCategories();
     } catch {
-      setCatError("Failed to delete category");
+      setCatError(tcat("deleteFailed"));
     }
   }
 
   return (
-    <AppLayout title="Admin Panel">
+    <AppLayout title={t("title")}>
       <Card padding="md" className="mb-6">
         <h2 className="mb-4 text-sm font-semibold uppercase tracking-wider text-slate-400">
-          Add News Source
+          {t("addSourceTitle")}
         </h2>
-        <SourceForm submitLabel="Add source" onSuccess={loadSources} />
+        <SourceForm submitLabel={t("addSourceSubmit")} onSuccess={loadSources} />
       </Card>
 
       <ErrorText message={error} className="mb-4" />
@@ -160,8 +165,8 @@ export default function AdminPage() {
         </div>
       ) : sources.length === 0 ? (
         <EmptyState
-          title="No sources yet"
-          description="Add your first news source above."
+          title={ts("noSourcesTitle")}
+          description={ts("noSourcesDescription")}
         />
       ) : (
         <div className="space-y-2">
@@ -174,14 +179,14 @@ export default function AdminPage() {
                       type="text"
                       value={editName}
                       onChange={(e) => setEditName(e.target.value)}
-                      placeholder="Name"
+                      placeholder={t("namePlaceholder")}
                       autoFocus
                     />
                     <Input
                       type="url"
                       value={editUrl}
                       onChange={(e) => setEditUrl(e.target.value)}
-                      placeholder="URL"
+                      placeholder={t("urlPlaceholder")}
                     />
                   </div>
                   <div className="flex items-center gap-3">
@@ -197,7 +202,7 @@ export default function AdminPage() {
                         type="text"
                         value={editApiKey}
                         onChange={(e) => setEditApiKey(e.target.value)}
-                        placeholder="API Key"
+                        placeholder={ts("form.apiKeyPlaceholder")}
                       />
                     )}
                     <Button
@@ -205,14 +210,14 @@ export default function AdminPage() {
                       variant="ghost-amber"
                       onClick={() => handleUpdate(source.id)}
                     >
-                      Save
+                      {tc("save")}
                     </Button>
                     <Button
                       size="sm"
                       variant="ghost"
                       onClick={() => setEditingId(null)}
                     >
-                      Cancel
+                      {tc("cancel")}
                     </Button>
                   </div>
                 </div>
@@ -228,21 +233,21 @@ export default function AdminPage() {
                     <p className="text-xs text-slate-400">{source.baseUrl}</p>
                     <p className="font-mono text-xs text-slate-300">
                       {source.kind === "rss"
-                        ? "No API key needed"
+                        ? t("noApiKeyNeeded")
                         : source.apiKey
                           ? `${source.apiKey.slice(0, 8)}...`
-                          : "No API key"}
+                          : t("noApiKey")}
                     </p>
                   </div>
                   <div className="flex items-center gap-2">
                     <Badge variant={source.active ? "positive" : "neutral"} size="sm">
-                      {source.active ? "Active" : "Inactive"}
+                      {source.active ? t("active") : t("inactive")}
                     </Badge>
                     <IconButton
                       icon={<Icon name="edit" />}
                       appearance="subtle"
                       tone="neutral"
-                      label="Edit source"
+                      label={ts("editLabel")}
                       onClick={() => {
                         setEditingId(source.id);
                         setEditName(source.name);
@@ -255,7 +260,7 @@ export default function AdminPage() {
                       icon={<Icon name="trash" />}
                       appearance="subtle"
                       tone="red"
-                      label="Delete source"
+                      label={ts("deleteLabel")}
                       onClick={() => handleDelete(source.id)}
                     />
                   </div>
@@ -268,7 +273,7 @@ export default function AdminPage() {
 
       <Card padding="md" className="mt-10 mb-6">
         <h2 className="mb-4 text-sm font-semibold uppercase tracking-wider text-slate-400">
-          Default Categories
+          {t("defaultCategoriesTitle")}
         </h2>
         <CategoryForm
           endpoint="/api/admin/categories"
@@ -284,8 +289,8 @@ export default function AdminPage() {
         </div>
       ) : categories.length === 0 ? (
         <EmptyState
-          title="No default categories"
-          description="Add your first default category above."
+          title={t("noDefaultCategoriesTitle")}
+          description={t("noDefaultCategoriesDescription")}
         />
       ) : (
         <div className="space-y-2">
@@ -304,14 +309,14 @@ export default function AdminPage() {
                     variant="ghost-amber"
                     onClick={() => handleUpdateCategory(cat.id)}
                   >
-                    Save
+                    {tc("save")}
                   </Button>
                   <Button
                     size="sm"
                     variant="ghost"
                     onClick={() => setEditingCatId(null)}
                   >
-                    Cancel
+                    {tc("cancel")}
                   </Button>
                 </div>
               ) : (
@@ -322,7 +327,7 @@ export default function AdminPage() {
                       icon={<Icon name="edit" />}
                       appearance="subtle"
                       tone="neutral"
-                      label="Edit category"
+                      label={tcat("editLabel")}
                       onClick={() => {
                         setEditingCatId(cat.id);
                         setEditCatName(cat.name);
@@ -332,7 +337,7 @@ export default function AdminPage() {
                       icon={<Icon name="trash" />}
                       appearance="subtle"
                       tone="red"
-                      label="Delete category"
+                      label={tcat("deleteLabel")}
                       onClick={() => handleDeleteCategory(cat.id)}
                     />
                   </div>

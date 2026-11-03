@@ -67,7 +67,10 @@
       "label": "Language",
       "spanish": "Español",
       "english": "English"
-    }
+    },
+    "loading": "Loading...",
+    "notFound": "Not found",
+    "add": "Add"
   },
   "settings": {
     "title": "Settings",
@@ -97,7 +100,18 @@
     "noStoriesDescription": "Head to the Feed and tap the book icon on any article to start following its story.",
     "articleCount": "{count, plural, =1 {1 article} other {# articles}}",
     "latest": "Latest {date}",
-    "started": "Started {date}"
+    "started": "Started {date}",
+    "timeline": {
+      "fallbackTitle": "Story",
+      "loadFailed": "Failed to load story",
+      "unfollow": "Unfollow",
+      "unfollowConfirm": "Stop following this story? All timeline entries will be removed.",
+      "noArticlesTitle": "No articles in this timeline yet",
+      "noArticlesDescription": "New matching articles will appear here as they are synced.",
+      "today": "Today",
+      "yesterday": "Yesterday",
+      "match": "match {percent}%"
+    }
   },
   "categories": {
     "title": "Categories",
@@ -109,14 +123,21 @@
     "deleteLabel": "Delete category",
     "loadFailed": "Failed to load categories",
     "updateFailed": "Failed to update category",
-    "deleteFailed": "Failed to delete category"
+    "deleteFailed": "Failed to delete category",
+    "createFailed": "Failed to create category",
+    "types": {
+      "default": "Default",
+      "custom": "Custom"
+    }
   },
   "notifications": {
     "title": "Notifications",
     "noNotificationsTitle": "No notifications",
     "noNotificationsDescription": "You're all caught up.",
     "newSection": "New ({count})",
-    "previousSection": "Previous"
+    "previousSection": "Previous",
+    "loadError": "Couldn't load your notifications. Reload the page to try again.",
+    "markRead": "Mark read"
   },
   "articleTranslation": {
     "translated": "Translated",
@@ -130,6 +151,44 @@
     "noSourcesTitle": "No sources yet",
     "noSourcesDescription": "Add your first news source above.",
     "toggleLabel": "Toggle {name}",
-    "deleteLabel": "Delete source"
+    "deleteLabel": "Delete source",
+    "editLabel": "Edit source",
+    "form": {
+      "namePlaceholder": "Name (e.g. World News API)",
+      "baseUrlPlaceholder": "Base URL (e.g. https://api.worldnewsapi.com)",
+      "apiKeyPlaceholder": "API key",
+      "kindRss": "RSS / Atom feed",
+      "addFailed": "Failed to add source"
+    }
+  },
+  "admin": {
+    "title": "Admin panel",
+    "addSourceTitle": "Add news source",
+    "addSourceSubmit": "Add source",
+    "namePlaceholder": "Name",
+    "urlPlaceholder": "URL",
+    "noApiKeyNeeded": "No API key needed",
+    "noApiKey": "No API key",
+    "active": "Active",
+    "inactive": "Inactive",
+    "updateSourceFailed": "Failed to update source",
+    "deleteSourceFailed": "Failed to delete source",
+    "defaultCategoriesTitle": "Default categories",
+    "noDefaultCategoriesTitle": "No default categories",
+    "noDefaultCategoriesDescription": "Add your first default category above."
+  },
+  "events": {
+    "title": "Coverage comparison",
+    "fallbackTitle": "Event",
+    "loadFailed": "Failed to load event",
+    "sourcesCovering": "{count, plural, =1 {1 source covering this event} other {# sources covering this event}}",
+    "readOriginal": "Read original",
+    "sentiment": {
+      "positive": "Positive",
+      "neutral": "Neutral",
+      "negative": "Negative"
+    },
+    "compareSources": "Compare sources",
+    "sourcesCount": "{count, plural, =1 {1 source} other {# sources}}"
   }
 }

@@ -45,6 +45,7 @@ Convenciones generales:
 ### Notifications
 | Método | Path | Caso de uso |
 |--------|------|-------------|
+| GET | `/api/notifications` | `ListUserNotifications` (del usuario de la sesión, como máximo 100, más recientes primero; `[{ id, message, read, createdAt }]` con `createdAt` ISO) |
 | PUT | `/api/notifications/[id]/read` | `MarkNotificationRead` |
 
 ### Stories (Story Timeline)

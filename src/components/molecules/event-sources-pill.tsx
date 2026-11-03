@@ -2,6 +2,7 @@
 
 import { MouseEvent } from "react";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { Icon } from "@/components/atoms/icon";
 
 interface EventSourcesPillProps {
@@ -11,6 +12,7 @@ interface EventSourcesPillProps {
 
 export function EventSourcesPill({ eventId, count }: EventSourcesPillProps) {
   const router = useRouter();
+  const t = useTranslations("events");
 
   function handleClick(e: MouseEvent<HTMLButtonElement>) {
     e.preventDefault();
@@ -22,11 +24,11 @@ export function EventSourcesPill({ eventId, count }: EventSourcesPillProps) {
     <button
       type="button"
       onClick={handleClick}
-      title="Compare sources"
+      title={t("compareSources")}
       className="flex items-center gap-1 rounded-full bg-indigo-50 px-2.5 py-1 text-xs font-medium text-indigo-700 transition-colors hover:bg-indigo-100"
     >
       <Icon name="compare" size={12} />
-      {count} sources
+      {t("sourcesCount", { count })}
     </button>
   );
 }

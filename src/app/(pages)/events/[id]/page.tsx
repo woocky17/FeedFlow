@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import { useParams } from "next/navigation";
+import { useLocale, useTranslations } from "next-intl";
 import { AppLayout } from "@/components/templates/app-layout";
 import { Card } from "@/components/atoms/card";
 import { Badge } from "@/components/atoms/badge";
@@ -38,14 +39,12 @@ const sentimentVariant: Record<string, "positive" | "neutral" | "negative"> = {
   negative: "negative",
 };
 
-const sentimentLabels: Record<string, string> = {
-  positive: "Positive",
-  neutral: "Neutral",
-  negative: "Negative",
-};
-
 export default function EventPage() {
   const params = useParams<{ id: string }>();
+  const t = useTranslations("events");
+  const tc = useTranslations("common");
+  const locale = useLocale();
+  const dateLocale = locale === "es" ? "es-ES" : "en-US";
   const [data, setData] = useState<EventDetails | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -55,7 +54,7 @@ export default function EventPage() {
       .then(async (res) => {
         if (!res.ok) {
           const body = await res.json().catch(() => ({}));
-          throw new Error(body?.error || "Failed to load event");
+          throw new Error(body?.error || t("loadFailed"));
         }
         return res.json();
       })
@@ -64,14 +63,14 @@ export default function EventPage() {
         setLoading(false);
       })
       .catch((err) => {
-        setError(err instanceof Error ? err.message : "Failed to load");
+        setError(err instanceof Error ? err.message : t("loadFailed"));
         setLoading(false);
       });
-  }, [params.id]);
+  }, [params.id, t]);
 
   if (loading) {
     return (
-      <AppLayout title="Loading...">
+      <AppLayout title={tc("loading")}>
         <div className="flex justify-center py-20">
           <LoadingSpinner />
         </div>
@@ -81,9 +80,9 @@ export default function EventPage() {
 
   if (error || !data) {
     return (
-      <AppLayout title="Event">
+      <AppLayout title={t("fallbackTitle")}>
         <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-6 text-red-700">
-          {error ?? "Not found"}
+          {error ?? tc("notFound")}
         </div>
       </AppLayout>
     );
@@ -92,11 +91,11 @@ export default function EventPage() {
   const count = data.articles.length;
 
   return (
-    <AppLayout title="Coverage comparison">
+    <AppLayout title={t("title")}>
       <Card padding="md" className="mb-6">
         <h2 className="text-lg font-semibold text-slate-900">{data.event.title}</h2>
         <p className="mt-2 text-sm text-slate-500">
-          {count} {count === 1 ? "source covering" : "sources covering"} this event
+          {t("sourcesCovering", { count })}
         </p>
       </Card>
 
@@ -114,7 +113,7 @@ export default function EventPage() {
                   {article.sourceName}
                 </p>
                 <p className="text-xs text-slate-400">
-                  {new Date(article.publishedAt).toLocaleString("es-ES", {
+                  {new Date(article.publishedAt).toLocaleString(dateLocale, {
                     day: "numeric",
                     month: "short",
                     hour: "2-digit",
@@ -140,7 +139,7 @@ export default function EventPage() {
                 {article.sentiment && (
                   <div className="mt-3">
                     <Badge variant={sentimentVariant[sentimentKey] ?? "neutral"} size="sm">
-                      {sentimentLabels[sentimentKey] ?? "Neutral"}
+                      {t(`sentiment.${sentimentVariant[sentimentKey] ?? "neutral"}`)}
                     </Badge>
                     {article.framingSummary && (
                       <p className="mt-2 text-xs italic text-slate-500">
@@ -156,7 +155,7 @@ export default function EventPage() {
                   rel="noopener noreferrer"
                   className="mt-4 inline-flex items-center gap-1.5 self-start rounded-lg bg-amber-50 px-3 py-1.5 text-xs font-medium text-amber-700 transition-colors hover:bg-amber-100"
                 >
-                  Read original
+                  {t("readOriginal")}
                   <Icon name="external" size={12} />
                 </a>
               </div>

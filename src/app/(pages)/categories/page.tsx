@@ -144,7 +144,9 @@ export default function CategoriasPage() {
                   <div className="flex items-center gap-3">
                     <span className="text-sm font-medium text-slate-700">{cat.name}</span>
                     <Badge variant={cat.type === "default" ? "neutral" : "amber"} size="sm">
-                      {cat.type}
+                      {cat.type === "default" || cat.type === "custom"
+                        ? t(`types.${cat.type}`)
+                        : cat.type}
                     </Badge>
                   </div>
                   {canEdit(cat) && (

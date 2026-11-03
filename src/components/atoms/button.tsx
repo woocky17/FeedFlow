@@ -1,6 +1,7 @@
 "use client";
 
 import { ButtonHTMLAttributes } from "react";
+import { useTranslations } from "next-intl";
 import { LoadingSpinner } from "./loading-spinner";
 
 export type ButtonVariant = "primary-gradient" | "secondary" | "danger" | "ghost" | "ghost-amber";
@@ -45,6 +46,7 @@ export function Button({
   className = "",
   ...props
 }: ButtonProps) {
+  const t = useTranslations("common");
   return (
     <button
       disabled={isLoading || disabled}
@@ -54,7 +56,7 @@ export function Button({
       {isLoading ? (
         <>
           <LoadingSpinner size="sm" color={variant === "secondary" || variant === "ghost" || variant === "ghost-amber" ? "slate" : "white"} />
-          <span>Loading...</span>
+          <span>{t("loading")}</span>
         </>
       ) : (
         children

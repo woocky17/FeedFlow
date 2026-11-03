@@ -28,6 +28,7 @@ function makeDeps() {
     save: vi.fn().mockResolvedValue(undefined),
     existsByUrl: vi.fn().mockResolvedValue(false),
     findAll: vi.fn(),
+    findById: vi.fn(),
     findByCategory: vi.fn(),
     findUncategorizedSince: vi.fn(),
     findUnclusteredSince: vi.fn(),

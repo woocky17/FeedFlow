@@ -1,4 +1,6 @@
 import "dotenv/config";
+import { randomUUID } from "crypto";
+import bcrypt from "bcryptjs";
 import { PrismaClient } from "../generated/prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
 
@@ -34,6 +36,9 @@ const demoRssSources: Array<{ name: string; baseUrl: string; language: "ES" | "E
   },
 ];
 
+// Same rule as User.create in src/domain/user/user-entity.ts.
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
 async function main() {
   for (const name of defaultCategories) {
     const exists = await prisma.category.findFirst({
@@ -62,6 +67,46 @@ async function main() {
   if (createdSources > 0) {
     console.log(`Seeded ${createdSources} demo RSS sources`);
   }
+
+  await seedTestUser("TEST_USER", "USER");
+  await seedTestUser("TEST_ADMIN", "ADMIN");
+}
+
+async function seedTestUser(envPrefix: string, role: "USER" | "ADMIN") {
+  const email = process.env[`${envPrefix}_EMAIL`]?.trim();
+  const password = process.env[`${envPrefix}_PASSWORD`];
+
+  if (!email || !password) {
+    console.log(`Skipping ${role} test user: ${envPrefix}_EMAIL or ${envPrefix}_PASSWORD not set`);
+    return;
+  }
+
+  if (!EMAIL_PATTERN.test(email)) {
+    console.log(`Skipping ${role} test user: ${envPrefix}_EMAIL is not a valid email address`);
+    return;
+  }
+
+  const existing = await prisma.user.findUnique({ where: { email } });
+  if (existing) {
+    if (role === "ADMIN" && existing.role !== "ADMIN") {
+      await prisma.user.update({ where: { email }, data: { role: "ADMIN" } });
+      console.log(`Promoted existing user ${email} to ADMIN`);
+    } else {
+      console.log(`${role} test user ${email} already exists (role ${existing.role})`);
+    }
+    return;
+  }
+
+  await prisma.user.create({
+    data: {
+      id: randomUUID(),
+      email,
+      passwordHash: await bcrypt.hash(password, 12),
+      role,
+      language: "ES",
+    },
+  });
+  console.log(`Created ${role} test user ${email}`);
 }
 
 main()

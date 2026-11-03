@@ -10,6 +10,7 @@ export interface ArticleSummary {
 export interface ArticleRepository {
   save(article: Article): Promise<void>;
   findAll(): Promise<Article[]>;
+  findById(id: string): Promise<Article | null>;
   findByCategory(categoryId: string): Promise<Article[]>;
   existsByUrl(url: string): Promise<boolean>;
   findUncategorizedSince(since: Date, limit: number): Promise<ArticleSummary[]>;

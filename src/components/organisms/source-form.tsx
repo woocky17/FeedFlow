@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/atoms/button";
 import { Input } from "@/components/atoms/input";
 import { Select } from "@/components/atoms/select";
@@ -14,7 +15,9 @@ interface SourceFormProps {
   submitLabel?: string;
 }
 
-export function SourceForm({ onSuccess, onCancel, submitLabel = "Add" }: SourceFormProps) {
+export function SourceForm({ onSuccess, onCancel, submitLabel }: SourceFormProps) {
+  const t = useTranslations("sources.form");
+  const tc = useTranslations("common");
   const [name, setName] = useState("");
   const [baseUrl, setBaseUrl] = useState("");
   const [apiKey, setApiKey] = useState("");
@@ -39,7 +42,7 @@ export function SourceForm({ onSuccess, onCancel, submitLabel = "Add" }: SourceF
       });
       if (!res.ok) {
         const data = await res.json();
-        setError(data.error || "Failed to add source");
+        setError(data.error || t("addFailed"));
         return;
       }
       setName("");
@@ -48,7 +51,7 @@ export function SourceForm({ onSuccess, onCancel, submitLabel = "Add" }: SourceF
       setKind("worldnews");
       onSuccess?.();
     } catch {
-      setError("Failed to add source");
+      setError(t("addFailed"));
     } finally {
       setSubmitting(false);
     }
@@ -58,26 +61,26 @@ export function SourceForm({ onSuccess, onCancel, submitLabel = "Add" }: SourceF
     <form onSubmit={handleSubmit} className="space-y-3">
       <Input
         type="text"
-        placeholder="Name (e.g. World News API)"
+        placeholder={t("namePlaceholder")}
         value={name}
         onChange={(e) => setName(e.target.value)}
         required
       />
       <Input
         type="url"
-        placeholder="Base URL (e.g. https://api.worldnewsapi.com)"
+        placeholder={t("baseUrlPlaceholder")}
         value={baseUrl}
         onChange={(e) => setBaseUrl(e.target.value)}
         required
       />
       <Select value={kind} onChange={(e) => setKind(e.target.value as SourceKind)}>
         <option value="worldnews">WorldNewsAPI</option>
-        <option value="rss">RSS / Atom feed</option>
+        <option value="rss">{t("kindRss")}</option>
       </Select>
       {kind === "worldnews" && (
         <Input
           type="text"
-          placeholder="API Key"
+          placeholder={t("apiKeyPlaceholder")}
           value={apiKey}
           onChange={(e) => setApiKey(e.target.value)}
           required
@@ -86,11 +89,11 @@ export function SourceForm({ onSuccess, onCancel, submitLabel = "Add" }: SourceF
       <ErrorText message={error} />
       <div className="flex items-center gap-3 pt-1">
         <Button type="submit" isLoading={submitting}>
-          {submitLabel}
+          {submitLabel ?? tc("add")}
         </Button>
         {onCancel && (
           <Button type="button" variant="ghost" onClick={onCancel}>
-            Cancel
+            {tc("cancel")}
           </Button>
         )}
       </div>

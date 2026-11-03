@@ -29,7 +29,7 @@ export class GetArticleWithTranslation {
   ) {}
 
   async execute(input: Input): Promise<ArticleWithTranslation> {
-    const article = await this.findArticleById(input.articleId);
+    const article = await this.articleRepository.findById(input.articleId);
     if (!article) {
       throw new Error(`Article ${input.articleId} not found`);
     }
@@ -109,10 +109,5 @@ export class GetArticleWithTranslation {
         translationFailed: true,
       };
     }
-  }
-
-  private async findArticleById(id: string): Promise<Article | null> {
-    const candidates = await this.articleRepository.findAll();
-    return candidates.find((a) => a.id === id) ?? null;
   }
 }

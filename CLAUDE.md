@@ -99,6 +99,8 @@ npm run build          # next build
 
 Si `tsc` falla con `implicitly has an 'any' type` en repositorios Prisma: `npm ci && npm run db:generate`.
 
+Usuarios de prueba: `TEST_USER_*`/`TEST_ADMIN_*` en `.env` + `npx prisma db seed` (ver `.claude/context/database.md`).
+
 En real (Git Bash):
 
 ```bash

@@ -67,7 +67,10 @@
       "label": "Idioma",
       "spanish": "Español",
       "english": "English"
-    }
+    },
+    "loading": "Cargando...",
+    "notFound": "No encontrado",
+    "add": "Añadir"
   },
   "settings": {
     "title": "Ajustes",
@@ -97,7 +100,18 @@
     "noStoriesDescription": "Ve al feed y toca el icono del libro en cualquier noticia para empezar a seguir su historia.",
     "articleCount": "{count, plural, =1 {1 noticia} other {# noticias}}",
     "latest": "Última {date}",
-    "started": "Iniciada {date}"
+    "started": "Iniciada {date}",
+    "timeline": {
+      "fallbackTitle": "Historia",
+      "loadFailed": "No se ha podido cargar la historia",
+      "unfollow": "Dejar de seguir",
+      "unfollowConfirm": "¿Dejar de seguir esta historia? Se eliminarán todas las entradas de su cronología.",
+      "noArticlesTitle": "Aún no hay noticias en esta cronología",
+      "noArticlesDescription": "Las noticias relacionadas aparecerán aquí a medida que se sincronicen.",
+      "today": "Hoy",
+      "yesterday": "Ayer",
+      "match": "{percent} % de coincidencia"
+    }
   },
   "categories": {
     "title": "Categorías",
@@ -109,14 +123,21 @@
     "deleteLabel": "Eliminar categoría",
     "loadFailed": "Error al cargar categorías",
     "updateFailed": "Error al actualizar categoría",
-    "deleteFailed": "Error al eliminar categoría"
+    "deleteFailed": "Error al eliminar categoría",
+    "createFailed": "Error al crear la categoría",
+    "types": {
+      "default": "Por defecto",
+      "custom": "Personalizada"
+    }
   },
   "notifications": {
     "title": "Notificaciones",
     "noNotificationsTitle": "No tienes notificaciones",
     "noNotificationsDescription": "Estás al día.",
     "newSection": "Nuevas ({count})",
-    "previousSection": "Anteriores"
+    "previousSection": "Anteriores",
+    "loadError": "No se han podido cargar las notificaciones. Recarga la página para intentarlo de nuevo.",
+    "markRead": "Marcar como leída"
   },
   "articleTranslation": {
     "translated": "Traducido",
@@ -130,6 +151,44 @@
     "noSourcesTitle": "Aún no hay fuentes",
     "noSourcesDescription": "Añade tu primera fuente de noticias arriba.",
     "toggleLabel": "Activar/desactivar {name}",
-    "deleteLabel": "Eliminar fuente"
+    "deleteLabel": "Eliminar fuente",
+    "editLabel": "Editar fuente",
+    "form": {
+      "namePlaceholder": "Nombre (p. ej. World News API)",
+      "baseUrlPlaceholder": "URL base (p. ej. https://api.worldnewsapi.com)",
+      "apiKeyPlaceholder": "Clave de API",
+      "kindRss": "Feed RSS / Atom",
+      "addFailed": "Error al añadir la fuente"
+    }
+  },
+  "admin": {
+    "title": "Panel de administración",
+    "addSourceTitle": "Añadir fuente de noticias",
+    "addSourceSubmit": "Añadir fuente",
+    "namePlaceholder": "Nombre",
+    "urlPlaceholder": "URL",
+    "noApiKeyNeeded": "No necesita clave de API",
+    "noApiKey": "Sin clave de API",
+    "active": "Activa",
+    "inactive": "Inactiva",
+    "updateSourceFailed": "Error al actualizar la fuente",
+    "deleteSourceFailed": "Error al eliminar la fuente",
+    "defaultCategoriesTitle": "Categorías por defecto",
+    "noDefaultCategoriesTitle": "No hay categorías por defecto",
+    "noDefaultCategoriesDescription": "Añade tu primera categoría por defecto arriba."
+  },
+  "events": {
+    "title": "Comparativa de cobertura",
+    "fallbackTitle": "Evento",
+    "loadFailed": "No se ha podido cargar el evento",
+    "sourcesCovering": "{count, plural, =1 {1 fuente cubre este evento} other {# fuentes cubren este evento}}",
+    "readOriginal": "Leer original",
+    "sentiment": {
+      "positive": "Positivo",
+      "neutral": "Neutral",
+      "negative": "Negativo"
+    },
+    "compareSources": "Comparar fuentes",
+    "sourcesCount": "{count, plural, =1 {1 fuente} other {# fuentes}}"
   }
 }

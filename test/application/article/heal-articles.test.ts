@@ -11,6 +11,7 @@ describe("HealArticles", () => {
     const articles: ArticleRepository = {
       save: vi.fn(),
       findAll: vi.fn(),
+      findById: vi.fn(),
       findByCategory: vi.fn(),
       existsByUrl: vi.fn(),
       findUncategorizedSince: vi

@@ -55,6 +55,8 @@ Las migraciones viven en `prisma/migrations/`. Los nombres recientes muestran el
 npm run db:seed
 ```
 
+Usuarios de prueba (solo desarrollo local): si `.env` define `TEST_USER_EMAIL`/`TEST_USER_PASSWORD` y `TEST_ADMIN_EMAIL`/`TEST_ADMIN_PASSWORD`, `npx prisma db seed` crea un usuario `USER` y otro `ADMIN` (bcryptjs coste 12, idioma `ES`, igual que el registro). Es idempotente: si el email ya existe no cambia la contraseña; solo asciende a `ADMIN` el del par `TEST_ADMIN_*`. Si falta alguna variable, se salta ese usuario.
+
 ## Al modificar el modelo
 
 1. Edita `prisma/schema.prisma`.
