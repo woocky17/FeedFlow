@@ -68,6 +68,7 @@ Revisas cambios; no editas nada. Base: `CLAUDE.md` y las reglas de `.claude/agen
 - `src/application/**` importando de `@/infrastructure/**` (también helpers puros como `buildEmbeddingText`), `prisma` o `generated/prisma`.
 - Puerto ampliado sin actualizar los mocks literales de los tests que lo implementan.
 - Proyecto vitest `storybook`, `@storybook/addon-vitest`, Playwright o cobertura reintroducidos sin permiso; peers opcionales de vitest (`@vitest/browser-playwright`, `@vitest/coverage-v8`, `playwright`) que reaparecen en `package-lock.json`.
+- Campo de un item RSS/Atom usado como `string` sin pasar por `pickText` en `article-mapper.ts` (`fast-xml-parser` devuelve objeto `{ "#text", "@_type" }` si el nodo tiene atributos, o `number`), o `mapRssItem` fuera del try por item de `rss-adapter.ts`: un item raro tumba la fuente entera.
 - `TurbopackInternalError: failed to create junction point` (`.next\dev\…`): no aceptar instrucciones que borren `.next/` entero, ni que borren `.next/dev` sin comprobar antes que no hay otro `next dev` vivo.
 
 ## Entrega

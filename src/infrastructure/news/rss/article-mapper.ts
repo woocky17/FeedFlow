@@ -2,14 +2,17 @@ import { ArticleProps } from "@/domain/article";
 import type { Language } from "@/domain/shared";
 
 export interface RssItem {
-  title?: string | { "#text"?: string };
-  link?: string | { "@_href"?: string; "#text"?: string } | Array<{ "@_href"?: string; "@_rel"?: string }>;
-  description?: string;
-  summary?: string;
-  content?: string | { "#text"?: string };
-  pubDate?: string;
-  published?: string;
-  updated?: string;
+  title?: unknown;
+  link?:
+    | string
+    | { "@_href"?: string; "#text"?: string }
+    | Array<{ "@_href"?: string; "@_rel"?: string }>;
+  description?: unknown;
+  summary?: unknown;
+  content?: unknown;
+  pubDate?: unknown;
+  published?: unknown;
+  updated?: unknown;
   enclosure?: { "@_url"?: string; "@_type"?: string } | Array<{ "@_url"?: string }>;
   "media:content"?: { "@_url"?: string } | Array<{ "@_url"?: string }>;
   "media:thumbnail"?: { "@_url"?: string };
@@ -17,8 +20,10 @@ export interface RssItem {
 
 function pickText(value: unknown): string {
   if (typeof value === "string") return value;
-  if (value && typeof value === "object" && "#text" in value) {
-    return String((value as { "#text"?: unknown })["#text"] ?? "");
+  if (typeof value === "number" || typeof value === "boolean") return String(value);
+  if (Array.isArray(value)) return pickText(value[0]);
+  if (value && typeof value === "object") {
+    return pickText((value as { "#text"?: unknown })["#text"]);
   }
   return "";
 }
@@ -54,7 +59,7 @@ function pickImage(item: RssItem): string {
 }
 
 function pickDate(item: RssItem): Date {
-  const raw = item.pubDate ?? item.published ?? item.updated;
+  const raw = pickText(item.pubDate) || pickText(item.published) || pickText(item.updated);
   if (!raw) return new Date();
   const d = new Date(raw);
   return isNaN(d.getTime()) ? new Date() : d;
@@ -73,12 +78,18 @@ function stripHtml(input: string): string {
     .trim();
 }
 
-export function mapRssItem(item: RssItem, sourceId: string, language: Language): ArticleProps | null {
+export function mapRssItem(
+  item: RssItem,
+  sourceId: string,
+  language: Language,
+): ArticleProps | null {
   const title = pickText(item.title).trim();
   const url = pickLink(item.link).trim();
   if (!title || !url) return null;
 
-  const description = stripHtml(item.description ?? item.summary ?? pickText(item.content) ?? "");
+  const description = stripHtml(
+    pickText(item.description) || pickText(item.summary) || pickText(item.content),
+  );
   const publishedAt = pickDate(item);
 
   return {

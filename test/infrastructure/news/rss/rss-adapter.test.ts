@@ -87,6 +87,40 @@ describe("RssArticleFetcher", () => {
     expect(articles[0].description).toBe("Resumen uno");
   });
 
+  it("parses Atom entries with summary type html", async () => {
+    const atom = `<?xml version="1.0"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <entry>
+    <title type="html">Atom html</title>
+    <link href="https://example.com/atom/html" rel="alternate"/>
+    <summary type="html">&lt;p&gt;Resumen &lt;b&gt;html&lt;/b&gt;&lt;/p&gt;</summary>
+    <updated>2026-04-22T10:00:00Z</updated>
+  </entry>
+</feed>`;
+    const fetcher = new RssArticleFetcher(mockFetchWithBody(atom));
+    const articles = await fetcher.fetchBySource(makeSource());
+
+    expect(articles).toHaveLength(1);
+    expect(articles[0].title).toBe("Atom html");
+    expect(articles[0].description).toBe("Resumen html");
+  });
+
+  it("reads an item with an html-typed description without dropping the feed", async () => {
+    const rss = `<?xml version="1.0"?>
+<rss version="2.0"><channel>
+  <item><title>Raro</title><link>https://example.com/bad</link><description type="html">x</description></item>
+  <item><title>Valida</title><link>https://example.com/ok</link></item>
+</channel></rss>`;
+    const fetcher = new RssArticleFetcher(mockFetchWithBody(rss));
+    const articles = await fetcher.fetchBySource(makeSource());
+
+    expect(articles.map((a) => a.url)).toEqual([
+      "https://example.com/bad",
+      "https://example.com/ok",
+    ]);
+    expect(articles[0].description).toBe("x");
+  });
+
   it("filters by from/to date range", async () => {
     const fetcher = new RssArticleFetcher(mockFetchWithBody(RSS_FIXTURE));
     const articles = await fetcher.fetchBySource(makeSource(), {

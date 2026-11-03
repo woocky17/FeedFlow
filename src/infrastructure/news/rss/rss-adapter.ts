@@ -43,17 +43,17 @@ export class RssArticleFetcher implements ArticleFetcher {
     const articles: Article[] = [];
 
     for (const raw of rawItems) {
-      const props = mapRssItem(raw, source.id, source.language);
-      if (!props) continue;
-
-      if (options.from && props.publishedAt < options.from) continue;
-      if (options.to && props.publishedAt > options.to) continue;
-
+      let article: Article;
       try {
-        articles.push(Article.create(props));
+        const props = mapRssItem(raw, source.id, source.language);
+        if (!props) continue;
+        if (options.from && props.publishedAt < options.from) continue;
+        if (options.to && props.publishedAt > options.to) continue;
+        article = Article.create(props);
       } catch {
         continue;
       }
+      articles.push(article);
 
       if (articles.length >= limit) break;
     }

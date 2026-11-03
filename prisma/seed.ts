@@ -34,6 +34,47 @@ const demoRssSources: Array<{ name: string; baseUrl: string; language: "ES" | "E
     baseUrl: "https://news.google.com/rss?hl=es&gl=ES&ceid=ES:es",
     language: "ES",
   },
+  { name: "elDiario.es", baseUrl: "https://www.eldiario.es/rss/", language: "ES" },
+  {
+    name: "El Mundo",
+    baseUrl: "https://e00-elmundo.uecdn.es/elmundo/rss/portada.xml",
+    language: "ES",
+  },
+  { name: "ABC", baseUrl: "https://www.abc.es/rss/2.0/portada/", language: "ES" },
+  {
+    name: "La Vanguardia",
+    baseUrl: "https://www.lavanguardia.com/rss/home.xml",
+    language: "ES",
+  },
+  { name: "Europa Press", baseUrl: "https://www.europapress.es/rss/rss.aspx", language: "ES" },
+  { name: "Xataka", baseUrl: "https://www.xataka.com/feedburner.xml", language: "ES" },
+  {
+    name: "El Confidencial",
+    baseUrl: "https://rss.elconfidencial.com/espana/",
+    language: "ES",
+  },
+  {
+    name: "BBC News (RSS)",
+    baseUrl: "https://feeds.bbci.co.uk/news/rss.xml",
+    language: "EN",
+  },
+  {
+    name: "The Guardian (World)",
+    baseUrl: "https://www.theguardian.com/world/rss",
+    language: "EN",
+  },
+  { name: "NPR News", baseUrl: "https://feeds.npr.org/1001/rss.xml", language: "EN" },
+  { name: "Al Jazeera", baseUrl: "https://www.aljazeera.com/xml/rss/all.xml", language: "EN" },
+  {
+    name: "The New York Times",
+    baseUrl: "https://rss.nytimes.com/services/xml/rss/nyt/HomePage.xml",
+    language: "EN",
+  },
+  {
+    name: "Google News (US)",
+    baseUrl: "https://news.google.com/rss?hl=en-US&gl=US&ceid=US:en",
+    language: "EN",
+  },
 ];
 
 // Same rule as User.create in src/domain/user/user-entity.ts.

@@ -55,6 +55,8 @@ Las migraciones viven en `prisma/migrations/`. Los nombres recientes muestran el
 npm run db:seed
 ```
 
+Fuentes RSS de demo (`demoRssSources`, `kind = RSS`, sin API key, idempotente por `name`): ES → El País, 20 Minutos, Google News (España), elDiario.es, El Mundo, ABC, La Vanguardia, Europa Press, Xataka, El Confidencial; EN → BBC News (RSS), The Guardian (World), NPR News, Al Jazeera, The New York Times, Google News (US). La BBC va como "BBC News (RSS)" porque ya existe una fuente WORLDNEWS "BBC News" y el seed deduplica por `name`. Descartada: RTVE (sus feeds públicos están congelados en 2022).
+
 Usuarios de prueba (solo desarrollo local): si `.env` define `TEST_USER_EMAIL`/`TEST_USER_PASSWORD` y `TEST_ADMIN_EMAIL`/`TEST_ADMIN_PASSWORD`, `npx prisma db seed` crea un usuario `USER` y otro `ADMIN` (bcryptjs coste 12, idioma `ES`, igual que el registro). Es idempotente: si el email ya existe no cambia la contraseña; solo asciende a `ADMIN` el del par `TEST_ADMIN_*`. Si falta alguna variable, se salta ese usuario.
 
 ## Al modificar el modelo
