@@ -33,6 +33,8 @@ Sin Playwright ni e2e, sin cobertura y sin librería de iconos.
 
 Integraciones externas por `fetch` directo, sin SDK: Groq, WorldNewsAPI, feeds RSS, Resend.
 
+Groq: modelo `openai/gpt-oss-120b` por defecto, configurable con `GROQ_MODEL` (único punto: `src/infrastructure/ai/groq-fetch.ts`). Es un modelo de razonamiento, así que `fetchGroqChat` manda `reasoning_effort: "low"`: el razonamiento cuenta contra `max_tokens` y sin él las respuestas cortas salían vacías. Detalle en `ai-pipeline.md`.
+
 ## Docker
 
 `docker-compose.yml`: `db` (postgres:16-alpine, 5433→5432), `app` (3000) y `worker` (target `worker` del `Dockerfile`), volumen `xenova_cache` para el modelo.

@@ -1,11 +1,21 @@
 # Estado de FeedFlow
 
-- **Actualizado**: 2026-11-03
-- **Versión**: 1.0.3 (`package.json`)
-- **Commit**: `v1.0.3` · rama `main` (con push). Revisado por `ff-reviewer` sin bloqueantes; sus hallazgos importantes, arreglados.
-- **Probado**: tests (16 ficheros, 72), lint, tsc y build en verde. En el navegador con el admin de prueba: feed, historias, categorías, fuentes, notificaciones (`GET /api/notifications` 200), ajustes, admin y evento, sin errores de consola. Sin probar: storybook y worker contra la BD.
+- **Actualizado**: 2026-11-10
+- **Versión**: 1.0.5 (`package.json`)
+- **Commit**: `v1.0.5` · rama `main`, sin push.
+- **Probado v1.0.5**: tests (18 ficheros, 85) y tsc en verde. Sin probar en real contra Groq.
+- **Probado v1.0.4**: tests (18 ficheros, 85), tsc y lint de lo tocado en verde; seed ejecutado contra la BD local (17 fuentes activas: 16 RSS + 1 WORLDNEWS). Sin probar: un `worker:once` con las fuentes nuevas.
+- **Probado v1.0.3**: tests (16 ficheros, 72), lint, tsc y build en verde. En el navegador con el admin de prueba: feed, historias, categorías, fuentes, notificaciones (`GET /api/notifications` 200), ajustes, admin y evento, sin errores de consola. Sin probar: storybook y worker contra la BD.
 
 ## Dónde estamos
+
+v1.0.5: Groq retiró `llama-3.3-70b-versatile` (404 en todas las llamadas). El modelo sale de `GROQ_MODEL` (default `openai/gpt-oss-120b`) y solo se define en `fetchGroqChat`, que además manda `reasoning_effort: "low"` para que el razonamiento no se coma `max_tokens`.
+
+v1.0.4: más fuentes sin API key (el usuario descartó las APIs que piden registro: GNews, NewsData, Currents, TheNewsAPI, Guardian).
+
+- **Seed**: 13 feeds RSS nuevos en `demoRssSources` (elDiario.es, El Mundo, ABC, La Vanguardia, Europa Press, Xataka, El Confidencial, BBC News (RSS), The Guardian, NPR, Al Jazeera, NYT, Google News US). RTVE descartado (feeds de 2022). La BBC va como "BBC News (RSS)" porque el seed deduplica por nombre y ya hay una fuente WORLDNEWS "BBC News".
+- **Mapper RSS/Atom**: `pickText` en todos los campos de texto y fechas (nodos con atributos llegan como objeto de `fast-xml-parser`); el mapeo va dentro del try por item, así que un item raro ya no tumba la fuente.
+- **Candidata sin hacer**: adaptador GDELT DOC 2.0 (sin clave, 1 petición cada 5 s; necesita `kind` nuevo en `Source`).
 
 v1.0.3 (despachado con `/pendientes`):
 
@@ -22,7 +32,7 @@ v1.0.1 (`e76d2f0`): limpieza de dependencias, Storybook solo catálogo, código 
 ## Siguiente paso (pendiente)
 
 1. `npm run storybook` y comprobar que el catálogo carga (los componentes con texto propio necesitan el provider de next-intl, que da `.storybook/preview.tsx`).
-2. `npm run worker:once` con la BD local y comprobar que `sync` (heal + sentiment) termina con `"event":"done"`. Llama a Groq y a las fuentes de noticias reales.
+2. **Groq responde 401** con la `GROQ_API_KEY` de `.env` (clave caducada o revocada): renovarla en console.groq.com y repetir `npm run worker:once` (salida en `logs/worker.log`). Esperado: `[heal]` con `classified` y `sentimentAnalyzed` > 0. Pasada del 2026-11-03: `[sync] synced=80 errors=0`, los 80 artículos agrupados en eventos (embeddings locales bien), `[heal]` ejecuta las consultas nuevas de la tanda C (`sentimentSkipped: 40` = límite de 40), pero ningún artículo clasificado ni con sentimiento por el 401; `updateSentiment` sigue NO VERIFICADO en real.
 3. Probar la app en inglés (selector de idioma) en admin, evento e historias.
 
 Agente: ninguno, lo hace el usuario. Si algo falla, `ff-debugger`.

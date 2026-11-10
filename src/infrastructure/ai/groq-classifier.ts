@@ -22,9 +22,8 @@ export class GroqClassifier implements CategoryClassifier {
     let data: unknown;
     try {
       data = await fetchGroqChat(this.apiKey, {
-        model: "llama-3.3-70b-versatile",
         temperature: 0,
-        max_tokens: 100,
+        max_tokens: 300,
         messages: [
           {
             role: "system",

@@ -1,9 +1,18 @@
+export const DEFAULT_GROQ_MODEL = "openai/gpt-oss-120b";
+
 interface GroqRequestBody {
-  model: string;
+  model?: string;
   temperature?: number;
   max_tokens?: number;
   response_format?: { type: "json_object" };
+  // gpt-oss is a reasoning model: reasoning tokens count against max_tokens.
+  reasoning_effort?: "low" | "medium" | "high";
+  include_reasoning?: boolean;
   messages: Array<{ role: "system" | "user" | "assistant"; content: string }>;
+}
+
+export function resolveGroqModel(): string {
+  return process.env.GROQ_MODEL?.trim() || DEFAULT_GROQ_MODEL;
 }
 
 interface FetchOptions {
@@ -19,6 +28,13 @@ export async function fetchGroqChat(
   const maxRetries = options.maxRetries ?? 3;
   const baseDelayMs = options.baseDelayMs ?? 3000;
 
+  const payload: GroqRequestBody = {
+    model: resolveGroqModel(),
+    reasoning_effort: "low",
+    include_reasoning: false,
+    ...body,
+  };
+
   let lastError: string | null = null;
 
   for (let attempt = 0; attempt <= maxRetries; attempt++) {
@@ -28,7 +44,7 @@ export async function fetchGroqChat(
         Authorization: `Bearer ${apiKey}`,
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(body),
+      body: JSON.stringify(payload),
     });
 
     if (res.ok) {

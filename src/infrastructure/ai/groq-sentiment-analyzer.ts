@@ -37,9 +37,8 @@ export class GroqSentimentAnalyzer implements SentimentAnalyzer {
     let data: unknown;
     try {
       data = await fetchGroqChat(this.apiKey, {
-        model: "llama-3.3-70b-versatile",
         temperature: 0.1,
-        max_tokens: 200,
+        max_tokens: 400,
         response_format: { type: "json_object" },
         messages: [
           { role: "system", content: SYSTEM_PROMPT_SINGLE },
@@ -72,9 +71,8 @@ export class GroqSentimentAnalyzer implements SentimentAnalyzer {
     let data: unknown;
     try {
       data = await fetchGroqChat(this.apiKey, {
-        model: "llama-3.3-70b-versatile",
         temperature: 0.1,
-        max_tokens: Math.min(200 + items.length * 80, 2000),
+        max_tokens: Math.min(400 + items.length * 120, 2000),
         response_format: { type: "json_object" },
         messages: [
           { role: "system", content: SYSTEM_PROMPT_BATCH },

@@ -8,6 +8,15 @@ Tres tipos de IA en juego:
 2. **Groq API** (LLM rápido) para: clasificación de categorías, análisis de sentimiento, generación de topics.
 3. **Similitud coseno** en memoria vía `src/lib/similarity.ts`.
 
+## Groq: modelo y parámetros comunes
+
+Todas las llamadas pasan por `fetchGroqChat` (`src/infrastructure/ai/groq-fetch.ts`), que añade por defecto (un adaptador puede sobrescribirlos):
+
+- `model`: `GROQ_MODEL` o, si no está definida, `DEFAULT_GROQ_MODEL` = `openai/gpt-oss-120b`. Ningún adaptador lleva el modelo en literal. `llama-3.3-70b-versatile` se retiró (404 en todas las llamadas); si vuelve a pasar, mira `GET https://api.groq.com/openai/v1/models`.
+- `reasoning_effort: "low"` e `include_reasoning: false`. gpt-oss es un modelo de razonamiento y sus tokens de razonamiento cuentan contra `max_tokens`: sin `low`, con topes bajos devolvía `content` vacío (el clasificador daba `[]`) o HTTP 400 `json_validate_failed`, sin error visible. `include_reasoning: false` solo quita `message.reasoning` de la respuesta, no ahorra tokens; no se combina con `reasoning_format` (400).
+
+`max_tokens` por adaptador: clasificador 300; sentimiento 400 (uno) y `min(400 + 120·n, 2000)` (lote, n = 8 por defecto); topics 400; traducción de títulos 400 y de descripciones 800.
+
 ## Embeddings
 
 Archivo: `src/infrastructure/ai/transformers-embedder.ts`.
@@ -74,6 +83,7 @@ Genera un `summary` corto para una `Story` al seguir un artículo.
 ## Variables de entorno relevantes
 
 - `GROQ_API_KEY` — si falta, clasificación y sentiment quedan como stubs (el pipeline sigue funcionando).
+- `GROQ_MODEL` — opcional, modelo de chat de Groq (default `openai/gpt-oss-120b`).
 - `NEWS_EVENT_SIMILARITY_THRESHOLD` — umbral de clustering (default 0.72).
 - `CRON_SECRET` — auth del cron.
 - `DATABASE_URL` — PostgreSQL (Prisma).

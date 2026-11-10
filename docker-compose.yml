@@ -22,6 +22,7 @@ services:
       NEXTAUTH_SECRET: change-me-in-production
       CRON_SECRET: ${CRON_SECRET:-change-me}
       GROQ_API_KEY: ${GROQ_API_KEY:-}
+      GROQ_MODEL: ${GROQ_MODEL:-openai/gpt-oss-120b}
       NEWS_EVENT_SIMILARITY_THRESHOLD: ${NEWS_EVENT_SIMILARITY_THRESHOLD:-0.72}
       STORY_SIMILARITY_THRESHOLD: ${STORY_SIMILARITY_THRESHOLD:-0.55}
     volumes:
@@ -39,6 +40,7 @@ services:
     environment:
       DATABASE_URL: postgresql://feedflow:feedflow@db:5432/feedflow
       GROQ_API_KEY: ${GROQ_API_KEY:-}
+      GROQ_MODEL: ${GROQ_MODEL:-openai/gpt-oss-120b}
       RESEND_API_KEY: ${RESEND_API_KEY:-}
       NEWS_EVENT_SIMILARITY_THRESHOLD: ${NEWS_EVENT_SIMILARITY_THRESHOLD:-0.72}
       STORY_SIMILARITY_THRESHOLD: ${STORY_SIMILARITY_THRESHOLD:-0.55}

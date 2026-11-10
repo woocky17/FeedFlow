@@ -2,7 +2,6 @@ import type { TranslationService } from "@/domain/article-translation";
 import type { Language } from "@/domain/shared";
 import { fetchGroqChat } from "./groq-fetch";
 
-const MODEL = "llama-3.3-70b-versatile";
 const MAX_DESCRIPTION_CHARS = 3000;
 
 const LANGUAGE_NAMES: Record<Language, string> = {
@@ -23,7 +22,7 @@ export class GroqTranslationService implements TranslationService {
 
   async translateTitle(text: string, from: Language, to: Language): Promise<string> {
     if (from === to) return text;
-    return this.translate(text, from, to, 200);
+    return this.translate(text, from, to, 400);
   }
 
   async translateDescription(text: string, from: Language, to: Language): Promise<string> {
@@ -45,7 +44,6 @@ export class GroqTranslationService implements TranslationService {
     }
 
     const data = (await fetchGroqChat(this.apiKey, {
-      model: MODEL,
       temperature: 0.1,
       max_tokens: maxTokens,
       response_format: { type: "json_object" },

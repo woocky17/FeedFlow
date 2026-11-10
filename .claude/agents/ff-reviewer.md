@@ -68,6 +68,8 @@ Revisas cambios; no editas nada. Base: `CLAUDE.md` y las reglas de `.claude/agen
 - `src/application/**` importando de `@/infrastructure/**` (también helpers puros como `buildEmbeddingText`), `prisma` o `generated/prisma`.
 - Puerto ampliado sin actualizar los mocks literales de los tests que lo implementan.
 - Proyecto vitest `storybook`, `@storybook/addon-vitest`, Playwright o cobertura reintroducidos sin permiso; peers opcionales de vitest (`@vitest/browser-playwright`, `@vitest/coverage-v8`, `playwright`) que reaparecen en `package-lock.json`.
+- Literal de modelo de Groq en un adaptador (debe salir de `GROQ_MODEL` vía `fetchGroqChat`); Groq retira modelos y entonces todas las llamadas dan 404 (comprobar con `GET /openai/v1/models`).
+- `max_tokens` recortado en llamadas a Groq o `reasoning_effort` quitado: con modelos de razonamiento el razonamiento cuenta contra `max_tokens` y el fallo es silencioso (`content` vacío).
 - Campo de un item RSS/Atom usado como `string` sin pasar por `pickText` en `article-mapper.ts` (`fast-xml-parser` devuelve objeto `{ "#text", "@_type" }` si el nodo tiene atributos, o `number`), o `mapRssItem` fuera del try por item de `rss-adapter.ts`: un item raro tumba la fuente entera.
 - `TurbopackInternalError: failed to create junction point` (`.next\dev\…`): no aceptar instrucciones que borren `.next/` entero, ni que borren `.next/dev` sin comprobar antes que no hay otro `next dev` vivo.
 

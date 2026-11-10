@@ -15,9 +15,8 @@ export class GroqTopicGenerator implements TopicGenerator {
     let data: unknown;
     try {
       data = await fetchGroqChat(this.apiKey, {
-        model: "llama-3.3-70b-versatile",
         temperature: 0.2,
-        max_tokens: 200,
+        max_tokens: 400,
         response_format: { type: "json_object" },
         messages: [
           {

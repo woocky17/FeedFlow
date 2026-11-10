@@ -34,6 +34,22 @@ describe("GroqTranslationService", () => {
     expect(globalThis.fetch).toHaveBeenCalledOnce();
   });
 
+  it("sends title requests with low reasoning effort and room for reasoning tokens", async () => {
+    mockGroqOnce({
+      choices: [{ message: { content: '{"text":"Hola"}' } }],
+    });
+    const translator = makeTranslator();
+
+    await translator.translateTitle("Hello", "en", "es");
+
+    const callArgs = (globalThis.fetch as ReturnType<typeof vi.fn>).mock.calls[0];
+    const body = JSON.parse((callArgs[1] as { body: string }).body);
+    expect(body.max_tokens).toBe(400);
+    expect(body.reasoning_effort).toBe("low");
+    expect(body.include_reasoning).toBe(false);
+    expect(body.response_format).toEqual({ type: "json_object" });
+  });
+
   it("returns the original text when source and target language are equal", async () => {
     const translator = makeTranslator();
     const result = await translator.translateTitle("same", "es", "es");
