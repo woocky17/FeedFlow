@@ -10,10 +10,17 @@ const TITLE = "FeedFlow · herramientas de Claude";
 // Resúmenes cortos y orden del flujo de CLAUDE.md. Lo que no esté aquí usa su description recortada.
 const SHORT = {
   estado: "Resume en qué punto está el proyecto y el siguiente paso",
+  "openspec-explore": "Piensa una idea o problema antes de proponer",
+  "openspec-propose": "Crea un change con propuesta, specs y tareas",
+  "openspec-update-change": "Revisa los artefactos de un change ya creado",
+  "openspec-apply-change": "Implementa las tareas de un change",
+  "openspec-verify-change": "Comprueba que el código cumple el change",
+  "openspec-sync-specs": "Pasa los deltas del change a las specs",
+  "openspec-archive-change": "Archiva un change terminado",
   "ff-researcher": "Investiga cómo resuelven otros una feature",
   "ff-api-explorer": "Encuentra la API exacta y su evidencia",
-  "ff-implementer": "Implementa una tanda acotada (único que edita)",
-  "ff-reviewer": "Revisa el diff contra CLAUDE.md",
+  "ff-implementer": "Implementa un grupo de tasks.md (único que edita)",
+  "ff-reviewer": "Revisa diff y change contra AGENTS.md y la spec",
   "ff-debugger": "Busca el primer error en logs y tests y su causa",
 };
 const ORDER = Object.keys(SHORT);
@@ -54,7 +61,7 @@ const agents = list("agents", (e) => (e.isFile() && e.name.endsWith(".md") ? dir
 const lines = [TITLE, ""];
 lines.push("Skills:");
 if (skills.length === 0) lines.push("  (ninguna)");
-for (const s of skills) lines.push(`  /${s.name.padEnd(20)} ${summary(s)}`);
+for (const s of skills) lines.push(`  /${s.name.padEnd(24)} ${summary(s)}`);
 lines.push("", "Agentes (flujo en orden):");
 if (agents.length === 0) lines.push("  (ninguno)");
 agents.forEach((a, i) => lines.push(`  ${i + 1}. ${a.name.padEnd(18)} ${summary(a)}`));

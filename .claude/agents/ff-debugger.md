@@ -50,6 +50,7 @@ PowerShell: `docker compose logs --no-color --tail 300 worker | Select-String '"
 1. Fecha del log frente al último commit: si el log es anterior al cambio, pide reproducir.
 2. Busca el **primer** error (no el último): las cascadas posteriores suelen ser consecuencia.
 3. Sigue el stack hasta el código propio (`src/**`) y lee la función entera. Causa con `ruta:línea`.
+   - Si no está claro cuál es el comportamiento esperado, consulta la spec: `openspec/specs/<cap>/spec.md` y, si hay un change en curso, su delta en `openspec/changes/<id>/specs/` (`openspec list --json`, `openspec show <id>`; CLI con `export PATH="/c/Users/dortet/AppData/Roaming/npm:$PATH"` en Git Bash). Si el código cumple la spec y aun así el usuario lo ve como fallo, dilo: lo que cambia es la spec (update del change), no el código. Las reglas de cada capa, en `src/<capa>/AGENTS.md`.
 4. Verifica la API correcta en el código instalado (`generated/prisma`, `node_modules/next/dist/docs/`, tipos de next-auth/next-intl) antes de proponer el arreglo. Lo no comprobado, **NO VERIFICADO**.
 5. Contrasta con las trampas conocidas de `.claude/agents/ff-implementer.md`.
 

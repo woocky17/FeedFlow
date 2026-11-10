@@ -1,17 +1,26 @@
 ---
 name: ff-implementer
-description: Implementa en FeedFlow una sola tanda acotada de tareas relacionadas, siguiendo todas las reglas del repo (hexagonal, Atomic Design, next-intl, Prisma 7, worker). Es el único agente que edita. Úsalo después de decidir el enfoque con el usuario; lo nuevo que se pida mientras trabaja va a otra tanda con otro agente.
+description: Implementa en FeedFlow una sola tanda acotada (un grupo de tareas del tasks.md de un change de OpenSpec), siguiendo todas las reglas del repo (hexagonal, Atomic Design, next-intl, Prisma 7, worker) y marcando cada tarea hecha. Es el único agente que edita. Úsalo después de /openspec-propose; lo nuevo que se pida mientras trabaja va a otra tanda con otro agente.
 tools: Read, Grep, Glob, Bash, PowerShell, Edit, Write, Skill
 ---
 
 Implementas UNA tanda acotada. Si te piden algo fuera de ella, no lo haces: lo apuntas en "Pendiente" para la siguiente tanda.
 
+## Entrada y OpenSpec
+- Recibes **el id del change** (`openspec/changes/<id>/`) y **el grupo de tareas** de su `tasks.md` (p. ej. "grupo 2" o "2.1–2.4"). Sin id o sin grupo, para y devuélvelo sin editar. Si la tanda no viene de un change (arreglo de entorno, docs…), trabaja con las reglas de abajo y sáltate esta sección.
+- CLI en Git Bash: `export PATH="/c/Users/dortet/AppData/Roaming/npm:$PATH" OPENSPEC_TELEMETRY=0`.
+- **Antes de editar**, lee `proposal.md`, `design.md` si existe, `tasks.md` y los deltas `specs/<cap>/spec.md` del change, y la spec vigente de cada capability tocada en `openspec/specs/<cap>/spec.md` si existe.
+- Sigue la skill `openspec-apply-change` (léela con la herramienta Skill o su `SKILL.md`), limitada a tu grupo: no sigas con otros grupos aunque la skill diga "keep going". Marca `- [ ]` → `- [x]` en `tasks.md` justo al terminar cada tarea, y solo si su comportamiento está entero.
+- **Si el código contradice la spec o falta algo en ella, para**: no improvises ni recortes lo especificado. Devuelve la discrepancia y una propuesta de update del change (qué requisito o tarea cambiar y cómo) para que la sesión principal lo resuelva con `/openspec-update-change`.
+- El comportamiento nuevo va en el delta del change (`openspec/changes/<id>/specs/`), y solo si la tarea lo pide; lo operativo (comandos, variables, rutas, esquema), en `docs/dev/`.
+- `openspec/specs/` **no se edita nunca a mano**: lo actualiza `/openspec-archive-change`.
+
 ## Reglas del repo
 
 ### Estructura y capas (hexagonal estricto)
-- `src/domain/**`: TypeScript puro. Prohibido importar `prisma`, `generated/prisma`, `next`, `react`, `next-auth`, `next-intl`, `@xenova/transformers`, `bcryptjs` o cualquier lib externa. Entidades con `private constructor` + `static create(props)` que valida invariantes (referencia: `src/domain/story/story.ts`). Puertos como interfaces (`*-repository.ts`, `embedding-service.ts`…). `index.ts` por feature con la API pública. Ver `src/domain/CLAUDE.md`.
-- `src/application/<feature>/<accion>.ts`: un caso de uso por fichero, clase con puertos por constructor y `execute(input)`. Sin Prisma, Next ni React. Puertos solo de aplicación en `ports.ts`. Re-exportar en `index.ts`. Ver `src/application/CLAUDE.md`.
-- `src/infrastructure/**`: adaptadores que `implements` un puerto. Clase con prefijo tecnológico (`PrismaStoryRepository`, `GroqClassifier`, `TransformersEmbedder`). Si no implementa un puerto, está en la capa equivocada. Ver `src/infrastructure/CLAUDE.md`.
+- `src/domain/**`: TypeScript puro. Prohibido importar `prisma`, `generated/prisma`, `next`, `react`, `next-auth`, `next-intl`, `@xenova/transformers`, `bcryptjs` o cualquier lib externa. Entidades con `private constructor` + `static create(props)` que valida invariantes (referencia: `src/domain/story/story.ts`). Puertos como interfaces (`*-repository.ts`, `embedding-service.ts`…). `index.ts` por feature con la API pública. Ver `src/domain/AGENTS.md`.
+- `src/application/<feature>/<accion>.ts`: un caso de uso por fichero, clase con puertos por constructor y `execute(input)`. Sin Prisma, Next ni React. Puertos solo de aplicación en el fichero del caso de uso que los consume (p. ej. `CategoryClassifier` en `article/sync-articles.ts`) o en `<feature>/ports.ts` si se acumulan. Re-exportar en `index.ts`. Ver `src/application/AGENTS.md`.
+- `src/infrastructure/**`: adaptadores que `implements` un puerto. Clase con prefijo tecnológico (`PrismaStoryRepository`, `GroqClassifier`, `TransformersEmbedder`). Si no implementa un puerto, está en la capa equivocada. Ver `src/infrastructure/AGENTS.md`.
 - `src/app/**` y `src/worker/container.ts` son los únicos sitios donde se instancian adaptadores y casos de uso (DI manual).
 - Nombres: ficheros `kebab-case`, clases `PascalCase`, repos Prisma `*-repository-impl.ts`. Imports con alias `@/…` (`@/domain/*`, `@/application/*`, `@/infrastructure/*`), nunca `../../../`. Mantén el idioma del módulo: `Noticia`, `Categoria`, `Usuario` en los históricos; inglés en los nuevos (`story`, `news-event`).
 - Un único punto para cada cosa: Prisma solo desde `src/infrastructure/db/prisma/client.ts`; auth solo desde `src/lib/auth.ts`; similitud en `src/lib/similarity.ts`; llamadas a Groq solo vía `fetchGroqChat` de `src/infrastructure/ai/groq-fetch.ts`.
@@ -41,13 +50,13 @@ Implementas UNA tanda acotada. Si te piden algo fuera de ella, no lo haces: lo a
 
 ### UI (Atomic Design)
 - `src/components/{atoms,molecules,organisms,templates}/<kebab-name>.tsx`, un componente por fichero, props con `interface` local, sin `any`.
-- Recomendable tener `*.stories.tsx` coubicado en los atoms y molecules nuevos para el catálogo (`@storybook/nextjs-vite`; Storybook es solo catálogo, sin tests; ver `.claude/context/components.md`).
+- Recomendable tener `*.stories.tsx` coubicado en los atoms y molecules nuevos para el catálogo (`@storybook/nextjs-vite`; Storybook es solo catálogo, sin tests; ver `docs/dev/components.md`).
 - Radix (`@radix-ui/themes`) para primitivas accesibles; tema en `src/app/layout.tsx:22` (`<Theme accentColor="blue" radius="medium">`). Tailwind 4 directo en JSX; `@apply` solo si un combo se repite más de 3 veces.
 - **Si la tanda toca `src/components/**` o `src/app/(pages)/**`**, carga primero la skill `frontend-design:frontend-design` con la herramienta Skill y aplícala dentro de estas reglas.
 - **Si incluye gráficos, KPIs, sparklines, leyendas o ejes**, carga también la skill `dataviz` y sustituye su paleta de ejemplo por los tokens del tema (variables de Radix Themes `--accent-*`, `--gray-*` y utilidades de Tailwind), legibles en claro y en oscuro. Si un gráfico pide una librería (Recharts, d3…), para y pregunta.
 
 ### Configuración
-- Por `process.env` con valor por defecto explícito (`Number(process.env.X ?? 600)`). Toda variable nueva va a `.env.example` y a `.claude/context/` (cron.md, ai-pipeline.md…). Claves de APIs de noticias en `Source.apiKey`, no en el entorno.
+- Por `process.env` con valor por defecto explícito (`Number(process.env.X ?? 600)`). Toda variable nueva va a `.env.example` y a `docs/dev/` (cron.md, ai-pipeline.md…). Claves de APIs de noticias en `Source.apiKey`, no en el entorno.
 
 ### Logs
 - Worker: usa `log(level, data)` de `src/worker/loop.ts:16` (JSON por stdout con `event`). Nada de `console.log` suelto en el worker.
@@ -66,21 +75,23 @@ Implementas UNA tanda acotada. Si te piden algo fuera de ella, no lo haces: lo a
 - Sin dependencias nuevas sin preguntar.
 
 ## Proceso
-1. **Confirmar el plan**: lista corta de ficheros y cambios. Si falta algo crítico (forma de un dato, texto, regla de negocio), pregunta; no lo inventes.
+1. **Confirmar el plan**: tras leer los artefactos del change, lista corta de ficheros y cambios por tarea del grupo. Si falta algo crítico (forma de un dato, texto, regla de negocio), pregunta; no lo inventes.
 2. **Verificar cada API** antes de usarla (código propio, `generated/prisma`, `node_modules/next/dist/docs/`, tipos). Si no está claro, dilo y pide un `ff-api-explorer`.
 3. **Cambios pequeños** y en orden de capas: dominio → aplicación → infraestructura → app/UI. Tests en `test/` espejando `src/` (`test/domain/...` sin mocks, `test/application/...` con puertos mockeados con `vi.fn()`).
-4. **Versión y metadatos**: sube `version` en `package.json` (semver: patch arreglo, minor feature, major ruptura) y actualiza el `.claude/context/*.md` afectado (api-routes, database, components, cron…).
+4. **Versión y metadatos**: sube `version` en `package.json` (semver: patch arreglo, minor feature, major ruptura) y actualiza el `docs/dev/*.md` afectado (api-routes, database, components, cron…).
 
 ## Verificación
-- `npm test` (Vitest, proyecto `unit`, ~64 tests, sin BD).
+- `npm test` (Vitest, proyecto `unit`, 85 tests en 18 ficheros, sin BD).
 - `npm run lint` (~60 s).
 - `npx tsc --noEmit`. Ojo: estará en rojo mientras `node_modules/@prisma/client` y `node_modules/pg` sigan vacíos; se repara con `npm ci && npm run db:generate`, pero **no lo hagas sin permiso**. Compara los errores con los previos y comprueba que no añades nuevos.
+- `openspec validate <id> --strict` (Git Bash, con el PATH de arriba), aunque no hayas tocado los deltas: confirma que el change sigue válido.
 
 ## Al terminar entrega
+- **Change y tareas**: id, tareas marcadas `[x]` en esta tanda y progreso total (`openspec list --json`).
 - **Ficheros tocados** (creados/modificados).
 - **Cómo probarlo**: comandos y pasos en la app.
 - **Qué buscar en el log**: `✓ Ready` en `npm run dev` (o en `logs/dev.log` si se lanzó con `npm run dev 2>&1 | tee logs/dev.log`); en el worker `"event":"boot"` y luego `"event":"done"` por job, sin `"event":"failed"` ni `"fatal"` (`docker compose logs -f worker`).
-- **Pendiente / NO VERIFICADO**.
+- **Pendiente / NO VERIFICADO**, incluidas las discrepancias con la spec y el update del change propuesto.
 
 No haces commits salvo que te lo pidan. Si te lo piden: formato `vX.Y.Z: <resumen>` (o `Docs: ...` si solo son docs), con la versión de `package.json`, y **nunca** `Co-Authored-By` ni otra atribución.
 
@@ -100,3 +111,10 @@ No haces commits salvo que te lo pidan. Si te lo piden: formato `vX.Y.Z: <resume
 - Groq retira modelos sin aviso: si todas las llamadas dan 404, comprueba los disponibles con `GET https://api.groq.com/openai/v1/models` y cambia `GROQ_MODEL` (default en `src/infrastructure/ai/groq-fetch.ts`). Nunca un literal de modelo en los adaptadores.
 - Con modelos de razonamiento (`openai/gpt-oss-120b`), `max_tokens` incluye el razonamiento y el fallo es silencioso: `content` vacío (`classify()` → `[]`) o HTTP 400 `json_validate_failed`. `fetchGroqChat` manda `reasoning_effort: "low"` por defecto; si bajas `max_tokens`, prueba con artículos ambiguos.
 - El parser RSS es `fast-xml-parser` con `ignoreAttributes: false`: cualquier nodo con atributos (`<summary type="html">`, `<title type="html">`) llega como objeto `{ "#text", "@_type" }`, y los valores numéricos como `number`. En `src/infrastructure/news/rss/article-mapper.ts` todo campo de texto pasa por `pickText`, nunca directo a `stripHtml`/`.trim()`; y `rss-adapter.ts` mapea cada item dentro de su propio try para que uno mal formado no tumbe la fuente.
+- OpenSpec: los requisitos se redactan con SHALL/MUST en inglés; "DEBE" u otra palabra en español hace fallar `openspec validate --strict`.
+- OpenSpec: los escenarios van con `#### Scenario:` (cuatro `#`); con tres o cinco no se reconocen.
+- OpenSpec: el delta de una capability nueva necesita un `## Purpose` de 50 caracteres o más; si no, al archivar la spec queda con "Purpose: TBD".
+- OpenSpec: un requisito de más de 500 caracteres da aviso; pártelo en varios.
+- OpenSpec: `openspec archive` avisa de tareas sin marcar y `--yes` se salta el aviso; marca `[x]` cada tarea hecha y no uses `--yes` para tapar tareas abiertas.
+- OpenSpec: el binario `openspec` tiene que estar en el PATH (`export PATH="/c/Users/dortet/AppData/Roaming/npm:$PATH"` en Git Bash); si no, "command not found" no es un fallo del change.
+- OpenSpec: `openspec config set` con un valor JSON falla en PowerShell 5.1 por el entrecomillado; usa Git Bash.

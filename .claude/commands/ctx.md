@@ -1,31 +1,60 @@
 ---
-description: Carga selectiva de contexto desde .claude/context/
+description: Carga selectiva de contexto desde docs/dev/ y de las specs de OpenSpec
 argument-hint: "[area1 area2 ...]"
 ---
 
-Carga el contexto relevante desde `.claude/context/` para las áreas indicadas por el usuario como argumento: **$ARGUMENTS**.
+Carga el contexto de las áreas indicadas por el usuario: **$ARGUMENTS**.
 
-Instrucciones:
+Lo operativo está en `docs/dev/<area>.md`; el comportamiento, en las specs de OpenSpec.
 
-1. Identifica qué archivo(s) de `.claude/context/` corresponden a cada área. Áreas disponibles:
-   - `architecture` → `.claude/context/architecture.md` (capas hexagonales, flujos end-to-end, cron)
-   - `domain` → `.claude/context/domain.md` (entidades, VOs, puertos, invariantes)
-   - `api` / `api-routes` → `.claude/context/api-routes.md` (mapa de endpoints)
-   - `pages` / `ui-routes` → `.claude/context/pages.md` (rutas de UI)
-   - `database` / `db` / `prisma` → `.claude/context/database.md` (modelos Prisma, relaciones, migraciones)
-   - `components` / `ui` → `.claude/context/components.md` (Atomic Design, Radix, Tailwind, Storybook)
-   - `testing` / `tests` → `.claude/context/testing.md` (Vitest)
-   - `ai` / `ai-pipeline` / `embeddings` → `.claude/context/ai-pipeline.md` (Transformers, Groq, clustering, sentiment)
-   - `auth` / `nextauth` → `.claude/context/auth.md`
-   - `cron` / `sync` → `.claude/context/cron.md`
-   - `conventions` / `style` / `lint` → `.claude/context/conventions.md`
+## 1. Resuelve cada área
 
-2. **Lee en paralelo** (una sola llamada con múltiples tool uses) todos los archivos correspondientes.
+Áreas operativas (solo `docs/dev/`):
 
-3. Tras leerlos, devuelve un resumen de **3-6 bullets** orientado a la tarea que el usuario va a pedir a continuación: extrae los patrones, invariantes, rutas o umbrales que probablemente usará. No re-expliques qué es cada archivo; céntrate en lo accionable.
+- `stack` / `commands` → `docs/dev/stack.md`
+- `architecture` / `layers` → `docs/dev/architecture.md`
+- `conventions` / `style` / `lint` → `docs/dev/conventions.md`
+- `domain` → `docs/dev/domain.md`
+- `database` / `db` / `prisma` → `docs/dev/database.md`
+- `api` / `api-routes` → `docs/dev/api-routes.md`
+- `pages` / `ui-routes` → `docs/dev/pages.md`
+- `components` / `ui` → `docs/dev/components.md`
+- `ai` / `ai-pipeline` / `groq` / `embeddings` → `docs/dev/ai-pipeline.md`
+- `cron` / `worker` → `docs/dev/cron.md`
+- `testing` / `tests` → `docs/dev/testing.md`
 
-4. Termina preguntando al usuario qué tarea concreta quiere abordar ahora que ya tienes el contexto cargado.
+Áreas de comportamiento (spec + docs operativos relacionados):
 
-Si el usuario no pasó argumentos (`$ARGUMENTS` vacío), lista las áreas disponibles y pídele que indique cuáles cargar.
+- `auth` → spec `auth` + `docs/dev/auth.md`
+- `ingestion` / `article-ingestion` / `sync` → spec `article-ingestion` + `docs/dev/cron.md`, `docs/dev/ai-pipeline.md`
+- `feed` / `article-feed` → spec `article-feed` + `docs/dev/api-routes.md`, `docs/dev/pages.md`
+- `bias-radar` / `events` → spec `bias-radar` + `docs/dev/ai-pipeline.md`
+- `stories` / `story-timeline` → spec `story-timeline` + `docs/dev/ai-pipeline.md`
+- `categories` → spec `categories` + `docs/dev/api-routes.md`
+- `favorites` → spec `favorites` + `docs/dev/api-routes.md`
+- `notifications` → spec `notifications` + `docs/dev/cron.md`
+- `sources` → spec `sources` + `docs/dev/api-routes.md`, `docs/dev/cron.md`
+- `translation` / `i18n` → spec `translation` + `docs/dev/ai-pipeline.md`
 
-Si un área no coincide con ningún archivo, avisa al usuario y sugiere la más cercana.
+## 2. Carga la spec de cada capability `<cap>`
+
+1. Si existe `openspec/specs/<cap>/spec.md`, muéstrala con la CLI (Git Bash):
+   ```bash
+   export PATH="/c/Users/dortet/AppData/Roaming/npm:$PATH" OPENSPEC_TELEMETRY=0
+   openspec show <cap> --type spec
+   ```
+   Si la CLI falla (sale con código 1 cuando la spec no existe), lee el fichero directamente.
+2. Si no existe, el change `baseline-<cap>` aún no está archivado: lee el delta `openspec/changes/baseline-<cap>/specs/<cap>/spec.md`.
+3. Si tampoco existe, busca la capability con `openspec list --specs` y `openspec list`, y avisa al usuario.
+
+## 3. Lee en paralelo
+
+Lee en una sola llamada con varios tool uses todos los `docs/dev/*.md` y specs que correspondan.
+
+## 4. Resume
+
+Devuelve un resumen de **3-6 bullets** orientado a la tarea que el usuario va a pedir: patrones, puertos, rutas, variables y los requisitos de la spec que probablemente toque. No re-expliques qué es cada fichero; céntrate en lo accionable.
+
+Termina preguntando qué tarea concreta quiere abordar ahora que el contexto está cargado.
+
+Si `$ARGUMENTS` está vacío, lista las áreas disponibles y pide cuáles cargar. Si un área no coincide con ninguna, avísalo y sugiere la más cercana.

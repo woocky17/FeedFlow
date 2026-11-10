@@ -7,11 +7,11 @@ tools: Read, Grep, Glob, Bash, PowerShell
 Encuentras la API correcta y la demuestras con el código instalado. No editas nada. No supones: lo que no compruebes va marcado **NO VERIFICADO**.
 
 ## Dónde buscar, en este orden
-1. **Código propio**: puertos en `src/domain/<feature>/*-repository.ts` y servicios de dominio (`embedding-service.ts`, `topic-generator.ts`…), `src/application/<feature>/ports.ts`, casos de uso en `src/application/**`, adaptadores en `src/infrastructure/**` (Prisma en `db/prisma/*-repository-impl.ts`, Groq en `ai/groq-fetch.ts`), helpers en `src/lib/` (`auth.ts`, `similarity.ts`), i18n en `src/i18n/request.ts` y `src/i18n/routing.ts`. Si ya existe, se reutiliza.
+1. **Código propio**: puertos en `src/domain/<feature>/*-repository.ts` y servicios de dominio (`embedding-service.ts`, `topic-generator.ts`…), puertos de aplicación declarados en los propios casos de uso de `src/application/**` (p. ej. `CategoryClassifier` en `article/sync-articles.ts`), adaptadores en `src/infrastructure/**` (Prisma en `db/prisma/*-repository-impl.ts`, Groq en `ai/groq-fetch.ts`), helpers en `src/lib/` (`auth.ts`, `similarity.ts`), i18n en `src/i18n/request.ts` y `src/i18n/routing.ts`. Si ya existe, se reutiliza.
 2. **Cliente Prisma generado**: `generated/prisma/` (está en `.gitignore`; existe tras `npm run db:generate`) y `prisma/schema.prisma`. Si falta o `node_modules/@prisma/client` está vacío, dilo: los tipos de los delegados salen `any`.
 3. **Next 16**: docs en `node_modules/next/dist/docs/01-app/**` (p. ej. `01-getting-started/16-proxy.md`, `15-route-handlers.md`, `03-api-reference/04-functions/*.md`) y tipos en `node_modules/next/dist/**/*.d.ts`.
 4. **Otras librerías instaladas**: `node_modules/next-auth/` (v5 beta.30), `node_modules/next-intl/dist/types/`, `node_modules/@prisma/client/`, `node_modules/@radix-ui/themes/dist/`, `node_modules/@xenova/transformers/types/`.
-5. **Docs del proyecto**: `.claude/context/*.md` (pueden estar desfasadas: contrasta con el código).
+5. **Docs del proyecto**: `docs/dev/*.md` (pueden estar desfasadas: contrasta con el código).
 6. **Web**, solo si nada de lo anterior responde, y comprobando que la fuente es de la misma versión.
 
 ## Para cada API

@@ -1,0 +1,36 @@
+schema: spec-driven
+
+context: |
+  Language: es
+  All artifacts must be written in es.
+  Keep OpenSpec structural headings and SHALL/MUST keywords in English.
+
+  Proyecto FeedFlow (Next.js 16 full-stack). Antes de planificar, leer AGENTS.md y el docs/dev/*.md del área afectada.
+  - Hexagonal estricto: src/domain es TypeScript puro (sin Prisma, Next, React ni fetch).
+  - Casos de uso con puertos por constructor (DI manual).
+  - Next 16 con auth en src/proxy.ts (no middleware.ts).
+  - Prisma 7, con el cliente generado en generated/prisma.
+  - Textos de UI con next-intl, en messages/es.json y messages/en.json a la vez.
+  - Worker standalone (src/worker) en lugar de rutas cron.
+  - Sin dependencias nuevas sin preguntar.
+
+rules:
+  specs:
+    - Describir comportamiento observable, sin rutas de ficheros ni detalles de implementación.
+    - Cada requisito usa SHALL o MUST en inglés y tiene al menos un "#### Scenario:" con "- **WHEN**" / "- **THEN**".
+    - El delta de una capability nueva incluye "## Purpose" de 50 caracteres o más.
+  tasks:
+    - "Agrupar en tandas pequeñas siguiendo el orden de capas: domain → application → infrastructure → app/components → messages."
+    - Terminar con npm test, npm run lint y npx tsc --noEmit.
+
+# Per-operation guidance (optional)
+# Add advisory guidance for how apply and archive work should be conducted.
+# This is separate from artifact rules above.
+# Example:
+#   operations:
+#     apply:
+#       guidance:
+#         - Keep test summaries concise
+#     archive:
+#       guidance:
+#         - Summarize the archive outcome before finishing
